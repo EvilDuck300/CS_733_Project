@@ -1,0 +1,13 @@
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# PDF Processing (install at least one)
+PyPDF2==3.0.1
+# pdfplumber==0.10.3  # Alternative to PyPDF2
+
+# Optional: For better semantic similarity (recommended)
+# sentence-transformers==2.2.2
+# numpy==1.24.3
+
+# PowerPoint generation
+python-pptx==0.6.21
