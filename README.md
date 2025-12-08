@@ -83,7 +83,6 @@ pip install -r requirements.txt
 - Flask (web framework)
 - PyPDF2 or pdfplumber (PDF processing)
 - python-pptx (PowerPoint generation)
-- openai (ChatGPT 4o integration)
 - scikit-learn, numpy (evaluation support)
 
 **Optional (for better semantic similarity):**
@@ -91,26 +90,9 @@ pip install -r requirements.txt
 pip install sentence-transformers numpy
 ```
 
-### 2. Set OpenAI API Key
+**Note:** OpenAI API key is **NOT required**. The system generates JSON retrieval output that can be uploaded to the Gemini website to generate PowerPoint presentations.
 
-The system requires an OpenAI API key for ChatGPT 4o integration:
-
-**Linux/Mac:**
-```bash
-export OPENAI_API_KEY="your-api-key-here"
-```
-
-**Windows:**
-```cmd
-set OPENAI_API_KEY=your-api-key-here
-```
-
-**Or create a `.env` file:**
-```
-OPENAI_API_KEY=your-api-key-here
-```
-
-### 3. Run the Application
+### 2. Run the Application
 
 ```bash
 python app.py
@@ -118,7 +100,7 @@ python app.py
 
 The application will start on `http://localhost:5000`
 
-### 4. Access the Interface
+### 3. Access the Interface
 
 Open your web browser and navigate to:
 ```
@@ -133,9 +115,11 @@ http://localhost:5000
 2. **Select Audience**: Choose the appropriate audience type (Students, Professionals, Academic, etc.)
 3. **Enter Description**: Provide a description of what you want in your presentation
 4. **Submit**: Click "Generate Presentation" to start processing
-5. **Review**: System automatically redirects to review page showing 3 versions
-6. **Select**: Click on your preferred version to select it
-7. **Download**: PowerPoint presentation automatically downloads
+5. **Retrieval Output**: System generates JSON retrieval output file (saved in `retrieval_output/` directory)
+6. **Upload to Gemini**: Upload the JSON file to the Gemini website to generate PowerPoint presentation
+7. **Download**: Download the generated PowerPoint from Gemini
+
+**Note:** The system focuses on generating high-quality JSON retrieval output. PowerPoint generation can be done manually by uploading the JSON to Gemini website.
 
 ### Using Feedback Loops
 
@@ -163,11 +147,13 @@ The GNN-based retrieval system processes PDFs and extracts relevant content:
 - **Relevant Chunk Retrieval**: Identifies top-k most relevant chunks based on user description and audience type
 - **JSON Output**: Saves results to `retrieval_output/` directory
 
-### 2. Slide Generation (ChatGPT 4o)
+### 2. Slide Generation (Optional - ChatGPT 4o)
 
 **File:** `utils/slide_generator.py`
 
-Intelligent slide generation using OpenAI's ChatGPT 4o:
+**Note:** This module requires OpenAI API key. If not available, you can upload the JSON retrieval output to Gemini website instead.
+
+Intelligent slide generation using OpenAI's ChatGPT 4o (if API key is provided):
 
 - Generates professional, well-structured slides
 - Uses few-shot learning from ppt4web dataset
@@ -175,11 +161,13 @@ Intelligent slide generation using OpenAI's ChatGPT 4o:
 - Creates 3 different versions for user selection
 - Outputs structured JSON with title slide and content slides
 
-### 3. Evaluation System
+### 3. Evaluation System (Optional)
 
 **File:** `utils/evaluator.py`
 
-Comprehensive evaluation on 4 criteria:
+**Note:** This module requires OpenAI API key. If not available, evaluation will return default scores.
+
+Comprehensive evaluation on 4 criteria (if API key is provided):
 
 - **Clarity (0-100)**: Language clarity, structure, organization
 - **Accuracy (0-100)**: Factual correctness, source alignment
@@ -361,7 +349,7 @@ The dataset is automatically integrated into the slide generation process.
 
 ### Environment Variables
 
-- `OPENAI_API_KEY` (Required): OpenAI API key for ChatGPT 4o
+- `OPENAI_API_KEY` (Optional): OpenAI API key for ChatGPT 4o integration. If not provided, the system will generate JSON retrieval output that can be uploaded to Gemini website.
 
 ### Configuration Constants (in `app.py`)
 
@@ -371,15 +359,17 @@ The dataset is automatically integrated into the slide generation process.
 
 ## 📝 Notes
 
-- **OpenAI API Key Required**: System needs valid OpenAI API key to function
-- **Dataset Integration**: ppt4web dataset automatically used for few-shot learning
-- **Quality Iteration**: System automatically tries to improve scores if below threshold
+- **No API Keys Required**: The system works without OpenAI or Gemini API keys. It generates JSON retrieval output that can be uploaded to Gemini website.
+- **Gemini Website Integration**: Upload the JSON retrieval output file (from `retrieval_output/` directory) to Gemini website to generate PowerPoint presentations.
+- **Optional OpenAI Integration**: If OpenAI API key is provided, the system can generate slides automatically.
+- **Dataset Integration**: ppt4web dataset automatically used for few-shot learning (when OpenAI API is available)
+- **Quality Iteration**: System automatically tries to improve scores if below threshold (when OpenAI API is available)
 - **Error Handling**: All stages have proper error handling and fallbacks
 - **File Storage**: 
   - Uploaded PDFs: `uploads/`
-  - Retrieval outputs: `retrieval_output/`
-  - Generated slides: `slides_output/`
-  - Final presentations: `presentations/`
+  - Retrieval outputs: `retrieval_output/` (main output for Gemini upload)
+  - Generated slides: `slides_output/` (only if OpenAI API key is provided)
+  - Final presentations: `presentations/` (only if OpenAI API key is provided)
 
 ## 🧪 Testing
 
@@ -404,9 +394,10 @@ python example_dataset_usage.py
 
 ## 🐛 Troubleshooting
 
-### OpenAI API Errors
+### OpenAI API Errors (Optional)
 
-- Ensure `OPENAI_API_KEY` is set correctly
+- If you see warnings about missing API keys, this is normal - the system will still generate JSON retrieval output
+- To use OpenAI features, ensure `OPENAI_API_KEY` is set correctly
 - Check API key has sufficient credits
 - Verify internet connection
 
@@ -418,7 +409,9 @@ python example_dataset_usage.py
 
 ### Slide Generation Fails
 
-- Check OpenAI API key is valid
+- **This is expected if no OpenAI API key is set** - the system will still generate JSON retrieval output
+- Upload the JSON file from `retrieval_output/` directory to Gemini website instead
+- If using OpenAI, check API key is valid
 - Verify retrieval output exists
 - Check error logs in console
 

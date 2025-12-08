@@ -94,7 +94,7 @@ class GNNRetrieval:
         
         return text
     
-    def chunk_document(self, text: str, chunk_size: int = 500, overlap: int = 50) -> List[Dict[str, Any]]:
+    def chunk_document(self, text: str, chunk_size: int = 500, overlap: int = 3) -> List[Dict[str, Any]]:
         """
         Break down document into chunks (nodes for GNN)
         Each chunk becomes a node in the graph

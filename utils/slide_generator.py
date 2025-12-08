@@ -6,7 +6,14 @@ Generates intelligent, well-formatted slides from retrieval output
 import json
 import os
 from typing import List, Dict, Any, Optional
-from openai import OpenAI
+
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+    OpenAI = None
+
 from utils.dataset_loader import get_dataset
 
 
@@ -19,12 +26,22 @@ class SlideGenerator:
         
         Args:
             api_key: OpenAI API key (if None, will try to get from environment)
+                    If not provided, slide generation will not be available
         """
+        if not OPENAI_AVAILABLE:
+            self.client = None
+            self.api_key = None
+            print("Warning: OpenAI package not installed. Slide generation will not be available.")
+            print("You can upload the JSON retrieval output to Gemini website to generate PowerPoint.")
+            return
+        
         self.api_key = api_key or os.getenv('OPENAI_API_KEY')
         if not self.api_key:
-            raise ValueError("OpenAI API key required. Set OPENAI_API_KEY environment variable or pass api_key parameter.")
-        
-        self.client = OpenAI(api_key=self.api_key)
+            self.client = None
+            print("Warning: OpenAI API key not provided. Slide generation will not be available.")
+            print("You can upload the JSON retrieval output to Gemini website to generate PowerPoint.")
+        else:
+            self.client = OpenAI(api_key=self.api_key)
         self.dataset = get_dataset()
     
     def _build_prompt(self, relevant_chunks: List[Dict[str, Any]], 
@@ -132,6 +149,9 @@ Generate the slides now:"""
         Returns:
             Dictionary with generated slides
         """
+        if not self.client:
+            raise ValueError("OpenAI API key not available. Please upload the JSON retrieval output to Gemini website to generate PowerPoint.")
+        
         # Load retrieval output
         with open(retrieval_json_path, 'r', encoding='utf-8') as f:
             retrieval_data = json.load(f)

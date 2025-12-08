@@ -47,8 +47,9 @@ def get_slide_generator():
     if slide_generator is None:
         try:
             slide_generator = SlideGenerator()
-        except ValueError as e:
+        except (ValueError, ImportError) as e:
             print(f"Warning: Slide generator not available: {e}")
+            print("You can upload the JSON retrieval output to Gemini website to generate PowerPoint.")
     return slide_generator
 
 def get_evaluator():
@@ -57,8 +58,9 @@ def get_evaluator():
     if evaluator is None:
         try:
             evaluator = SlideEvaluator()
-        except ValueError as e:
+        except (ValueError, ImportError) as e:
             print(f"Warning: Evaluator not available: {e}")
+            print("You can upload the JSON retrieval output to Gemini website to generate PowerPoint.")
     return evaluator
 
 def allowed_file(filename):
@@ -131,7 +133,7 @@ def submit_form():
                 description=description,
                 audience_type=audience_type,
                 chunk_size=500,
-                overlap=50,
+                overlap=3,
                 similarity_threshold=0.5,
                 top_k=20
             )

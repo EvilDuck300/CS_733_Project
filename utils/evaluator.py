@@ -6,7 +6,13 @@ Grades slides for clarity, accuracy, visual balance, and audience fit
 import json
 import os
 from typing import Dict, Any, List, Optional
-from openai import OpenAI
+
+try:
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+    OpenAI = None
 
 
 class SlideEvaluator:
@@ -18,12 +24,22 @@ class SlideEvaluator:
         
         Args:
             api_key: OpenAI API key (if None, will try to get from environment)
+                    If not provided, evaluation will not be available
         """
+        if not OPENAI_AVAILABLE:
+            self.client = None
+            self.api_key = None
+            print("Warning: OpenAI package not installed. Evaluation will not be available.")
+            print("You can upload the JSON retrieval output to Gemini website to generate PowerPoint.")
+            return
+        
         self.api_key = api_key or os.getenv('OPENAI_API_KEY')
         if not self.api_key:
-            raise ValueError("OpenAI API key required. Set OPENAI_API_KEY environment variable or pass api_key parameter.")
-        
-        self.client = OpenAI(api_key=self.api_key)
+            self.client = None
+            print("Warning: OpenAI API key not provided. Evaluation will not be available.")
+            print("You can upload the JSON retrieval output to Gemini website to generate PowerPoint.")
+        else:
+            self.client = OpenAI(api_key=self.api_key)
     
     def _load_source_content(self, retrieval_json_path: str) -> str:
         """Load source content from retrieval output for accuracy checking"""
@@ -118,6 +134,10 @@ OUTPUT FORMAT (JSON only):
 }}
 
 Evaluate now:"""
+        
+        if not self.client:
+            print("OpenAI API key not available. Returning default evaluation.")
+            return self._default_evaluation()
         
         try:
             response = self.client.chat.completions.create(
