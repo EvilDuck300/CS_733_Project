@@ -6,6 +6,7 @@ Supports multiple VLM backends: Local models (BLIP-2, LLaVA), Ollama, Gemini API
 import os
 import json
 import base64
+import re
 from typing import Dict, Any, List, Optional
 from pptx import Presentation
 from io import BytesIO
@@ -388,16 +389,18 @@ class VLMAnalyzer:
             return {"analysis": text, "raw_response": True}
     
     def analyze_presentation(self, pptx_path: str, 
-                           analysis_type: str = "comprehensive") -> Dict[str, Any]:
+                           analysis_type: str = "comprehensive",
+                           generate_improved: bool = False) -> Dict[str, Any]:
         """
         Analyze entire PowerPoint presentation using VLM
         
         Args:
             pptx_path: Path to PowerPoint file
             analysis_type: Type of analysis ("comprehensive", "visual", "content", "quality")
+            generate_improved: If True, generate improved slide content (not just extract)
             
         Returns:
-            Dictionary with complete analysis results
+            Dictionary with complete analysis results and optionally improved slides
         """
         if not os.path.exists(pptx_path):
             raise FileNotFoundError(f"PowerPoint file not found: {pptx_path}")
@@ -408,16 +411,24 @@ class VLMAnalyzer:
         
         print(f"Analyzing presentation with {num_slides} slides using {self.backend} backend...")
         
-        # Extract text from slides as basic analysis
-        slides_text = []
+        # Extract text from slides
+        slides_data = []
         for i, slide in enumerate(prs.slides):
             slide_text = []
+            slide_title = ""
+            
             for shape in slide.shapes:
                 if hasattr(shape, "text") and shape.text.strip():
-                    slide_text.append(shape.text.strip())
+                    text = shape.text.strip()
+                    # Try to identify title (usually first shape or larger font)
+                    if not slide_title and len(text) < 100:
+                        slide_title = text
+                    slide_text.append(text)
             
-            slides_text.append({
+            slides_data.append({
                 "slide_number": i + 1,
+                "title": slide_title or f"Slide {i + 1}",
+                "content": slide_text,
                 "text": "\n".join(slide_text)
             })
         
@@ -427,22 +438,236 @@ class VLMAnalyzer:
             "presentation_path": pptx_path,
             "num_slides": num_slides,
             "analysis_type": analysis_type,
-            "slides_text": slides_text,
-            "message": f"Text extracted from {num_slides} slides. For visual analysis, convert slides to images and use analyze_slide_image()."
+            "original_slides": slides_data
         }
         
-        # If using a vision backend, provide instructions
-        if self.backend in ["local", "ollama", "gemini"]:
-            result["instructions"] = {
-                "note": "To analyze slides visually, convert PPTX to images first",
-                "methods": [
-                    "Use LibreOffice: libreoffice --headless --convert-to png file.pptx",
-                    "Use unoconv: unoconv -f png file.pptx",
-                    "Convert PPTX->PDF->Images using pdf2image"
-                ]
-            }
+        # Generate improved slides if requested
+        if generate_improved:
+            print("Generating improved slide content...")
+            improved_slides = self._generate_improved_slides(slides_data, analysis_type)
+            result["improved_slides"] = improved_slides
+            result["has_improvements"] = True
+        else:
+            result["message"] = f"Text extracted from {num_slides} slides. Set generate_improved=True to generate improved content."
+            result["has_improvements"] = False
         
         return result
+    
+    def _generate_improved_slides(self, original_slides: List[Dict[str, Any]], 
+                                 analysis_type: str) -> Dict[str, Any]:
+        """
+        Generate improved slide content based on VLM analysis
+        
+        Args:
+            original_slides: List of original slide data
+            analysis_type: Type of analysis
+            
+        Returns:
+            Dictionary with improved slides in standard format
+        """
+        improved_slides = {
+            "title_slide": {
+                "title": original_slides[0].get("title", "Presentation") if original_slides else "Presentation",
+                "subtitle": "Improved with VLM Analysis"
+            },
+            "slides": []
+        }
+        
+        # Build prompt for improvement
+        improvement_prompt = self._build_improvement_prompt(original_slides, analysis_type)
+        
+        # Process each slide
+        for slide_data in original_slides:
+            slide_num = slide_data.get("slide_number", 0)
+            original_title = slide_data.get("title", f"Slide {slide_num}")
+            original_content = slide_data.get("content", [])
+            
+            # Generate improved content based on backend
+            if self.backend == "gemini" and self.client:
+                improved = self._improve_slide_with_gemini(original_title, original_content, improvement_prompt)
+            elif self.backend == "local" and self.local_model:
+                improved = self._improve_slide_with_local(original_title, original_content, improvement_prompt)
+            elif self.backend == "ollama":
+                improved = self._improve_slide_with_ollama(original_title, original_content, improvement_prompt)
+            else:
+                # Fallback: use rule-based improvements
+                improved = self._improve_slide_rule_based(original_title, original_content)
+            
+            improved_slides["slides"].append({
+                "slide_number": slide_num,
+                "title": improved.get("title", original_title),
+                "content": improved.get("content", original_content),
+                "notes": improved.get("notes", f"Improved version of original slide {slide_num}")
+            })
+        
+        return improved_slides
+    
+    def _build_improvement_prompt(self, slides: List[Dict[str, Any]], analysis_type: str) -> str:
+        """Build prompt for improving slides"""
+        return f"""You are an expert presentation designer. Improve the following PowerPoint slides by:
+
+1. Making content clearer and more concise
+2. Improving bullet points for better readability
+3. Enhancing titles to be more engaging
+4. Ensuring professional language and structure
+5. Maintaining all key information while improving presentation
+
+Original slides:
+{json.dumps(slides, indent=2)}
+
+Generate improved slides with:
+- Better titles
+- Clearer, more concise bullet points
+- Professional formatting
+- All original key information preserved
+
+Return as JSON with improved title and content array."""
+    
+    def _improve_slide_with_gemini(self, title: str, content: List[str], prompt: str) -> Dict[str, Any]:
+        """Improve slide using Gemini API"""
+        if not self.client:
+            return self._improve_slide_rule_based(title, content)
+        
+        try:
+            slide_text = f"Title: {title}\nContent:\n" + "\n".join([f"- {item}" for item in content])
+            full_prompt = f"{prompt}\n\nSlide to improve:\n{slide_text}\n\nProvide improved version:"
+            
+            response = self.client.generate_content(full_prompt)
+            result_text = response.text
+            
+            # Try to parse JSON response
+            try:
+                if "```json" in result_text:
+                    json_text = result_text.split("```json")[1].split("```")[0].strip()
+                elif "```" in result_text:
+                    json_text = result_text.split("```")[1].split("```")[0].strip()
+                else:
+                    json_text = result_text
+                
+                improved = json.loads(json_text)
+                return improved
+            except json.JSONDecodeError:
+                # If not JSON, extract improvements from text
+                return self._extract_improvements_from_text(result_text, title, content)
+        except Exception as e:
+            print(f"Error improving with Gemini: {e}")
+            return self._improve_slide_rule_based(title, content)
+    
+    def _improve_slide_with_local(self, title: str, content: List[str], prompt: str) -> Dict[str, Any]:
+        """Improve slide using local model"""
+        if not self.local_model:
+            return self._improve_slide_rule_based(title, content)
+        
+        try:
+            slide_text = f"Title: {title}\nContent:\n" + "\n".join([f"- {item}" for item in content])
+            full_prompt = f"{prompt}\n\nSlide: {slide_text}"
+            
+            inputs = self.local_processor(text=full_prompt, return_tensors="pt")
+            device = next(self.local_model.parameters()).device
+            inputs = {k: v.to(device) for k, v in inputs.items()}
+            
+            with torch.no_grad():
+                outputs = self.local_model.generate(**inputs, max_length=512)
+            
+            result_text = self.local_processor.decode(outputs[0], skip_special_tokens=True)
+            return self._extract_improvements_from_text(result_text, title, content)
+        except Exception as e:
+            print(f"Error improving with local model: {e}")
+            return self._improve_slide_rule_based(title, content)
+    
+    def _improve_slide_with_ollama(self, title: str, content: List[str], prompt: str) -> Dict[str, Any]:
+        """Improve slide using Ollama"""
+        if not OLLAMA_AVAILABLE:
+            return self._improve_slide_rule_based(title, content)
+        
+        try:
+            slide_text = f"Title: {title}\nContent:\n" + "\n".join([f"- {item}" for item in content])
+            full_prompt = f"{prompt}\n\nSlide: {slide_text}"
+            
+            response = requests.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": self.model_name or "llama2",
+                    "prompt": full_prompt,
+                    "stream": False
+                },
+                timeout=60
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                result_text = result.get("response", "")
+                return self._extract_improvements_from_text(result_text, title, content)
+            else:
+                return self._improve_slide_rule_based(title, content)
+        except Exception as e:
+            print(f"Error improving with Ollama: {e}")
+            return self._improve_slide_rule_based(title, content)
+    
+    def _extract_improvements_from_text(self, text: str, original_title: str, 
+                                       original_content: List[str]) -> Dict[str, Any]:
+        """Extract improved content from model response text"""
+        # Try to find title and content in the response
+        improved_title = original_title
+        improved_content = original_content.copy()
+        
+        # Look for title patterns
+        title_patterns = [
+            r'Title[:\s]+(.+?)(?:\n|$)',
+            r'Improved Title[:\s]+(.+?)(?:\n|$)',
+            r'^#\s*(.+?)$'
+        ]
+        
+        for pattern in title_patterns:
+            match = re.search(pattern, text, re.IGNORECASE | re.MULTILINE)
+            if match:
+                improved_title = match.group(1).strip()
+                break
+        
+        # Look for bullet points or content
+        bullet_patterns = [
+            r'[-•*]\s*(.+?)(?:\n|$)',
+            r'\d+\.\s*(.+?)(?:\n|$)',
+        ]
+        
+        found_bullets = []
+        for pattern in bullet_patterns:
+            matches = re.findall(pattern, text, re.MULTILINE)
+            if matches:
+                found_bullets = [m.strip() for m in matches if len(m.strip()) > 10]
+                break
+        
+        if found_bullets:
+            improved_content = found_bullets[:len(original_content) + 2]  # Allow some extra
+        
+        return {
+            "title": improved_title,
+            "content": improved_content,
+            "notes": "Generated by VLM analysis"
+        }
+    
+    def _improve_slide_rule_based(self, title: str, content: List[str]) -> Dict[str, Any]:
+        """Rule-based slide improvement (fallback)"""
+        # Basic improvements without AI
+        improved_title = title.strip()
+        if not improved_title.endswith(('.', '!', '?')):
+            improved_title = improved_title.rstrip('.')
+        
+        improved_content = []
+        for item in content:
+            item = item.strip()
+            # Remove redundant words, improve formatting
+            if item and len(item) > 5:
+                # Ensure it starts with capital
+                if item[0].islower():
+                    item = item[0].upper() + item[1:]
+                improved_content.append(item)
+        
+        return {
+            "title": improved_title,
+            "content": improved_content,
+            "notes": "Rule-based improvements applied"
+        }
     
     def analyze_with_gemini_website(self, pptx_path: str) -> Dict[str, Any]:
         """
@@ -482,7 +707,8 @@ class VLMAnalyzer:
 def analyze_presentation_vlm(pptx_path: str, 
                              api_key: Optional[str] = None,
                              backend: str = "auto",
-                             model_name: Optional[str] = None) -> Dict[str, Any]:
+                             model_name: Optional[str] = None,
+                             generate_improved: bool = True) -> Dict[str, Any]:
     """
     Convenience function to analyze a PowerPoint presentation with VLM
     
@@ -491,10 +717,11 @@ def analyze_presentation_vlm(pptx_path: str,
         api_key: Optional API key (for Gemini backend)
         backend: Backend to use ("auto", "local", "ollama", "gemini", "text")
         model_name: Model name for local/Ollama backends
+        generate_improved: If True, generate improved slide content (default: True)
         
     Returns:
-        Analysis results dictionary
+        Analysis results dictionary with improved slides
     """
     analyzer = VLMAnalyzer(api_key=api_key, backend=backend, model_name=model_name)
-    return analyzer.analyze_presentation(pptx_path)
+    return analyzer.analyze_presentation(pptx_path, generate_improved=generate_improved)
 

@@ -1,14 +1,16 @@
 # Presentation Generator - AI-Powered Slide Creation System
 
-A complete AI-powered system that transforms PDF textbooks into professional PowerPoint presentations using ChatGPT 4o, GNN-based retrieval, and intelligent evaluation with human-in-the-loop feedback.
+A complete AI-powered system that transforms PDF textbooks into professional PowerPoint presentations using GNN-based retrieval, optional AI slide generation, and VLM analysis with local models. **NO API KEYS REQUIRED** - works completely offline for retrieval and VLM analysis!
 
 ## 🎯 Features
 
 - **PDF Upload**: Drag-and-drop or click to upload PDF files (max 50MB)
 - **Intelligent Retrieval**: GNN-based system extracts relevant content chunks
-- **AI Slide Generation**: ChatGPT 4o creates professional, audience-appropriate slides
+- **AI Slide Generation**: Optional ChatGPT 4o integration (or use Gemini website)
 - **Multi-Version Generation**: Generates 3 different versions for comparison
 - **Automatic Evaluation**: Scores slides on clarity, accuracy, visual balance, and audience fit
+- **VLM Analysis**: Vision Language Model analysis using local models (NO API KEYS REQUIRED!)
+- **Improved Slide Generation**: VLM generates improved slide content from existing presentations
 - **Critic in the Loop**: User reviews and selects the best version
 - **Quality Iteration**: Automatically regenerates slides until quality threshold is met
 - **Feedback Loops**: Content, style, and information correction mechanisms
@@ -20,18 +22,19 @@ A complete AI-powered system that transforms PDF textbooks into professional Pow
 The system implements a complete workflow with multiple stages and feedback loops:
 
 ```
-User Input → Retrieval (GNN) → Slide Generation (ChatGPT 4o) → Evaluation → 
-Critic in the Loop → Final Output (PowerPoint)
+User Input → Retrieval (GNN) → Slide Generation (Optional) → Evaluation (Optional) → 
+VLM Analysis (Local Models) → Critic in the Loop → Final Output (PowerPoint)
 ```
 
 ### Workflow Stages
 
 1. **Input Stage**: User uploads PDF, selects audience, provides description
 2. **Retrieval Stage**: GNN decomposes document into relevant chunks
-3. **Slide Generation Stage**: ChatGPT 4o creates slides from retrieved content
-4. **Evaluation Stage**: System grades slides on 4 criteria
-5. **Critic in the Loop Stage**: User reviews and selects best version
-6. **Final Output Stage**: PowerPoint presentation delivered
+3. **Slide Generation Stage**: Optional - ChatGPT 4o creates slides (or upload JSON to Gemini website)
+4. **Evaluation Stage**: Optional - System grades slides on 4 criteria
+5. **VLM Analysis Stage**: Analyze and improve presentations using local vision models (NO API KEYS!)
+6. **Critic in the Loop Stage**: User reviews and selects best version
+7. **Final Output Stage**: PowerPoint presentation delivered
 
 ### Feedback Loops
 
@@ -57,9 +60,10 @@ Critic in the Loop → Final Output (PowerPoint)
 ├── utils/
 │   ├── __init__.py                 # Utils package init
 │   ├── retrieval_gnn.py           # GNN-based retrieval system
-│   ├── slide_generator.py           # ChatGPT 4o slide generation
-│   ├── evaluator.py                # Evaluation system
+│   ├── slide_generator.py           # Optional ChatGPT 4o slide generation
+│   ├── evaluator.py                # Optional evaluation system
 │   ├── presentation_builder.py     # PowerPoint builder
+│   ├── vlm_analyzer.py             # VLM analyzer (local models, no API keys)
 │   └── dataset_loader.py           # Dataset loader for ppt4web
 ├── ppt4web_01.jsonl/               # Presentation dataset (reference data)
 │   └── ppt4web_01.jsonl            # JSONL file with presentation examples
@@ -67,8 +71,11 @@ Critic in the Loop → Final Output (PowerPoint)
 ├── retrieval_output/               # Directory for JSON retrieval outputs
 ├── slides_output/                   # Directory for generated slide versions
 ├── presentations/                   # Directory for final PowerPoint files
+├── run_vlm_analysis.py             # Script to run VLM analysis (no API keys)
+├── create_improved_presentation.py # Create PowerPoint from improved slides
 ├── example_dataset_usage.py        # Example script for dataset usage
-└── example_retrieval.py            # Example script for retrieval system
+├── example_retrieval.py            # Example script for retrieval system
+└── VLM_ANALYSIS_GUIDE.md          # Complete guide for VLM analysis
 ```
 
 ## 🚀 Setup Instructions
@@ -90,7 +97,20 @@ pip install -r requirements.txt
 pip install sentence-transformers numpy
 ```
 
-**Note:** OpenAI API key is **NOT required**. The system generates JSON retrieval output that can be uploaded to the Gemini website to generate PowerPoint presentations.
+**Optional (for VLM Analysis - NO API KEYS REQUIRED!):**
+```bash
+# For local VLM models
+pip install transformers torch Pillow
+
+# For Ollama (alternative local models)
+# Install Ollama from https://ollama.ai/
+# Then: ollama pull llava
+```
+
+**Note:** OpenAI or Gemini API keys are **NOT required**. The system:
+- Generates JSON retrieval output that can be uploaded to Gemini website
+- Supports VLM analysis using local models (completely free, no API keys)
+- Works entirely offline for retrieval and VLM analysis
 
 ### 2. Run the Application
 
@@ -116,10 +136,15 @@ http://localhost:5000
 3. **Enter Description**: Provide a description of what you want in your presentation
 4. **Submit**: Click "Generate Presentation" to start processing
 5. **Retrieval Output**: System generates JSON retrieval output file (saved in `retrieval_output/` directory)
-6. **Upload to Gemini**: Upload the JSON file to the Gemini website to generate PowerPoint presentation
-7. **Download**: Download the generated PowerPoint from Gemini
+6. **Optional - Slide Generation**: If OpenAI API key is set, slides are generated automatically
+7. **VLM Analysis**: Analyze and improve presentations using local models:
+   ```bash
+   python run_vlm_analysis.py presentations/submission_id_final_presentation.pptx
+   ```
+8. **Upload to Gemini**: Upload the JSON file to the Gemini website to generate PowerPoint presentation
+9. **Download**: Download the generated PowerPoint
 
-**Note:** The system focuses on generating high-quality JSON retrieval output. PowerPoint generation can be done manually by uploading the JSON to Gemini website.
+**Note:** The system works without API keys. VLM analysis uses local models (free, no API keys required).
 
 ### Using Feedback Loops
 
@@ -193,12 +218,38 @@ Interactive review interface:
 
 **File:** `utils/presentation_builder.py`
 
-Converts ChatGPT-generated slide data to PowerPoint:
+Converts slide data to PowerPoint:
 
 - Creates professional .pptx files
 - Proper slide layouts and formatting
 - Title slide and content slides
 - Formatted text and bullet points
+
+### 6. VLM Analyzer (NO API KEYS REQUIRED!)
+
+**File:** `utils/vlm_analyzer.py`
+
+Vision Language Model analysis using local/open-source models:
+
+- **Local Models**: BLIP-2, LLaVA via Hugging Face (FREE, runs locally)
+- **Ollama**: Local models via Ollama (FREE, easy setup)
+- **Text-based**: Fallback analysis (no dependencies)
+- **Improved Content Generation**: Generates improved slide content (not just extraction)
+- **No API Keys**: Works completely offline, no costs
+
+**Usage:**
+```bash
+# Auto-detect best backend
+python run_vlm_analysis.py presentations/file.pptx
+
+# Use local model
+python run_vlm_analysis.py presentations/file.pptx --backend local
+
+# Use Ollama
+python run_vlm_analysis.py presentations/file.pptx --backend ollama --model llava
+```
+
+See `VLM_ANALYSIS_GUIDE.md` for complete documentation.
 
 ## 🌐 API Endpoints
 
@@ -306,6 +357,49 @@ Quality iteration - regenerate slides until scores meet threshold.
 }
 ```
 
+### POST `/api/analyze-vlm/<submission_id>`
+
+Analyze PowerPoint presentation using VLM (local models - NO API KEYS).
+
+**Request:**
+```json
+{
+    "backend": "auto|local|ollama|text",
+    "model_name": "optional-model-name",
+    "generate_improved": true,
+    "analysis_type": "comprehensive"
+}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "backend": "local",
+    "has_improvements": true,
+    "improved_slides_file": "path/to/improved_slides.json",
+    "analysis": {...}
+}
+```
+
+### GET `/api/vlm-instructions/<submission_id>`
+
+Get instructions for VLM analysis (local models or manual upload).
+
+**Response:**
+```json
+{
+    "success": true,
+    "instructions": {
+        "options": {
+            "option_1_local": {...},
+            "option_2_ollama": {...},
+            "option_3_manual": {...}
+        }
+    }
+}
+```
+
 ## 📊 Evaluation Criteria
 
 The system evaluates slides on four key dimensions:
@@ -359,17 +453,34 @@ The dataset is automatically integrated into the slide generation process.
 
 ## 📝 Notes
 
-- **No API Keys Required**: The system works without OpenAI or Gemini API keys. It generates JSON retrieval output that can be uploaded to Gemini website.
+- **✅ NO API KEYS REQUIRED**: The system works completely without OpenAI or Gemini API keys:
+  - Retrieval system: Works independently (no API keys)
+  - VLM Analysis: Uses local models (BLIP-2, LLaVA, Ollama) - completely FREE!
+  - Slide Generation: Optional - can use Gemini website manually
+  - Evaluation: Optional - can use Gemini website manually
+
+- **VLM Analysis Features**:
+  - Uses local/open-source models (no API costs)
+  - Generates improved slide content (not just extraction)
+  - Works offline, privacy guaranteed
+  - Multiple backend options (local, Ollama, text-based)
+
 - **Gemini Website Integration**: Upload the JSON retrieval output file (from `retrieval_output/` directory) to Gemini website to generate PowerPoint presentations.
+
 - **Optional OpenAI Integration**: If OpenAI API key is provided, the system can generate slides automatically.
+
 - **Dataset Integration**: ppt4web dataset automatically used for few-shot learning (when OpenAI API is available)
+
 - **Quality Iteration**: System automatically tries to improve scores if below threshold (when OpenAI API is available)
+
 - **Error Handling**: All stages have proper error handling and fallbacks
+
 - **File Storage**: 
   - Uploaded PDFs: `uploads/`
   - Retrieval outputs: `retrieval_output/` (main output for Gemini upload)
-  - Generated slides: `slides_output/` (only if OpenAI API key is provided)
-  - Final presentations: `presentations/` (only if OpenAI API key is provided)
+  - Generated slides: `slides_output/` (includes VLM improved slides)
+  - Final presentations: `presentations/`
+  - VLM analysis: `slides_output/*_vlm_analysis.json` and `*_improved_slides.json`
 
 ## 🧪 Testing
 
@@ -385,12 +496,24 @@ python example_retrieval.py
 python example_dataset_usage.py
 ```
 
+### Test VLM Analysis
+
+```bash
+# Analyze a presentation with local models (no API keys!)
+python run_vlm_analysis.py presentations/submission_id_final_presentation.pptx
+
+# Create improved presentation from VLM analysis
+python create_improved_presentation.py submission_id_improved_slides.json
+```
+
 ## 📚 Documentation
 
+- **`PIPELINE.md`**: Complete pipeline architecture and data flow
 - **`IMPLEMENTATION_COMPLETE.md`**: Complete implementation details
 - **`IMPLEMENTATION_STATUS.md`**: Status tracking document
 - **`RETRIEVAL_GNN_INFO.md`**: Retrieval system documentation
 - **`DATASET_INFO.md`**: Dataset usage guide
+- **`VLM_ANALYSIS_GUIDE.md`**: Complete guide for VLM analysis (local models, no API keys)
 
 ## 🐛 Troubleshooting
 
@@ -411,9 +534,17 @@ python example_dataset_usage.py
 
 - **This is expected if no OpenAI API key is set** - the system will still generate JSON retrieval output
 - Upload the JSON file from `retrieval_output/` directory to Gemini website instead
+- Use VLM analysis to generate improved slides: `python run_vlm_analysis.py presentations/file.pptx`
 - If using OpenAI, check API key is valid
 - Verify retrieval output exists
 - Check error logs in console
+
+### VLM Analysis Issues
+
+- **Local models not loading**: Install dependencies: `pip install transformers torch Pillow`
+- **Ollama not working**: Install Ollama from https://ollama.ai/ and run `ollama pull llava`
+- **No improved slides generated**: Check that `generate_improved=True` in the request
+- See `VLM_ANALYSIS_GUIDE.md` for detailed troubleshooting
 
 ## 🎉 Project Status
 
@@ -421,13 +552,21 @@ python example_dataset_usage.py
 
 - ✅ Input Stage
 - ✅ Retrieval Stage (GNN)
-- ✅ Slide Generation (ChatGPT 4o)
-- ✅ Evaluation Stage
+- ✅ Slide Generation (Optional - ChatGPT 4o or Gemini website)
+- ✅ Evaluation Stage (Optional)
+- ✅ VLM Analysis (Local models - NO API KEYS!)
+- ✅ Improved Slide Generation (VLM-based)
 - ✅ Critic in the Loop
 - ✅ Final Output
 - ✅ All 4 Feedback Loops
 
 **Overall Project Completion: 100%**
+
+**New Features Added:**
+- ✅ VLM Analysis with local models (no API keys required)
+- ✅ Improved slide content generation
+- ✅ Multiple VLM backends (local, Ollama, text-based)
+- ✅ Complete offline functionality for retrieval and VLM analysis
 
 ## 📄 License
 
@@ -436,8 +575,9 @@ This project is part of a CS 733 course project.
 ## 👥 Credits
 
 - **Retrieval System**: GNN-based document processing
-- **Slide Generation**: OpenAI ChatGPT 4o
-- **Evaluation**: AI-powered scoring system
+- **Slide Generation**: Optional OpenAI ChatGPT 4o (or Gemini website)
+- **VLM Analysis**: Local models (BLIP-2, LLaVA, Ollama) - no API keys required
+- **Evaluation**: Optional AI-powered scoring system
 - **Dataset**: ppt4web presentation examples
 
 ---

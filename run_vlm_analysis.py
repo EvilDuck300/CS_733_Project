@@ -71,6 +71,9 @@ Examples:
                        help='Model name for local/Ollama backends')
     parser.add_argument('--api-key',
                        help='API key (for Gemini backend)')
+    parser.add_argument('--no-improve', 
+                       action='store_true',
+                       help='Only extract text, do not generate improved slides')
     
     args = parser.parse_args()
     
@@ -93,14 +96,29 @@ Examples:
             pptx_path, 
             api_key=api_key,
             backend=args.backend,
-            model_name=args.model
+            model_name=args.model,
+            generate_improved=not args.no_improve  # Generate improved by default
         )
         
         if result.get('success'):
             print("✓ Analysis completed successfully!")
             print(f"\nBackend used: {result.get('backend', 'unknown')}")
             print(f"Number of slides: {result.get('num_slides', 0)}")
-            print(f"\nResults:")
+            
+            # Check if improved slides were generated
+            if result.get('has_improvements'):
+                print("✓ Improved slide content generated!")
+                print("\nImproved slides structure:")
+                improved = result.get('improved_slides', {})
+                if 'title_slide' in improved:
+                    print(f"  Title: {improved['title_slide'].get('title', 'N/A')}")
+                if 'slides' in improved:
+                    print(f"  Content slides: {len(improved['slides'])}")
+                    for slide in improved['slides']:
+                        print(f"    - Slide {slide.get('slide_number')}: {slide.get('title', 'N/A')}")
+                        print(f"      Bullet points: {len(slide.get('content', []))}")
+            
+            print(f"\nFull Results:")
             print(json.dumps(result, indent=2, ensure_ascii=False))
             
             # Save results
@@ -109,6 +127,18 @@ Examples:
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(result, f, indent=2, ensure_ascii=False)
             print(f"\n✓ Results saved to: {output_file}")
+            
+            # If improved slides generated, save them separately for easy use
+            if result.get('has_improvements'):
+                improved_file = f"{base_name}_improved_slides.json"
+                with open(improved_file, 'w', encoding='utf-8') as f:
+                    json.dump(result.get('improved_slides', {}), f, indent=2, ensure_ascii=False)
+                print(f"✓ Improved slides saved to: {improved_file}")
+                print(f"\n💡 You can use this file to regenerate the presentation with improved content!")
+                print(f"   Option 1: Use presentation builder")
+                print(f"      from utils.presentation_builder import create_presentation_from_slides_data")
+                print(f"      create_presentation_from_slides_data(result['improved_slides'], 'output.pptx')")
+                print(f"   Option 2: Use the improved slides JSON in your app")
         else:
             print("⚠ Analysis completed with warnings")
             print(f"\nResults: {json.dumps(result, indent=2)}")
