@@ -19,15 +19,11 @@ except ImportError:
 
 # PDF processing imports with fallbacks
 try:
-    import PyPDF2
-    PDF_LIBRARY = 'PyPDF2'
+    import pdfplumber
+    PDF_LIBRARY = 'pdfplumber'
 except ImportError:
-    try:
-        import pdfplumber
-        PDF_LIBRARY = 'pdfplumber'
-    except ImportError:
-        PDF_LIBRARY = None
-        print("Warning: No PDF library found. Install PyPDF2 or pdfplumber for PDF processing.")
+    PDF_LIBRARY = None
+    print("Warning: No PDF library found. Install PyPDF2 or pdfplumber for PDF processing.")
 
 # Embedding imports (for semantic similarity) - optional
 try:
@@ -73,41 +69,35 @@ class GNNRetrieval:
         os.makedirs(images_dir, exist_ok=True)
         images_meta = []
 
-        if PDF_LIBRARY == 'pdfplumber':
-            import pdfplumber
+        import pdfplumber
 
-            with pdfplumber.open(pdf_path) as pdf:
-                for page_idx, page in enumerate(pdf.pages):
-                    # pdfplumber gives you page.images with bbox info
-                    for img_idx, img_obj in enumerate(page.images):
-                        # bounding box in PDF coordinates
-                        x0 = img_obj["x0"]
-                        top = img_obj["top"]
-                        x1 = img_obj["x1"]
-                        bottom = img_obj["bottom"]
+        with pdfplumber.open(pdf_path) as pdf:
+            for page_idx, page in enumerate(pdf.pages):
+                # pdfplumber gives you page.images with bbox info
+                for img_idx, img_obj in enumerate(page.images):
+                    # bounding box in PDF coordinates
+                    x0 = img_obj["x0"]
+                    top = img_obj["top"]
+                    x1 = img_obj["x1"]
+                    bottom = img_obj["bottom"]
 
-                        # crop & save
-                        bbox = (x0, top, x1, bottom)
-                        page_img = page.crop(bbox).to_image(resolution=150)
+                    # crop & save
+                    bbox = (x0, top, x1, bottom)
+                    page_img = page.crop(bbox).to_image(resolution=150)
 
-                        img_filename = f"page{page_idx+1}_img{img_idx+1}.png"
-                        img_path = os.path.join(images_dir, img_filename)
-                        page_img.save(img_path, format="PNG")
+                    img_filename = f"page{page_idx+1}_img{img_idx+1}.png"
+                    img_path = os.path.join(images_dir, img_filename)
+                    page_img.save(img_path, format="PNG")
 
-                        images_meta.append({
-                            "id": f"page{page_idx+1}_img{img_idx+1}",
-                            "page": page_idx + 1,
-                            "path": img_path.replace("\\", "/"),
-                            "bbox": [x0, top, x1, bottom],
-                            # optional placeholder; you can improve this by scanning
-                            # nearby text for "Figure 1:" etc.
-                            "caption": ""
-                        })
-
-        elif PDF_LIBRARY == 'PyPDF2':
-            # PyPDF2 image extraction is more painful; you can leave this as a TODO
-            print("[WARN] Image extraction with PyPDF2 not implemented yet.")
-            return []
+                    images_meta.append({
+                        "id": f"page{page_idx+1}_img{img_idx+1}",
+                        "page": page_idx + 1,
+                        "path": img_path.replace("\\", "/"),
+                        "bbox": [x0, top, x1, bottom],
+                        # optional placeholder; you can improve this by scanning
+                        # nearby text for "Figure 1:" etc.
+                        "caption": ""
+                    })
 
         return images_meta
     
@@ -126,19 +116,7 @@ class GNNRetrieval:
         
         text = ""
         
-        if PDF_LIBRARY == 'PyPDF2':
-            try:
-                with open(pdf_path, 'rb') as file:
-                    pdf_reader = PyPDF2.PdfReader(file)
-                    for page in pdf_reader.pages:
-                        page_text = page.extract_text()
-                        if page_text:
-                            text += page_text + "\n"
-            except Exception as e:
-                print(f"Error extracting text with PyPDF2: {e}")
-                raise
-        
-        elif PDF_LIBRARY == 'pdfplumber':
+        if PDF_LIBRARY == 'pdfplumber':
             try:
                 with pdfplumber.open(pdf_path) as pdf:
                     for page in pdf.pages:
@@ -372,6 +350,7 @@ class GNNRetrieval:
         print(f"Extracted {len(text)} characters from PDF")
 
         # Step 1b: Extract images
+        print(f'images')
         images_dir = os.path.join(os.path.dirname(pdf_path), "extracted_images")
         images = self.extract_images_from_pdf(pdf_path, images_dir)
 
