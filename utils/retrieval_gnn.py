@@ -10,6 +10,13 @@ import re
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
+try:
+    import fitz  # PyMuPDF
+    PDF_IMAGE_LIB = 'pymupdf'
+except ImportError:
+    PDF_IMAGE_LIB = None
+    print("Warning: PyMuPDF not available. Image extraction disabled.")
+
 # PDF processing imports with fallbacks
 try:
     import PyPDF2
@@ -53,6 +60,56 @@ class GNNRetrieval:
             except Exception as e:
                 print(f"Warning: Could not load embedding model: {e}")
                 self.embedding_available = False
+    
+    def extract_images_from_pdf(self, pdf_path: str, images_dir: str) -> List[Dict[str, Any]]:
+        """
+        Extract images from the PDF and save them to images_dir.
+        Returns a list of {id, page, path, bbox?, caption?} dicts.
+        """
+        if PDF_LIBRARY is None:
+            print("[WARN] No PDF library for image extraction. Skipping images.")
+            return []
+
+        os.makedirs(images_dir, exist_ok=True)
+        images_meta = []
+
+        if PDF_LIBRARY == 'pdfplumber':
+            import pdfplumber
+
+            with pdfplumber.open(pdf_path) as pdf:
+                for page_idx, page in enumerate(pdf.pages):
+                    # pdfplumber gives you page.images with bbox info
+                    for img_idx, img_obj in enumerate(page.images):
+                        # bounding box in PDF coordinates
+                        x0 = img_obj["x0"]
+                        top = img_obj["top"]
+                        x1 = img_obj["x1"]
+                        bottom = img_obj["bottom"]
+
+                        # crop & save
+                        bbox = (x0, top, x1, bottom)
+                        page_img = page.crop(bbox).to_image(resolution=150)
+
+                        img_filename = f"page{page_idx+1}_img{img_idx+1}.png"
+                        img_path = os.path.join(images_dir, img_filename)
+                        page_img.save(img_path, format="PNG")
+
+                        images_meta.append({
+                            "id": f"page{page_idx+1}_img{img_idx+1}",
+                            "page": page_idx + 1,
+                            "path": img_path.replace("\\", "/"),
+                            "bbox": [x0, top, x1, bottom],
+                            # optional placeholder; you can improve this by scanning
+                            # nearby text for "Figure 1:" etc.
+                            "caption": ""
+                        })
+
+        elif PDF_LIBRARY == 'PyPDF2':
+            # PyPDF2 image extraction is more painful; you can leave this as a TODO
+            print("[WARN] Image extraction with PyPDF2 not implemented yet.")
+            return []
+
+        return images_meta
     
     def extract_text_from_pdf(self, pdf_path: str) -> str:
         """
@@ -293,71 +350,74 @@ class GNNRetrieval:
                 relevant_chunks.append(chunk)
             
             return relevant_chunks
-    
-    def process_document(self, pdf_path: str, description: str, audience_type: str,
-                        chunk_size: int = 500, overlap: int = 50,
-                        similarity_threshold: float = 0.5, top_k: int = 20) -> Dict[str, Any]:
-        """
-        Main function: Process PDF document through GNN retrieval system
-        
-        Args:
-            pdf_path: Path to PDF file
-            description: User's description of desired content
-            audience_type: Target audience type
-            chunk_size: Target words per chunk
-            overlap: Word overlap between chunks
-            similarity_threshold: Minimum similarity for edges
-            top_k: Number of top relevant chunks to return
-            
-        Returns:
-            Dictionary containing graph structure and relevant chunks
-        """
+
+
+    def process_document(self, pdf_path: str,
+        description: str,
+        audience_type: str,
+        chunk_size: int = 500,
+        overlap: int = 3,
+        similarity_threshold: float = 0.5,
+        top_k: int = 20,
+        images_output_dir: str = "extracted_images",
+        include_images: bool = True, ) -> Dict[str, Any]:
         print(f"Starting GNN retrieval for: {pdf_path}")
-        
+
         # Step 1: Extract text from PDF
         print("Extracting text from PDF...")
         text = self.extract_text_from_pdf(pdf_path)
         if not text:
             raise ValueError("Failed to extract text from PDF")
-        
+
         print(f"Extracted {len(text)} characters from PDF")
-        
+
+        # Step 1b: Extract images
+        images_dir = os.path.join(os.path.dirname(pdf_path), "extracted_images")
+        images = self.extract_images_from_pdf(pdf_path, images_dir)
+
         # Step 2: Break down into chunks (nodes)
         print("Chunking document into nodes...")
         chunks = self.chunk_document(text, chunk_size=chunk_size, overlap=overlap)
         print(f"Created {len(chunks)} chunks")
-        
+
         # Step 3: Create graph edges (GNN structure)
         print("Creating graph edges...")
         edges = self.create_graph_edges(chunks, similarity_threshold=similarity_threshold)
         print(f"Created {len(edges)} edges")
-        
+
         # Step 4: Retrieve relevant chunks based on description
         print("Retrieving relevant chunks...")
-        relevant_chunks = self.retrieve_relevant_chunks(chunks, description, audience_type, top_k=top_k)
+        relevant_chunks = self.retrieve_relevant_chunks(
+            chunks, description, audience_type, top_k=top_k
+        )
         print(f"Retrieved {len(relevant_chunks)} relevant chunks")
-        
+
         # Step 5: Create output structure
         output_data = {
-            'metadata': {
-                'pdf_path': pdf_path,
-                'description': description,
-                'audience_type': audience_type,
-                'total_chunks': len(chunks),
-                'relevant_chunks_count': len(relevant_chunks),
-                'total_edges': len(edges),
-                'timestamp': datetime.now().isoformat(),
-                'processing_method': 'embedding' if self.embedding_available and self.embedding_model else 'keyword'
+            "metadata": {
+                "pdf_path": pdf_path,
+                "description": description,
+                "audience_type": audience_type,
+                "total_chunks": len(chunks),
+                "relevant_chunks_count": len(relevant_chunks),
+                "total_edges": len(edges),
+                "num_images": len(images),
+                "timestamp": datetime.now().isoformat(),
+                "processing_method": "embedding"
+                if self.embedding_available and self.embedding_model
+                else "keyword",
             },
-            'graph_structure': {
-                'nodes': chunks,
-                'edges': edges
+            "graph_structure": {
+                "nodes": chunks,
+                "edges": edges,
             },
-            'relevant_chunks': relevant_chunks
+            # NEW: top-level images array
+            "images": images,
+            "relevant_chunks": relevant_chunks,
         }
-        
+
         return output_data
-    
+        
     def save_to_json(self, output_data: Dict[str, Any], output_path: str) -> str:
         """
         Save retrieval output to JSON file

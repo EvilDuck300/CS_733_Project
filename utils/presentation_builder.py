@@ -112,6 +112,43 @@ def create_presentation_from_slides_data(slides_data: Dict[str, Any],
             paragraph.line_spacing = 1.2
             if paragraph.font.size is None:
                 paragraph.font.size = Pt(16)
+        
+        images = slide_data.get("images", [])
+
+        # Default placement positions (you can make dynamic later)
+        img_x = Inches(5.5)
+        img_y = Inches(1.3)
+        img_width = Inches(3.5)
+
+        for img_dict in images:
+            img_path = img_dict.get("path")
+
+            # Skip if missing or file doesn't exist
+            if not img_path or not os.path.exists(img_path):
+                print(f"[Warning] Image not found: {img_path}")
+                continue
+
+            # Insert picture
+            try:
+                pic = slide.shapes.add_picture(img_path, img_x, img_y, width=img_width)
+
+                # Optional: caption support
+                caption = img_dict.get("caption")
+                if caption:
+                    cap_box = slide.shapes.add_textbox(img_x, img_y + pic.height + Inches(0.1),
+                                                       img_width, Inches(0.4))
+                    tb = cap_box.text_frame
+                    tb.text = caption
+                    tb.paragraphs[0].font.size = Pt(12)
+                    tb.paragraphs[0].font.italic = True
+                    tb.paragraphs[0].alignment = PP_ALIGN.CENTER
+
+                # Move next image downward
+                img_y += pic.height + Inches(0.5)
+
+            except Exception as e:
+                print(f"[ERROR] Could not add image {img_path}: {e}")
+        
     
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
