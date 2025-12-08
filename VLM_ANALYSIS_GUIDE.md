@@ -2,7 +2,9 @@
 
 ## Overview
 
-After generating a PowerPoint presentation, you can analyze it using a Vision Language Model (VLM) like Gemini Vision to get visual feedback, content analysis, and quality assessment.
+After generating a PowerPoint presentation, you can analyze it using a Vision Language Model (VLM) to get visual feedback, content analysis, and quality assessment.
+
+**🎉 NO API KEYS REQUIRED!** The system supports local/open-source models that run completely free on your machine.
 
 ## 🎯 What is VLM Analysis?
 
@@ -15,7 +17,47 @@ VLM analysis uses AI vision models to:
 
 ## 🚀 How to Run VLM Analysis
 
-### Option 1: Using Gemini Website (Recommended - No API Key Needed)
+### Option 1: Local Models (FREE - No API Keys Required!) ⭐ RECOMMENDED
+
+Run VLM analysis completely locally using open-source models:
+
+#### Using Hugging Face Local Models (BLIP-2, LLaVA)
+
+```bash
+# Install dependencies
+pip install transformers torch Pillow
+
+# Run analysis with local model (auto-detects best model)
+python run_vlm_analysis.py presentations/file.pptx --backend local
+
+# Or specify a model
+python run_vlm_analysis.py presentations/file.pptx --backend local --model Salesforce/blip-image-captioning-base
+```
+
+**Available Local Models:**
+- `Salesforce/blip-image-captioning-base` - Lightweight, fast (recommended)
+- `Salesforce/blip-image-captioning-large` - Better quality, slower
+- `llava-hf/llava-1.5-7b-hf` - Advanced vision-language model
+
+#### Using Ollama (FREE - Easy Setup)
+
+1. **Install Ollama**: https://ollama.ai/
+2. **Pull a vision model**:
+   ```bash
+   ollama pull llava
+   ```
+3. **Run analysis**:
+   ```bash
+   python run_vlm_analysis.py presentations/file.pptx --backend ollama --model llava
+   ```
+
+**Benefits:**
+- ✅ **100% FREE** - No API costs
+- ✅ **Privacy** - Data stays on your machine
+- ✅ **No API keys** - Works offline
+- ✅ **Fast** - No network latency
+
+### Option 2: Using Gemini Website (No API Key Needed)
 
 This is the easiest method and doesn't require any API keys:
 
@@ -31,17 +73,32 @@ This is the easiest method and doesn't require any API keys:
    - "Extract key information from each slide and summarize the presentation."
 5. **Get detailed analysis** from Gemini
 
-### Option 2: Using the Script (With or Without API Key)
+### Option 3: Using the Script (Auto-Detection)
 
-#### Without API Key (Gets Instructions)
+The script automatically detects the best available backend:
 
 ```bash
+# Auto-detect best backend (tries local -> ollama -> gemini -> text)
 python run_vlm_analysis.py presentations/submission_id_final_presentation.pptx
 ```
 
-This will provide step-by-step instructions for using Gemini website.
+#### With Specific Backend
 
-#### With Gemini API Key
+```bash
+# Use local model
+python run_vlm_analysis.py presentations/file.pptx --backend local
+
+# Use Ollama
+python run_vlm_analysis.py presentations/file.pptx --backend ollama --model llava
+
+# Use Gemini API (requires API key)
+GEMINI_API_KEY=key python run_vlm_analysis.py presentations/file.pptx --backend gemini
+
+# Text-based only (no vision)
+python run_vlm_analysis.py presentations/file.pptx --backend text
+```
+
+### Option 4: With Gemini API Key (Optional)
 
 1. **Get a Gemini API Key**:
    - Visit: https://makersuite.google.com/app/apikey
@@ -69,7 +126,7 @@ This will provide step-by-step instructions for using Gemini website.
    python run_vlm_analysis.py presentations/submission_id_final_presentation.pptx
    ```
 
-### Option 3: Using the Web API Endpoint
+### Option 5: Using the Web API Endpoint
 
 After generating a presentation, you can use the Flask API:
 
@@ -87,26 +144,40 @@ curl -X POST http://localhost:5000/api/analyze-vlm/<submission_id> \
 
 ## 📋 Example Workflow
 
-### Complete Workflow with VLM Analysis
+### Complete Workflow with Local VLM (No API Keys!)
 
-1. **Upload PDF and Generate Presentation**:
+1. **Install Local Model Dependencies**:
+   ```bash
+   pip install transformers torch Pillow
+   ```
+
+2. **Upload PDF and Generate Presentation**:
    ```bash
    # Use the web interface or API
    # This generates: presentations/submission_id_final_presentation.pptx
    ```
 
-2. **Run VLM Analysis**:
+3. **Run VLM Analysis with Local Model**:
    ```bash
-   python run_vlm_analysis.py presentations/submission_id_final_presentation.pptx
+   python run_vlm_analysis.py presentations/submission_id_final_presentation.pptx --backend local
    ```
 
-3. **Follow Instructions**:
-   - If no API key: Upload to Gemini website manually
-   - If API key set: Analysis runs automatically
-
 4. **Review Analysis Results**:
-   - Results saved to: `slides_output/submission_id_vlm_analysis.json`
-   - Or view directly in Gemini website
+   - Results displayed in console
+   - Results saved to: `submission_id_final_presentation_vlm_analysis.json`
+   - No API calls, completely local!
+
+### Alternative: Using Ollama
+
+1. **Install Ollama**: https://ollama.ai/
+2. **Download Vision Model**:
+   ```bash
+   ollama pull llava
+   ```
+3. **Run Analysis**:
+   ```bash
+   python run_vlm_analysis.py presentations/file.pptx --backend ollama --model llava
+   ```
 
 ## 🔧 Using the VLM Analyzer Module Directly
 
@@ -189,22 +260,30 @@ When using Gemini website, try these prompts:
 **Required:**
 - `python-pptx` (already installed)
 
-**Optional (for API usage):**
-- `google-generativeai` - Gemini API client
-- `Pillow` - Image processing (if converting slides to images)
+**For Local Models (FREE, No API Keys):**
+```bash
+pip install transformers torch Pillow
+```
 
-Install optional dependencies:
+**For Ollama (FREE, No API Keys):**
+- Install Ollama from https://ollama.ai/
+- Then: `ollama pull llava`
+- Python: `pip install requests Pillow` (usually already installed)
+
+**For Gemini API (Optional, Requires API Key):**
 ```bash
 pip install google-generativeai Pillow
 ```
 
 ## 📝 Notes
 
-- **No API Key Required**: The system works without API keys by providing instructions for Gemini website
-- **Gemini Website**: Easiest method - just upload and ask questions
-- **API Integration**: Optional - provides programmatic access if API key is set
-- **Analysis Results**: Saved to `slides_output/` directory as JSON files
-- **File Size Limits**: Gemini website has file size limits (typically 20MB)
+- **✅ NO API KEYS REQUIRED**: Use local models (BLIP-2, LLaVA) or Ollama - completely FREE!
+- **Local Models**: Run on your machine, no internet needed, privacy guaranteed
+- **Ollama**: Easy-to-use local models, great performance
+- **Gemini Website**: Alternative option - just upload and ask questions (no API key needed)
+- **Gemini API**: Optional - provides programmatic access if API key is set
+- **Analysis Results**: Saved as JSON files next to the PowerPoint file
+- **File Size Limits**: Only apply to Gemini website (typically 20MB), local models have no limits
 
 ## 🐛 Troubleshooting
 

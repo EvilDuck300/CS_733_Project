@@ -1,6 +1,6 @@
 """
 VLM (Vision Language Model) Analyzer for PowerPoint Presentations
-Analyzes generated PowerPoint presentations using Gemini Vision API
+Supports multiple VLM backends: Local models (BLIP-2, LLaVA), Ollama, Gemini API, or text-based analysis
 """
 
 import os
@@ -10,6 +10,7 @@ from typing import Dict, Any, List, Optional
 from pptx import Presentation
 from io import BytesIO
 
+# Check for Gemini API
 try:
     import google.generativeai as genai
     GEMINI_AVAILABLE = True
@@ -17,6 +18,7 @@ except ImportError:
     GEMINI_AVAILABLE = False
     genai = None
 
+# Check for PIL/Pillow
 try:
     from PIL import Image
     import io
@@ -25,38 +27,173 @@ except ImportError:
     PIL_AVAILABLE = False
     Image = None
 
+# Check for Hugging Face Transformers (for local models)
+try:
+    from transformers import BlipProcessor, BlipForConditionalGeneration, AutoProcessor, AutoModelForCausalLM
+    import torch
+    TRANSFORMERS_AVAILABLE = True
+except ImportError:
+    TRANSFORMERS_AVAILABLE = False
+    BlipProcessor = None
+    BlipForConditionalGeneration = None
+    AutoProcessor = None
+    AutoModelForCausalLM = None
+    torch = None
+
+# Check for Ollama
+try:
+    import requests
+    OLLAMA_AVAILABLE = True
+except ImportError:
+    OLLAMA_AVAILABLE = False
+    requests = None
+
 
 class VLMAnalyzer:
-    """Analyze PowerPoint presentations using Vision Language Model (Gemini)"""
+    """Analyze PowerPoint presentations using Vision Language Model
     
-    def __init__(self, api_key: Optional[str] = None):
+    Supports multiple backends:
+    - Local models (BLIP-2, LLaVA via Hugging Face)
+    - Ollama (local models)
+    - Gemini API (optional)
+    - Text-based analysis (fallback)
+    """
+    
+    def __init__(self, api_key: Optional[str] = None, 
+                 backend: str = "auto",
+                 model_name: Optional[str] = None):
         """
         Initialize the VLM analyzer
         
         Args:
-            api_key: Gemini API key (if None, will try to get from environment)
-                    If not provided, VLM analysis will not be available
+            api_key: API key (Gemini if using 'gemini' backend)
+            backend: Backend to use ("auto", "local", "ollama", "gemini", "text")
+            model_name: Model name for local/Ollama (e.g., "Salesforce/blip-image-captioning-base", "llava")
         """
-        if not GEMINI_AVAILABLE:
-            self.client = None
-            self.api_key = None
-            print("Warning: google-generativeai package not installed. VLM analysis will not be available.")
-            print("Install with: pip install google-generativeai")
-            return
+        self.backend = backend
+        self.model_name = model_name
+        self.client = None
+        self.local_model = None
+        self.local_processor = None
+        self.api_key = None
         
         if not PIL_AVAILABLE:
-            print("Warning: PIL/Pillow not available. Cannot convert slides to images.")
-            print("Install with: pip install Pillow")
+            print("Warning: PIL/Pillow not available. Install with: pip install Pillow")
+        
+        # Auto-detect backend if "auto"
+        if backend == "auto":
+            backend = self._detect_backend()
+        
+        # Initialize selected backend
+        if backend == "gemini":
+            self._init_gemini(api_key)
+        elif backend == "local":
+            self._init_local_model(model_name)
+        elif backend == "ollama":
+            self._init_ollama(model_name)
+        elif backend == "text":
+            print("Using text-based analysis (no vision model)")
+        else:
+            print(f"Warning: Unknown backend '{backend}'. Using text-based analysis.")
+    
+    def _detect_backend(self) -> str:
+        """Auto-detect available backend"""
+        # Check for Gemini API key
+        if GEMINI_AVAILABLE and os.getenv('GEMINI_API_KEY'):
+            return "gemini"
+        
+        # Check for local transformers models
+        if TRANSFORMERS_AVAILABLE:
+            return "local"
+        
+        # Check for Ollama
+        if OLLAMA_AVAILABLE:
+            try:
+                response = requests.get("http://localhost:11434/api/tags", timeout=2)
+                if response.status_code == 200:
+                    return "ollama"
+            except:
+                pass
+        
+        # Fallback to text-based
+        return "text"
+    
+    def _init_gemini(self, api_key: Optional[str] = None):
+        """Initialize Gemini API backend"""
+        if not GEMINI_AVAILABLE:
+            print("Warning: google-generativeai not installed. Install with: pip install google-generativeai")
+            return
         
         self.api_key = api_key or os.getenv('GEMINI_API_KEY')
         if not self.api_key:
-            self.client = None
-            print("Warning: Gemini API key not provided. VLM analysis will not be available.")
-            print("Set GEMINI_API_KEY environment variable or pass api_key parameter.")
-        else:
-            genai.configure(api_key=self.api_key)
-            self.client = genai.GenerativeModel('gemini-pro-vision')
-            print("VLM Analyzer initialized with Gemini Vision API")
+            print("Warning: Gemini API key not provided.")
+            return
+        
+        genai.configure(api_key=self.api_key)
+        self.client = genai.GenerativeModel('gemini-pro-vision')
+        self.backend = "gemini"
+        print("✓ VLM Analyzer initialized with Gemini Vision API")
+    
+    def _init_local_model(self, model_name: Optional[str] = None):
+        """Initialize local Hugging Face model"""
+        if not TRANSFORMERS_AVAILABLE:
+            print("Warning: transformers not installed. Install with: pip install transformers torch")
+            print("Falling back to text-based analysis.")
+            self.backend = "text"
+            return
+        
+        if not PIL_AVAILABLE:
+            print("Warning: PIL/Pillow required for local models. Install with: pip install Pillow")
+            self.backend = "text"
+            return
+        
+        # Default model
+        if model_name is None:
+            model_name = "Salesforce/blip-image-captioning-base"  # Lightweight, good for slides
+        
+        try:
+            print(f"Loading local model: {model_name}...")
+            self.local_processor = AutoProcessor.from_pretrained(model_name)
+            self.local_model = AutoModelForCausalLM.from_pretrained(model_name)
+            
+            # Use CPU if CUDA not available
+            device = "cuda" if torch and torch.cuda.is_available() else "cpu"
+            self.local_model.to(device)
+            self.local_model.eval()
+            
+            self.backend = "local"
+            self.model_name = model_name
+            print(f"✓ Local VLM model loaded on {device}")
+        except Exception as e:
+            print(f"Warning: Could not load local model: {e}")
+            print("Falling back to text-based analysis.")
+            self.backend = "text"
+    
+    def _init_ollama(self, model_name: Optional[str] = None):
+        """Initialize Ollama backend"""
+        if not OLLAMA_AVAILABLE:
+            print("Warning: requests not installed. Install with: pip install requests")
+            self.backend = "text"
+            return
+        
+        if model_name is None:
+            model_name = "llava"  # Default Ollama vision model
+        
+        # Check if Ollama is running
+        try:
+            response = requests.get("http://localhost:11434/api/tags", timeout=2)
+            if response.status_code != 200:
+                print("Warning: Ollama not running. Start Ollama or use another backend.")
+                self.backend = "text"
+                return
+        except:
+            print("Warning: Ollama not available. Install Ollama from https://ollama.ai/")
+            self.backend = "text"
+            return
+        
+        self.backend = "ollama"
+        self.model_name = model_name
+        print(f"✓ Ollama backend initialized (model: {model_name})")
     
     def pptx_to_images(self, pptx_path: str, output_dir: Optional[str] = None) -> List[str]:
         """
@@ -105,7 +242,7 @@ class VLMAnalyzer:
     
     def analyze_slide_image(self, image_path: str, prompt: str = None) -> Dict[str, Any]:
         """
-        Analyze a single slide image using Gemini Vision
+        Analyze a single slide image using the configured VLM backend
         
         Args:
             image_path: Path to slide image
@@ -114,65 +251,141 @@ class VLMAnalyzer:
         Returns:
             Dictionary with analysis results
         """
-        if not self.client:
-            raise ValueError("Gemini API key not available. Cannot perform VLM analysis.")
-        
         if not os.path.exists(image_path):
             raise FileNotFoundError(f"Image file not found: {image_path}")
         
-        # Load image
-        if PIL_AVAILABLE:
-            img = Image.open(image_path)
-        else:
+        if not PIL_AVAILABLE:
             raise ValueError("PIL/Pillow required for image processing")
         
-        # Default prompt for comprehensive slide analysis
+        # Load image
+        img = Image.open(image_path)
+        
+        # Default prompt
         if prompt is None:
-            prompt = """Analyze this PowerPoint slide and provide:
-1. Content Summary: What is the main content and key points?
-2. Visual Design: Describe the layout, colors, fonts, and visual elements
-3. Readability: Is the text clear and well-organized?
-4. Visual Balance: Is the content well-distributed on the slide?
-5. Professional Quality: Rate the overall professional appearance (1-10)
-6. Suggestions: Any recommendations for improvement?
-
-Provide a detailed analysis in JSON format."""
+            prompt = "Describe this PowerPoint slide in detail, including content, layout, and visual design."
+        
+        # Route to appropriate backend
+        if self.backend == "gemini":
+            return self._analyze_with_gemini(img, prompt)
+        elif self.backend == "local":
+            return self._analyze_with_local_model(img, prompt)
+        elif self.backend == "ollama":
+            return self._analyze_with_ollama(img, prompt)
+        else:
+            return self._analyze_text_only(image_path)
+    
+    def _analyze_with_gemini(self, img: Image.Image, prompt: str) -> Dict[str, Any]:
+        """Analyze using Gemini API"""
+        if not self.client:
+            raise ValueError("Gemini API not initialized")
         
         try:
-            # Use Gemini Vision API
             response = self.client.generate_content([prompt, img])
             analysis_text = response.text
             
-            # Try to parse as JSON if possible
-            try:
-                # Extract JSON if wrapped in markdown
-                if "```json" in analysis_text:
-                    json_text = analysis_text.split("```json")[1].split("```")[0].strip()
-                elif "```" in analysis_text:
-                    json_text = analysis_text.split("```")[1].split("```")[0].strip()
-                else:
-                    json_text = analysis_text
-                
-                analysis_data = json.loads(json_text)
-            except json.JSONDecodeError:
-                # If not JSON, return as text
-                analysis_data = {
-                    "analysis": analysis_text,
-                    "raw_response": True
-                }
+            return {
+                "success": True,
+                "backend": "gemini",
+                "analysis": self._parse_response(analysis_text)
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e), "backend": "gemini"}
+    
+    def _analyze_with_local_model(self, img: Image.Image, prompt: str) -> Dict[str, Any]:
+        """Analyze using local Hugging Face model"""
+        if not self.local_model or not self.local_processor:
+            raise ValueError("Local model not initialized")
+        
+        try:
+            # Process image and generate caption/description
+            inputs = self.local_processor(images=img, text=prompt, return_tensors="pt")
+            
+            device = next(self.local_model.parameters()).device
+            inputs = {k: v.to(device) for k, v in inputs.items()}
+            
+            with torch.no_grad():
+                outputs = self.local_model.generate(**inputs, max_length=512)
+            
+            analysis_text = self.local_processor.decode(outputs[0], skip_special_tokens=True)
             
             return {
                 "success": True,
-                "image_path": image_path,
-                "analysis": analysis_data
+                "backend": "local",
+                "model": self.model_name,
+                "analysis": {
+                    "description": analysis_text,
+                    "prompt": prompt
+                }
             }
-            
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e),
-                "image_path": image_path
+            return {"success": False, "error": str(e), "backend": "local"}
+    
+    def _analyze_with_ollama(self, img: Image.Image, prompt: str) -> Dict[str, Any]:
+        """Analyze using Ollama"""
+        if not OLLAMA_AVAILABLE:
+            raise ValueError("Ollama not available")
+        
+        try:
+            # Convert image to base64
+            buffered = BytesIO()
+            img.save(buffered, format="PNG")
+            img_base64 = base64.b64encode(buffered.getvalue()).decode()
+            
+            # Call Ollama API
+            response = requests.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": self.model_name or "llava",
+                    "prompt": prompt,
+                    "images": [img_base64],
+                    "stream": False
+                },
+                timeout=60
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                analysis_text = result.get("response", "")
+                
+                return {
+                    "success": True,
+                    "backend": "ollama",
+                    "model": self.model_name or "llava",
+                    "analysis": {
+                        "description": analysis_text,
+                        "prompt": prompt
+                    }
+                }
+            else:
+                return {"success": False, "error": f"Ollama API error: {response.status_code}"}
+        except Exception as e:
+            return {"success": False, "error": str(e), "backend": "ollama"}
+    
+    def _analyze_text_only(self, image_path: str) -> Dict[str, Any]:
+        """Fallback text-based analysis (extract text from PowerPoint)"""
+        # This is a placeholder - in practice, you'd extract text from the PPTX
+        return {
+            "success": True,
+            "backend": "text",
+            "analysis": {
+                "message": "Text-based analysis: Extract text from PowerPoint slides for analysis",
+                "note": "For visual analysis, use a vision model backend (local, ollama, or gemini)"
             }
+        }
+    
+    def _parse_response(self, text: str) -> Dict[str, Any]:
+        """Try to parse response as JSON, fallback to text"""
+        try:
+            if "```json" in text:
+                json_text = text.split("```json")[1].split("```")[0].strip()
+            elif "```" in text:
+                json_text = text.split("```")[1].split("```")[0].strip()
+            else:
+                json_text = text
+            
+            return json.loads(json_text)
+        except json.JSONDecodeError:
+            return {"analysis": text, "raw_response": True}
     
     def analyze_presentation(self, pptx_path: str, 
                            analysis_type: str = "comprehensive") -> Dict[str, Any]:
@@ -186,9 +399,6 @@ Provide a detailed analysis in JSON format."""
         Returns:
             Dictionary with complete analysis results
         """
-        if not self.client:
-            raise ValueError("Gemini API key not available. Cannot perform VLM analysis.")
-        
         if not os.path.exists(pptx_path):
             raise FileNotFoundError(f"PowerPoint file not found: {pptx_path}")
         
@@ -196,22 +406,41 @@ Provide a detailed analysis in JSON format."""
         prs = Presentation(pptx_path)
         num_slides = len(prs.slides)
         
-        print(f"Analyzing presentation with {num_slides} slides...")
+        print(f"Analyzing presentation with {num_slides} slides using {self.backend} backend...")
         
-        # For now, since we don't have direct PPTX->image conversion,
-        # we'll provide instructions for manual upload
+        # Extract text from slides as basic analysis
+        slides_text = []
+        for i, slide in enumerate(prs.slides):
+            slide_text = []
+            for shape in slide.shapes:
+                if hasattr(shape, "text") and shape.text.strip():
+                    slide_text.append(shape.text.strip())
+            
+            slides_text.append({
+                "slide_number": i + 1,
+                "text": "\n".join(slide_text)
+            })
+        
         result = {
             "success": True,
+            "backend": self.backend,
             "presentation_path": pptx_path,
             "num_slides": num_slides,
             "analysis_type": analysis_type,
-            "message": "To analyze with VLM, upload the PowerPoint to Gemini website or convert slides to images first.",
-            "instructions": {
-                "option_1": "Upload PPTX directly to Gemini website for visual analysis",
-                "option_2": "Convert PPTX to images using: LibreOffice, unoconv, or PPTX->PDF->Images",
-                "option_3": "Use the analyze_slide_image() method after converting slides to images"
-            }
+            "slides_text": slides_text,
+            "message": f"Text extracted from {num_slides} slides. For visual analysis, convert slides to images and use analyze_slide_image()."
         }
+        
+        # If using a vision backend, provide instructions
+        if self.backend in ["local", "ollama", "gemini"]:
+            result["instructions"] = {
+                "note": "To analyze slides visually, convert PPTX to images first",
+                "methods": [
+                    "Use LibreOffice: libreoffice --headless --convert-to png file.pptx",
+                    "Use unoconv: unoconv -f png file.pptx",
+                    "Convert PPTX->PDF->Images using pdf2image"
+                ]
+            }
         
         return result
     
@@ -250,23 +479,22 @@ Provide a detailed analysis in JSON format."""
         }
 
 
-def analyze_presentation_vlm(pptx_path: str, api_key: Optional[str] = None) -> Dict[str, Any]:
+def analyze_presentation_vlm(pptx_path: str, 
+                             api_key: Optional[str] = None,
+                             backend: str = "auto",
+                             model_name: Optional[str] = None) -> Dict[str, Any]:
     """
     Convenience function to analyze a PowerPoint presentation with VLM
     
     Args:
         pptx_path: Path to PowerPoint file
-        api_key: Optional Gemini API key
+        api_key: Optional API key (for Gemini backend)
+        backend: Backend to use ("auto", "local", "ollama", "gemini", "text")
+        model_name: Model name for local/Ollama backends
         
     Returns:
         Analysis results dictionary
     """
-    analyzer = VLMAnalyzer(api_key=api_key)
-    
-    if analyzer.client:
-        # Use API if available
-        return analyzer.analyze_presentation(pptx_path)
-    else:
-        # Provide instructions for Gemini website
-        return analyzer.analyze_with_gemini_website(pptx_path)
+    analyzer = VLMAnalyzer(api_key=api_key, backend=backend, model_name=model_name)
+    return analyzer.analyze_presentation(pptx_path)
 

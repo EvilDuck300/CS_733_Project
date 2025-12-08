@@ -19,6 +19,8 @@ python-pptx==0.6.21
 scikit-learn==1.4.0
 numpy==1.24.3
 
-# Optional: VLM Analysis with Gemini Vision API
-# google-generativeai  # For Gemini Vision API integration
-# Pillow  # For image processing (if converting slides to images)
+# Optional: VLM Analysis (NO API KEYS REQUIRED!)
+# transformers torch  # For local VLM models (BLIP-2, LLaVA) - FREE, runs locally
+# Pillow  # For image processing (required for vision models)
+# requests  # For Ollama integration (if using Ollama backend)
+# google-generativeai  # For Gemini API (optional, requires API key)
