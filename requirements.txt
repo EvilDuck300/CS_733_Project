@@ -18,3 +18,7 @@ python-pptx==0.6.21
 # For evaluation and scoring
 scikit-learn==1.4.0
 numpy==1.24.3
+
+# Optional: VLM Analysis with Gemini Vision API
+# google-generativeai  # For Gemini Vision API integration
+# Pillow  # For image processing (if converting slides to images)

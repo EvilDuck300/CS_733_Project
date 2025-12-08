@@ -11,6 +11,7 @@ from utils.retrieval_gnn import GNNRetrieval
 from utils.slide_generator import SlideGenerator
 from utils.evaluator import SlideEvaluator
 from utils.presentation_builder import create_presentation_from_slides_data
+from utils.vlm_analyzer import VLMAnalyzer, analyze_presentation_vlm
 
 app = Flask(__name__)
 
@@ -400,6 +401,63 @@ def download_presentation(submission_id):
         
     except Exception as e:
         print(f"Error downloading presentation: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/analyze-vlm/<submission_id>', methods=['POST'])
+def analyze_presentation_with_vlm(submission_id):
+    """Analyze PowerPoint presentation using VLM (Gemini Vision)"""
+    try:
+        pptx_filename = f"{submission_id}_final_presentation.pptx"
+        pptx_filepath = os.path.join(app.config['PRESENTATIONS_FOLDER'], pptx_filename)
+        
+        if not os.path.exists(pptx_filepath):
+            return jsonify({'error': 'Presentation not found'}), 404
+        
+        # Get analysis type from request (optional)
+        data = request.json or {}
+        analysis_type = data.get('analysis_type', 'comprehensive')
+        
+        # Analyze with VLM
+        result = analyze_presentation_vlm(pptx_filepath)
+        
+        # Save analysis results
+        analysis_filename = f"{submission_id}_vlm_analysis.json"
+        analysis_filepath = os.path.join(app.config['SLIDES_OUTPUT_FOLDER'], analysis_filename)
+        with open(analysis_filepath, 'w', encoding='utf-8') as f:
+            json.dump(result, f, indent=2, ensure_ascii=False)
+        
+        return jsonify({
+            'success': True,
+            'message': 'VLM analysis completed',
+            'analysis': result,
+            'analysis_file': analysis_filepath
+        }), 200
+        
+    except Exception as e:
+        print(f"Error analyzing presentation with VLM: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/vlm-instructions/<submission_id>')
+def get_vlm_instructions(submission_id):
+    """Get instructions for analyzing PowerPoint with Gemini website"""
+    try:
+        pptx_filename = f"{submission_id}_final_presentation.pptx"
+        pptx_filepath = os.path.join(app.config['PRESENTATIONS_FOLDER'], pptx_filename)
+        
+        if not os.path.exists(pptx_filepath):
+            return jsonify({'error': 'Presentation not found'}), 404
+        
+        analyzer = VLMAnalyzer()
+        instructions = analyzer.analyze_with_gemini_website(pptx_filepath)
+        
+        return jsonify({
+            'success': True,
+            'instructions': instructions,
+            'download_url': f'/api/download/{submission_id}'
+        }), 200
+        
+    except Exception as e:
+        print(f"Error getting VLM instructions: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/feedback', methods=['POST'])
