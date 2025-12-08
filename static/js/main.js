@@ -140,15 +140,23 @@ inputForm.addEventListener('submit', async function(e) {
         const data = await response.json();
 
         if (response.ok) {
-            showStatus('Form submitted successfully! Processing your request...', 'success');
-            // Reset form after successful submission
-            setTimeout(() => {
-                inputForm.reset();
-                fileNameDisplay.classList.remove('show');
-                charCount.textContent = '0';
-                fileUploadLabel.style.borderColor = '#667eea';
-                fileUploadLabel.style.background = '#f8f9ff';
-            }, 2000);
+            if (data.has_slides && data.num_versions > 0) {
+                showStatus('Slides generated successfully! Redirecting to review...', 'success');
+                // Redirect to review page after a short delay
+                setTimeout(() => {
+                    window.location.href = `/review/${data.submission_id}`;
+                }, 2000);
+            } else {
+                showStatus('Form submitted successfully! Processing your request...', 'success');
+                // Reset form after successful submission
+                setTimeout(() => {
+                    inputForm.reset();
+                    fileNameDisplay.classList.remove('show');
+                    charCount.textContent = '0';
+                    fileUploadLabel.style.borderColor = '#667eea';
+                    fileUploadLabel.style.background = '#f8f9ff';
+                }, 2000);
+            }
         } else {
             showStatus(data.error || 'An error occurred. Please try again.', 'error');
         }
