@@ -7,23 +7,25 @@ Returns JSON file containing relevant chunks for slide generation
 import json
 import os
 import re
+import warnings
+import sys
+import io
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
-try:
-    import fitz  # PyMuPDF
-    PDF_IMAGE_LIB = 'pymupdf'
-except ImportError:
-    PDF_IMAGE_LIB = None
-    print("Warning: PyMuPDF not available. Image extraction disabled.")
+# Suppress PDF parsing warnings (these are non-fatal color parsing issues)
+warnings.filterwarnings('ignore', category=UserWarning)
+warnings.filterwarnings('ignore', message=r'.*invalid float value.*')
+warnings.filterwarnings('ignore', message=r'.*Cannot set gray.*')
+warnings.filterwarnings('ignore', message=r'.*P\d+.*')
 
-# PDF processing imports with fallbacks
+# PDF processing imports - using pdfplumber only
 try:
     import pdfplumber
     PDF_LIBRARY = 'pdfplumber'
 except ImportError:
     PDF_LIBRARY = None
-    print("Warning: No PDF library found. Install PyPDF2 or pdfplumber for PDF processing.")
+    print("Warning: pdfplumber not found. Install with: pip install pdfplumber")
 
 # Embedding imports (for semantic similarity) - optional
 try:
@@ -103,7 +105,7 @@ class GNNRetrieval:
     
     def extract_text_from_pdf(self, pdf_path: str) -> str:
         """
-        Extract text from PDF file
+        Extract text from PDF file using pdfplumber
         
         Args:
             pdf_path: Path to the PDF file
@@ -112,20 +114,38 @@ class GNNRetrieval:
             Extracted text as string
         """
         if PDF_LIBRARY is None:
-            raise ImportError("No PDF library available. Please install PyPDF2 or pdfplumber.")
+            raise ImportError("No PDF library available. Please install pdfplumber.")
         
         text = ""
         
-        if PDF_LIBRARY == 'pdfplumber':
-            try:
-                with pdfplumber.open(pdf_path) as pdf:
-                    for page in pdf.pages:
+        # Suppress warnings and stderr during PDF processing
+        # The "Cannot set gray non-stroke color" warnings are non-fatal
+        old_stderr = sys.stderr
+        sys.stderr = io.StringIO()
+        
+        try:
+            with pdfplumber.open(pdf_path) as pdf:
+                for page_num, page in enumerate(pdf.pages, 1):
+                    try:
                         page_text = page.extract_text()
                         if page_text:
                             text += page_text + "\n"
-            except Exception as e:
-                print(f"Error extracting text with pdfplumber: {e}")
-                raise
+                    except Exception as page_error:
+                        # Continue with next page if one page fails
+                        # These warnings are usually non-fatal color parsing issues
+                        error_str = str(page_error).lower()
+                        if "invalid float value" not in error_str and "cannot set gray" not in error_str:
+                            # Only print real errors, not color parsing warnings
+                            print(f"Warning: Could not extract text from page {page_num}: {page_error}")
+                        continue
+        except Exception as e:
+            # Restore stderr before printing error
+            sys.stderr = old_stderr
+            print(f"Error extracting text with pdfplumber: {e}")
+            raise
+        finally:
+            # Always restore stderr
+            sys.stderr = old_stderr
         
         return text
     

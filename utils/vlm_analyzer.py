@@ -100,7 +100,7 @@ class VLMAnalyzer:
     def _detect_backend(self) -> str:
         """Auto-detect available backend"""
         # Check for Gemini API key
-        if GEMINI_AVAILABLE and os.getenv('GEMINI_API_KEY'):
+        if GEMINI_AVAILABLE:
             return "gemini"
         
         # Check for local transformers models
@@ -452,6 +452,205 @@ class VLMAnalyzer:
             result["has_improvements"] = False
         
         return result
+    
+    def evaluate_with_scores(self, pptx_path: str, 
+                           description: str = "",
+                           audience_type: str = "general") -> Dict[str, Any]:
+        """
+        Evaluate presentation and return structured scores and suggestions
+        
+        Args:
+            pptx_path: Path to PowerPoint file
+            description: Original description/request
+            audience_type: Target audience type
+            
+        Returns:
+            Dictionary with scores, suggestions, and structured feedback
+        """
+        # First get basic analysis
+        analysis = self.analyze_presentation(pptx_path, analysis_type="comprehensive", generate_improved=False)
+        
+        # Build evaluation prompt for VLM
+        slides_text = "\n\n".join([
+            f"Slide {s['slide_number']}: {s['title']}\n{s['text']}"
+            for s in analysis.get('original_slides', [])
+        ])
+        
+        evaluation_prompt = f"""Evaluate this PowerPoint presentation and provide scores (0-100) and suggestions in JSON format.
+
+DESCRIPTION: {description}
+AUDIENCE: {audience_type}
+
+SLIDES:
+{slides_text[:3000]}
+
+Provide evaluation in this JSON format:
+{{
+  "scores": {{
+    "visual_design": 85,
+    "content_quality": 90,
+    "layout_balance": 80,
+    "readability": 88,
+    "professional_appearance": 87
+  }},
+  "overall_score": 86,
+  "suggestions": {{
+    "visual": ["Improve color contrast", "Add more visual elements"],
+    "content": ["Clarify slide 3", "Add more examples"],
+    "layout": ["Reduce text on slide 2", "Better spacing"],
+    "general": ["Overall good, minor improvements needed"]
+  }},
+  "strengths": ["Clear structure", "Good visual design"],
+  "weaknesses": ["Some slides too dense", "Could use more visuals"],
+  "priority_improvements": ["Reduce text density", "Add visual aids"]
+}}
+
+Return only valid JSON:"""
+        
+        # Get VLM evaluation
+        vlm_scores = self._get_vlm_evaluation(evaluation_prompt, analysis)
+        
+        # Combine results
+        result = {
+            "success": True,
+            "pptx_path": pptx_path,
+            "backend": self.backend,
+            "scores": vlm_scores.get("scores", {}),
+            "overall_score": vlm_scores.get("overall_score", 0),
+            "suggestions": vlm_scores.get("suggestions", {}),
+            "strengths": vlm_scores.get("strengths", []),
+            "weaknesses": vlm_scores.get("weaknesses", []),
+            "priority_improvements": vlm_scores.get("priority_improvements", []),
+            "analysis": analysis
+        }
+        
+        return result
+    
+    def _get_vlm_evaluation(self, prompt: str, analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Get evaluation from VLM backend"""
+        try:
+            if self.backend == "gemini" and self.client:
+                return self._evaluate_with_gemini(prompt)
+            elif self.backend == "ollama":
+                return self._evaluate_with_ollama(prompt)
+            elif self.backend == "local" and self.local_model:
+                return self._evaluate_with_local(prompt)
+            else:
+                # Fallback: rule-based scoring
+                return self._evaluate_rule_based(analysis)
+        except Exception as e:
+            print(f"Error in VLM evaluation: {e}")
+            return self._evaluate_rule_based(analysis)
+    
+    def _evaluate_with_gemini(self, prompt: str) -> Dict[str, Any]:
+        """Evaluate using Gemini API"""
+        if not self.client:
+            return self._evaluate_rule_based({})
+        
+        try:
+            response = self.client.generate_content(prompt)
+            text = response.text.strip()
+            
+            # Try to extract JSON
+            if "```json" in text:
+                json_text = text.split("```json")[1].split("```")[0].strip()
+            elif "```" in text:
+                json_text = text.split("```")[1].split("```")[0].strip()
+            else:
+                json_text = text
+            
+            return json.loads(json_text)
+        except Exception as e:
+            print(f"Error parsing Gemini response: {e}")
+            return self._evaluate_rule_based({})
+    
+    def _evaluate_with_ollama(self, prompt: str) -> Dict[str, Any]:
+        """Evaluate using Ollama"""
+        if not OLLAMA_AVAILABLE:
+            return self._evaluate_rule_based({})
+        
+        try:
+            response = requests.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": self.model_name or "llava",
+                    "prompt": prompt,
+                    "stream": False
+                },
+                timeout=60
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                text = result.get("response", "")
+                
+                # Try to extract JSON
+                if "```json" in text:
+                    json_text = text.split("```json")[1].split("```")[0].strip()
+                elif "```" in text:
+                    json_text = text.split("```")[1].split("```")[0].strip()
+                else:
+                    json_text = text
+                
+                return json.loads(json_text)
+        except Exception as e:
+            print(f"Error with Ollama evaluation: {e}")
+        
+        return self._evaluate_rule_based({})
+    
+    def _evaluate_with_local(self, prompt: str) -> Dict[str, Any]:
+        """Evaluate using local model (limited capability)"""
+        # Local models may not support structured JSON output well
+        # Return rule-based for now
+        return self._evaluate_rule_based({})
+    
+    def _evaluate_rule_based(self, analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Fallback rule-based evaluation"""
+        num_slides = analysis.get('num_slides', 1)
+        slides_data = analysis.get('original_slides', [])
+        
+        # Basic scoring based on heuristics
+        visual_score = 75
+        content_score = 75
+        layout_score = 75
+        readability_score = 75
+        professional_score = 75
+        
+        # Adjust scores based on slide count and content
+        if 5 <= num_slides <= 15:
+            layout_score += 5
+        
+        # Check for text density
+        for slide in slides_data:
+            text_len = len(slide.get('text', ''))
+            if text_len > 500:
+                layout_score -= 5
+                readability_score -= 5
+            elif 100 <= text_len <= 300:
+                layout_score += 2
+                readability_score += 2
+        
+        overall = (visual_score + content_score + layout_score + readability_score + professional_score) / 5
+        
+        return {
+            "scores": {
+                "visual_design": visual_score,
+                "content_quality": content_score,
+                "layout_balance": layout_score,
+                "readability": readability_score,
+                "professional_appearance": professional_score
+            },
+            "overall_score": overall,
+            "suggestions": {
+                "visual": ["Consider adding more visual elements"],
+                "content": ["Review content for clarity"],
+                "layout": ["Ensure balanced text distribution"],
+                "general": ["Overall good presentation"]
+            },
+            "strengths": ["Well-structured slides", "Appropriate content"],
+            "weaknesses": ["Could improve visual elements"],
+            "priority_improvements": ["Add visual aids", "Review text density"]
+        }
     
     def _generate_improved_slides(self, original_slides: List[Dict[str, Any]], 
                                  analysis_type: str) -> Dict[str, Any]:

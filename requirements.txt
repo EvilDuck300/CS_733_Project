@@ -6,21 +6,22 @@ PyPDF2==3.0.1
 # pdfplumber==0.10.3  # Alternative to PyPDF2
 
 # Optional: For better semantic similarity (recommended)
-# sentence-transformers==2.2.2
-# numpy==1.24.3
+sentence-transformers==2.2.2
+numpy==1.24.3
 
 # PowerPoint generation
 python-pptx==0.6.21
 
-# OpenAI API for ChatGPT 4o integration (optional - not needed if using Gemini website)
-# openai==1.12.0
+# Gemini API for slide generation and evaluation
+google-genai>=0.3.0
+
+pip install python-dotenv==1.2.1
 
 # For evaluation and scoring
 scikit-learn==1.4.0
-numpy==1.24.3
 
 # Optional: VLM Analysis (NO API KEYS REQUIRED!)
 # transformers torch  # For local VLM models (BLIP-2, LLaVA) - FREE, runs locally
 # Pillow  # For image processing (required for vision models)
 # requests  # For Ollama integration (if using Ollama backend)
-# google-generativeai  # For Gemini API (optional, requires API key)
+#AIzaSyCd2l36ok6XKqLVlZDkSsh9rRBjaB_ocHo# OpenAI API key for GPT-4V access (if using OpenAI backend)

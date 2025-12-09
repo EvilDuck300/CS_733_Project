@@ -1,0 +1,111 @@
+{
+  "metadata": {
+    "pdf_path": "uploads\\9af77910-8ef4-41c8-b82a-8bc3a2f607bb_drylab.pdf",
+    "description": "Create 1-3 slides that explains about the paper.",
+    "audience_type": "academic",
+    "total_chunks": 2,
+    "relevant_chunks_count": 2,
+    "total_edges": 1,
+    "num_images": 4,
+    "timestamp": "2025-12-09T08:13:04.265757",
+    "processing_method": "embedding"
+  },
+  "graph_structure": {
+    "nodes": [
+      {
+        "id": 0,
+        "text": "DrylabNews\nfor investors & friends · May 2017\nWelcome to our first newsletter of 2017! It's the 2.05 MNOK loan from Innovation\nbeen a while since the last one, and a lot has Norway. Including the development\nhappened. We promise to keep them coming agreement with Filmlance International, the\nevery two months hereafter, and permit total new capital is 5 MNOK, partly tied to\nourselves to make this one rather long. The the successful completion of milestones. All\nbig news is the beginnings of our launch in formalities associated with this process are\nthe American market, but there are also now finalized. interesting updates on sales, development,\nNew owners:We would especially like to\nmentors and (of course) the investment\nwarmly welcome our new owners to the\nround that closed in January. Drylab family: Unni Jacobsen, Torstein Jahr,\nNew capital:The investment round was Suzanne Bolstad, Eivind Bergene, Turid Brun,\nsuccessful. We raised 2.13 MNOK to match Vigdis Trondsen, Lea Blindheim, Kristine\n34 Academy of Motion Picture Arts and Sciences · Alesha & Jamie Metzger · Amazon\nAWS · Apple · Caitlin Burns, PGA · Carlos Melcer · Chimney L.A. · Dado Valentic ·\nDave Stump · DIT WIT · ERA NYC · Facebook · Fancy Film · FilmLight · Geo Labelle ·\nmmeeeettiinnggss\nGoogle · IBM · Innovation Norway (NYC) · Innovation Norway (SF) · International\nNNYY ·· SSFF\nCinematographers Guild · NBC · Local 871 · Netflix · Pomfort · Radiant Images ·\nLLAA ·· LLVV\nScreening Room · Signiant · Moods of Norway · Tapad · Team Downey\nHolmsen, Torstein Hansen, and Jostein accomplished producer based in New York,\nAanensen. We look forward to working with an active member of the Producers Guild of\nyou! America, and the collaboration has already\nyielded good results, including valuable\nSales:Return customer rate is now 80%,\ncontacts for our visit in Los Angeles. Oscar-\nproving value and willingness to pay. Film\nwinning VFX supervisorDave Stumpjoined\nFactory Montreal is our first customer in\nus earlier. Canada. Lumiere Numeriques have started\nusing us in France. We also have new New York, St. Louis, San Francisco and\ncustomers in Norway, and high-profile users Los Angeles:Pontus and Audun did a tour\nsuch as Gareth Unwin, producer of Oscar- of the US in February and March, meeting\nwinningThe King's Speech. Revenue for the users, partners and potential customers. The\nfirst four months is 200 kNOK, compared to trip was very successful, with several high\n339 kNOK for all of 2016. We are working points, including meetings with Netflix, the\non a partnership to safeguard sales in Academy of Motion Picture Arts and\nNorway while beginning to focus more on Sciences, the International\nthe US. Cinematographers Guild, Local 871 (the\nscript supervisors' union), one of the world's\nleading DITs, and Apple. See the separate\nattachment for a more detailed summary. NAB:Andreas and Audun travelled to the\nNational Association of Broadcasters\nconvention (NAB) in Las Vegas for three\nhectic days in April. NAB gathers 100,000\nparticipants from film and TV.",
+        "word_count": 500,
+        "char_count": 3043,
+        "start_sentence": true,
+        "end_sentence": false
+      },
+      {
+        "id": 1,
+        "text": "See the separate\nattachment for a more detailed summary. NAB:Andreas and Audun travelled to the\nNational Association of Broadcasters\nconvention (NAB) in Las Vegas for three\nhectic days in April. NAB gathers 100,000\nparticipants from film and TV. It's a very\nefficient way of meeting people in the\nbusiness, and getting an updated picture of\nthe business landscape. The most exciting\nNew team members:We've extended our\nmeeting was with PIX System, one of our\norganization with two permanent developers\nmost important competitors. It was\nbased in Łódź, the film capital of Poland. Two\ninteresting to note that they regarded the\nhighly skilled interns from the University of\nindie market as bigger than their own. Oslo's Entrepreneurship Program, will be\nAndreas was able to secure us an\nworking on market research until mid-June\ninvitation to the DIT-WIT party, with some of\n(starting in March), preparing for the US\nthe world's leading DITs in attendance. It was\nlaunch. Also, two computer science students\na great place for informal feedback on Drylab\nare working as part-time interns during\nViewer. The pattern was the same as for\nspring, on machine learning and analysis\nother users: Initial polite interest turns to\nresearch, as well as innovative architectures\nreal enthusiasm the moment someone is able\nbased on the Swift language. We hope our\nto personally try Drylab Viewer! We also\ninterns will consider sticking around! met with Pomfort and Apple about our on-\nNew mentor:We are honored to have\ngoing collaborations; ARRI and Teradek/\nCaitlin Burns joining us as a mentor. She's an\nParalinx about camera integration; Amazon, The launch of Drylab 3.0 will take place at\nGoogle and IBM about cloud computing. the International Broadcasters Convention\nin Amsterdam in September, and we are\nWWDC and Silicon Valley:We were very\nworking hard to get solid feedback from pilot\npleasantly surprised to be invited by Apple to\nusers before then. their World Wide Developers Conference in\nSan Jose in June, despite not having applied. Annual General Meeting:Drylab's AGM\nIt's a valuable chance to learn and make new will be held on June 16th at 15:00. An\nconnections. We’re also setting aside time to invitation will be distributed to all owners\nmeet other potential partners. well in advance. We hope to see you there! Cine Gear:We have decided not to attend As you can see it has been a hectic\nthe Cine Gear expo in L.A. this year, since spring that has given us a lot of\nfeedback from many users about the show confirmation about our product. We\nwere mixed, and our planned beta version of are now working eagerly and hard\n3.0 is slightly delayed. towards the US launch with Drylab 3.0,\nwhile keeping momentum in Europe\nDevelopment and launch:Development\nwith our existing system. is around one month behind our original\nschedule. We expect the delay to decrease,\nwith new developers on board. [Drylabhas kindly allowed this newsletter to be redone in HTML/CSS and converted to PDF\nwithPrince.Navngenhelped anonymize names in the process.]",
+        "word_count": 497,
+        "char_count": 3041,
+        "start_sentence": false,
+        "end_sentence": true
+      }
+    ],
+    "edges": [
+      {
+        "source": 0,
+        "target": 1,
+        "weight": 0.5320388674736023,
+        "type": "semantic_similarity"
+      }
+    ]
+  },
+  "images": [
+    {
+      "id": "page1_img1",
+      "page": 1,
+      "path": "uploads/extracted_images/page1_img1.png",
+      "bbox": [
+        56.6929,
+        177.05990000000008,
+        538.5826999999999,
+        426.3613
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page2_img1",
+      "page": 2,
+      "path": "uploads/extracted_images/page2_img1.png",
+      "bbox": [
+        56.6929,
+        346.0642,
+        291.63779999999997,
+        502.4494
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page3_img1",
+      "page": 3,
+      "path": "uploads/extracted_images/page3_img1.png",
+      "bbox": [
+        514.5827,
+        358.06300000000005,
+        538.5827,
+        381.7592
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page3_img2",
+      "page": 3,
+      "path": "uploads/extracted_images/page3_img2.png",
+      "bbox": [
+        56.6929,
+        417.5151,
+        538.5826999999999,
+        738.5742
+      ],
+      "caption": ""
+    }
+  ],
+  "relevant_chunks": [
+    {
+      "id": 1,
+      "text": "See the separate\nattachment for a more detailed summary. NAB:Andreas and Audun travelled to the\nNational Association of Broadcasters\nconvention (NAB) in Las Vegas for three\nhectic days in April. NAB gathers 100,000\nparticipants from film and TV. It's a very\nefficient way of meeting people in the\nbusiness, and getting an updated picture of\nthe business landscape. The most exciting\nNew team members:We've extended our\nmeeting was with PIX System, one of our\norganization with two permanent developers\nmost important competitors. It was\nbased in Łódź, the film capital of Poland. Two\ninteresting to note that they regarded the\nhighly skilled interns from the University of\nindie market as bigger than their own. Oslo's Entrepreneurship Program, will be\nAndreas was able to secure us an\nworking on market research until mid-June\ninvitation to the DIT-WIT party, with some of\n(starting in March), preparing for the US\nthe world's leading DITs in attendance. It was\nlaunch. Also, two computer science students\na great place for informal feedback on Drylab\nare working as part-time interns during\nViewer. The pattern was the same as for\nspring, on machine learning and analysis\nother users: Initial polite interest turns to\nresearch, as well as innovative architectures\nreal enthusiasm the moment someone is able\nbased on the Swift language. We hope our\nto personally try Drylab Viewer! We also\ninterns will consider sticking around! met with Pomfort and Apple about our on-\nNew mentor:We are honored to have\ngoing collaborations; ARRI and Teradek/\nCaitlin Burns joining us as a mentor. She's an\nParalinx about camera integration; Amazon, The launch of Drylab 3.0 will take place at\nGoogle and IBM about cloud computing. the International Broadcasters Convention\nin Amsterdam in September, and we are\nWWDC and Silicon Valley:We were very\nworking hard to get solid feedback from pilot\npleasantly surprised to be invited by Apple to\nusers before then. their World Wide Developers Conference in\nSan Jose in June, despite not having applied. Annual General Meeting:Drylab's AGM\nIt's a valuable chance to learn and make new will be held on June 16th at 15:00. An\nconnections. We’re also setting aside time to invitation will be distributed to all owners\nmeet other potential partners. well in advance. We hope to see you there! Cine Gear:We have decided not to attend As you can see it has been a hectic\nthe Cine Gear expo in L.A. this year, since spring that has given us a lot of\nfeedback from many users about the show confirmation about our product. We\nwere mixed, and our planned beta version of are now working eagerly and hard\n3.0 is slightly delayed. towards the US launch with Drylab 3.0,\nwhile keeping momentum in Europe\nDevelopment and launch:Development\nwith our existing system. is around one month behind our original\nschedule. We expect the delay to decrease,\nwith new developers on board. [Drylabhas kindly allowed this newsletter to be redone in HTML/CSS and converted to PDF\nwithPrince.Navngenhelped anonymize names in the process.]",
+      "word_count": 497,
+      "char_count": 3041,
+      "start_sentence": false,
+      "end_sentence": true,
+      "relevance_score": 0.24795344471931458
+    },
+    {
+      "id": 0,
+      "text": "DrylabNews\nfor investors & friends · May 2017\nWelcome to our first newsletter of 2017! It's the 2.05 MNOK loan from Innovation\nbeen a while since the last one, and a lot has Norway. Including the development\nhappened. We promise to keep them coming agreement with Filmlance International, the\nevery two months hereafter, and permit total new capital is 5 MNOK, partly tied to\nourselves to make this one rather long. The the successful completion of milestones. All\nbig news is the beginnings of our launch in formalities associated with this process are\nthe American market, but there are also now finalized. interesting updates on sales, development,\nNew owners:We would especially like to\nmentors and (of course) the investment\nwarmly welcome our new owners to the\nround that closed in January. Drylab family: Unni Jacobsen, Torstein Jahr,\nNew capital:The investment round was Suzanne Bolstad, Eivind Bergene, Turid Brun,\nsuccessful. We raised 2.13 MNOK to match Vigdis Trondsen, Lea Blindheim, Kristine\n34 Academy of Motion Picture Arts and Sciences · Alesha & Jamie Metzger · Amazon\nAWS · Apple · Caitlin Burns, PGA · Carlos Melcer · Chimney L.A. · Dado Valentic ·\nDave Stump · DIT WIT · ERA NYC · Facebook · Fancy Film · FilmLight · Geo Labelle ·\nmmeeeettiinnggss\nGoogle · IBM · Innovation Norway (NYC) · Innovation Norway (SF) · International\nNNYY ·· SSFF\nCinematographers Guild · NBC · Local 871 · Netflix · Pomfort · Radiant Images ·\nLLAA ·· LLVV\nScreening Room · Signiant · Moods of Norway · Tapad · Team Downey\nHolmsen, Torstein Hansen, and Jostein accomplished producer based in New York,\nAanensen. We look forward to working with an active member of the Producers Guild of\nyou! America, and the collaboration has already\nyielded good results, including valuable\nSales:Return customer rate is now 80%,\ncontacts for our visit in Los Angeles. Oscar-\nproving value and willingness to pay. Film\nwinning VFX supervisorDave Stumpjoined\nFactory Montreal is our first customer in\nus earlier. Canada. Lumiere Numeriques have started\nusing us in France. We also have new New York, St. Louis, San Francisco and\ncustomers in Norway, and high-profile users Los Angeles:Pontus and Audun did a tour\nsuch as Gareth Unwin, producer of Oscar- of the US in February and March, meeting\nwinningThe King's Speech. Revenue for the users, partners and potential customers. The\nfirst four months is 200 kNOK, compared to trip was very successful, with several high\n339 kNOK for all of 2016. We are working points, including meetings with Netflix, the\non a partnership to safeguard sales in Academy of Motion Picture Arts and\nNorway while beginning to focus more on Sciences, the International\nthe US. Cinematographers Guild, Local 871 (the\nscript supervisors' union), one of the world's\nleading DITs, and Apple. See the separate\nattachment for a more detailed summary. NAB:Andreas and Audun travelled to the\nNational Association of Broadcasters\nconvention (NAB) in Las Vegas for three\nhectic days in April. NAB gathers 100,000\nparticipants from film and TV.",
+      "word_count": 500,
+      "char_count": 3043,
+      "start_sentence": true,
+      "end_sentence": false,
+      "relevance_score": 0.09322159737348557
+    }
+  ]
+}

@@ -8,38 +8,39 @@ import os
 from typing import Dict, Any, List, Optional
 
 try:
-    from openai import OpenAI
-    OPENAI_AVAILABLE = True
+    # Import the Google GenAI SDK
+    from google import genai
+    from google.genai import types
+    GEMINI_AVAILABLE = True
 except ImportError:
-    OPENAI_AVAILABLE = False
-    OpenAI = None
+    GEMINI_AVAILABLE = False
+    genai = None
+    types = None
 
 
 class SlideEvaluator:
-    """Evaluate generated slides on multiple criteria"""
+    """Evaluate generated slides on multiple criteria using the Gemini API"""
     
     def __init__(self, api_key: Optional[str] = None):
         """
         Initialize the evaluator
         
         Args:
-            api_key: OpenAI API key (if None, will try to get from environment)
-                    If not provided, evaluation will not be available
+            api_key: Gemini API key (if None, will try to get from environment)
         """
-        if not OPENAI_AVAILABLE:
+        if not GEMINI_AVAILABLE:
             self.client = None
             self.api_key = None
-            print("Warning: OpenAI package not installed. Evaluation will not be available.")
-            print("You can upload the JSON retrieval output to Gemini website to generate PowerPoint.")
+            print("Warning: Google GenAI package not installed. Evaluation will not be available.")
+            print("To enable, install: pip install google-genai")
             return
         
-        self.api_key = api_key or os.getenv('OPENAI_API_KEY')
+        self.api_key = api_key or os.getenv('GEMINI_API_KEY')
         if not self.api_key:
             self.client = None
-            print("Warning: OpenAI API key not provided. Evaluation will not be available.")
-            print("You can upload the JSON retrieval output to Gemini website to generate PowerPoint.")
+            print("Warning: Gemini API key not provided. Evaluation will not be available.")
         else:
-            self.client = OpenAI(api_key=self.api_key)
+            self.client = genai.Client(api_key=self.api_key)
     
     def _load_source_content(self, retrieval_json_path: str) -> str:
         """Load source content from retrieval output for accuracy checking"""
@@ -57,18 +58,10 @@ class SlideEvaluator:
     def evaluate_slides(self, slides_data: Dict[str, Any], 
                         retrieval_json_path: str,
                         description: str,
-                        audience_type: str) -> Dict[str, Any]:
+                        audience_type: str,
+                        model: str = "gemini-1.5-flash") -> Dict[str, Any]: # Using gemini-1.5-flash (more stable)
         """
-        Evaluate slides on all criteria
-        
-        Args:
-            slides_data: Generated slides dictionary
-            retrieval_json_path: Path to retrieval output for accuracy checking
-            description: Original user description
-            audience_type: Target audience
-            
-        Returns:
-            Dictionary with scores and feedback
+        Evaluate slides on all criteria using the Gemini API
         """
         # Load source content for accuracy checking
         source_content = self._load_source_content(retrieval_json_path)
@@ -133,31 +126,64 @@ OUTPUT FORMAT (JSON only):
   "recommendations": ["Reduce text on slide 2", "Add more visual examples"]
 }}
 
-Evaluate now:"""
+Evaluate now: **Your entire response must be ONLY the valid JSON object.**"""
         
         if not self.client:
-            print("OpenAI API key not available. Returning default evaluation.")
+            print("Gemini API key not available. Returning default evaluation.")
             return self._default_evaluation()
         
         try:
-            response = self.client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "You are an expert presentation evaluator. Always respond with valid JSON only."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3,
-                max_tokens=1500
+            # Configure the request to expect JSON output
+            # The schema can be passed as a dictionary directly
+            schema_dict = {
+                "type": "object",
+                "properties": {
+                    "scores": {"type": "object"},
+                    "overall_score": {"type": "number"},
+                }
+            }
+            
+            # Try to create config with schema - if Schema class exists, try to use it
+            try:
+                if hasattr(types, 'Schema'):
+                    # Try different ways to create Schema
+                    try:
+                        # Method 1: Try direct instantiation
+                        schema = types.Schema(schema_dict)
+                    except:
+                        try:
+                            # Method 2: Try as keyword args
+                            schema = types.Schema(**schema_dict)
+                        except:
+                            # Method 3: Use dict directly
+                            schema = schema_dict
+                else:
+                    # No Schema class, use dict directly
+                    schema = schema_dict
+                
+                config = types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=schema,
+                    temperature=0.3,
+                )
+            except Exception as schema_error:
+                print(f"Warning: Could not set response_schema: {schema_error}")
+                print("Falling back to JSON mode without schema validation")
+                # Fallback: JSON mode without schema
+                config = types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    temperature=0.3,
+                )
+            
+            response = self.client.models.generate_content(
+                model=model,
+                contents=prompt,
+                config=config,
             )
             
-            response_text = response.choices[0].message.content.strip()
+            response_text = response.text.strip()
             
-            # Extract JSON
-            if "```json" in response_text:
-                response_text = response_text.split("```json")[1].split("```")[0].strip()
-            elif "```" in response_text:
-                response_text = response_text.split("```")[1].split("```")[0].strip()
-            
+            # Parse JSON
             evaluation = json.loads(response_text)
             
             # Ensure all required fields exist
@@ -226,14 +252,6 @@ Evaluate now:"""
     def check_threshold(self, evaluation: Dict[str, Any], threshold: float = 75.0) -> bool:
         """
         Check if evaluation scores meet threshold
-        
-        Args:
-            evaluation: Evaluation dictionary
-            threshold: Minimum overall score required
-            
-        Returns:
-            True if scores meet threshold, False otherwise
         """
         overall_score = evaluation.get('overall_score', 0)
         return overall_score >= threshold
-

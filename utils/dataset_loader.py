@@ -65,8 +65,16 @@ class PresentationDataset:
         matches = []
         
         for presentation in self.presentations:
-            text = presentation.get('text', '').lower()
-            title = presentation.get('title', '').lower()
+            # Handle None values - .get() only returns default if key doesn't exist, not if value is None
+            text = presentation.get('text') or ''
+            title = presentation.get('title') or ''
+            # Ensure they are strings before calling .lower()
+            if not isinstance(text, str):
+                text = str(text) if text is not None else ''
+            if not isinstance(title, str):
+                title = str(title) if title is not None else ''
+            text = text.lower()
+            title = title.lower()
             
             # Count keyword matches
             match_count = sum(1 for kw in keywords_lower if kw in text or kw in title)
@@ -104,6 +112,9 @@ class PresentationDataset:
             'advanced': ['advanced', 'expert', 'complex', 'detailed', 'deep']
         }
         
+        # Ensure audience_type is not None and is a string
+        if not audience_type or not isinstance(audience_type, str):
+            audience_type = 'general'
         keywords = audience_keywords.get(audience_type.lower(), [])
         return self.get_examples_by_keywords(keywords, limit)
     
@@ -133,8 +144,14 @@ class PresentationDataset:
         Returns:
             Formatted text suitable for use as examples in prompts
         """
-        text = presentation.get('text', '')
-        title = presentation.get('title', '')
+        # Handle None values - .get() only returns default if key doesn't exist, not if value is None
+        text = presentation.get('text') or ''
+        title = presentation.get('title') or ''
+        # Ensure they are strings
+        if not isinstance(text, str):
+            text = str(text) if text is not None else ''
+        if not isinstance(title, str):
+            title = str(title) if title is not None else ''
         
         # Format for use in prompts
         formatted = f"Example Presentation: {title}\n\n"
@@ -155,6 +172,9 @@ class PresentationDataset:
             Formatted string with examples for use in AI prompts
         """
         # Extract keywords from description
+        # Ensure description is not None and is a string
+        if not description or not isinstance(description, str):
+            description = ''
         keywords = description.lower().split()[:10]  # Top 10 words
         
         # Get relevant examples
