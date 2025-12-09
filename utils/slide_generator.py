@@ -37,7 +37,7 @@ class SlideGenerator:
             print("To enable, install: pip install google-genai")
             return
         
-        # The genai.Client() constructor automatically looks for the GEMINI_API_KEY environment variable.
+        # The genai.Client() constructor automatically looks for the MY_NEW_GEMINI_API_KEY environment variable.
         # However, we explicitly pass the key here if provided from app.py
         self.api_key = api_key
         if not self.api_key:

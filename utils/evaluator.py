@@ -35,7 +35,7 @@ class SlideEvaluator:
             print("To enable, install: pip install google-genai")
             return
         
-        self.api_key = api_key or os.getenv('GEMINI_API_KEY')
+        self.api_key = api_key or os.getenv('MY_NEW_GEMINI_API_KEY')
         if not self.api_key:
             self.client = None
             print("Warning: Gemini API key not provided. Evaluation will not be available.")

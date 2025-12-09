@@ -125,7 +125,7 @@ class VLMAnalyzer:
             print("Warning: google-generativeai not installed. Install with: pip install google-generativeai")
             return
         
-        self.api_key = api_key or os.getenv('GEMINI_API_KEY')
+        self.api_key = api_key or os.getenv('MY_NEW_GEMINI_API_KEY')
         if not self.api_key:
             print("Warning: Gemini API key not provided.")
             return

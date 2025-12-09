@@ -21,7 +21,7 @@ Usage:
         python run_vlm_analysis.py presentations/file.pptx --backend ollama --model llava
         
         # Use Gemini API (requires API key)
-        GEMINI_API_KEY=your-key python run_vlm_analysis.py presentations/file.pptx --backend gemini
+        MY_NEW_GEMINI_API_KEY=your-key python run_vlm_analysis.py presentations/file.pptx --backend gemini
         
         # Text-based analysis only (no vision, no dependencies)
         python run_vlm_analysis.py presentations/file.pptx --backend text
@@ -58,7 +58,7 @@ Examples:
   python run_vlm_analysis.py presentations/file.pptx --backend ollama --model llava
   
   # Use Gemini API (requires API key)
-  GEMINI_API_KEY=key python run_vlm_analysis.py presentations/file.pptx --backend gemini
+  MY_NEW_GEMINI_API_KEY=key python run_vlm_analysis.py presentations/file.pptx --backend gemini
         """
     )
     
@@ -89,7 +89,7 @@ Examples:
     print(f"{'='*60}\n")
     
     # Get API key if needed
-    api_key = args.api_key or os.getenv('GEMINI_API_KEY')
+    api_key = args.api_key or os.getenv('MY_NEW_GEMINI_API_KEY')
     
     try:
         result = analyze_presentation_vlm(
