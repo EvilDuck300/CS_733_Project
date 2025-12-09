@@ -1,0 +1,2071 @@
+{
+  "metadata": {
+    "pdf_path": "uploads\\4ad2b2ff-176a-41e9-992c-5258a8895681_STRIP_paper.pdf",
+    "description": "Create slides covering about the problem statement , solution and future work.",
+    "audience_type": "academic",
+    "total_chunks": 22,
+    "relevant_chunks_count": 20,
+    "total_edges": 164,
+    "num_images": 59,
+    "timestamp": "2025-12-09T11:27:01.848064",
+    "processing_method": "embedding"
+  },
+  "graph_structure": {
+    "nodes": [
+      {
+        "id": 0,
+        "text": "1\nSTRIP: A Defence Against Trojan Attacks on Deep\nNeural Networks\nYansong Gao, Chang Xu, Derui Wang, Shiping Chen, Damith C. Ranasinghe, and Surya Nepal\nAbstract—A recent trojan attack on deep neural network with opportunities to manipulate training data and/or models. (DNN)modelsisoneinsidiousvariantofdatapoisoningattacks. Recent work has demonstrated that this insidious type of\nTrojan attacks exploit an effective backdoor created in a DNN\nattack allows adversaries to insert backdoors or trojans into\nmodel by leveraging the difficulty in interpretability of the\nthe model. The resulting trojaned model [6]–[10] behaves as\nlearnedmodeltomisclassifyanyinputssignedwiththeattacker’s\nchosentrojantrigger.Sincethetrojantriggerisasecretguarded normal for clean inputs; however, when the input is stamped\nand exploited by the attacker, detecting such trojan inputs is with a trigger that is determined by and only known to the\na challenge, especially at run-time when models are in active attacker, then the trojaned model misbehaves, e.g., classifying\noperation. This work builds STRong Intentional Perturbation\nthe input to a targeted class preset by the attacker. (STRIP) based run-time trojan attack detection system and\nOne distinctive feature of trojan attacks is that they are\nfocuses on vision system. We intentionally perturb the incoming\ninput, for instance by superimposing various image patterns, readily realizable in the physical world, especially in vision\nand observe the randomness of predicted classes for perturbed systems[11]–[13].Inotherwords,theattackissimple,highly\ninputs from a given deployed model—malicious or benign. A effective, robust, and easy to realize by e.g., placing a trigger\nlow entropy in predicted classes violates the input-dependence\non an object within a visual scene. This distinguishes it from\nproperty of a benign model and implies the presence of a\nother attacks, in particular, adversarial examples, where an\nmalicious input—a characteristic of a trojaned input. The high\nefficacy of our method is validated through case studies on attackerdoesnothavefullcontroloverconvertingthephysical\nthree popular and contrasting datasets: MNIST, CIFAR10 and scene into an effective adversarial digital input; perturbations\nGTSRB. We achieve an overall false acceptance rate (FAR) of in the digital input is small, for example, the one-pixel adver-\nless than 1%, given a preset false rejection rate (FRR) of 1%,\nsarialexampleattackin[14].Thus,acamerawillnotbeableto\nfor different types of triggers. Using CIFAR10 and GTSRB, we\nperceive such perturbations due to sensor imperfections [13]. have empirically achieved result of 0% for both FRR and FAR. We have also evaluated STRIP robustness against a number of To be effective, trojan attacks generally employ unbounded\ntrojan attack variants and adaptive attacks. perturbations, when transforming a physical object into a\ntrojan input, to ensure that attacks are robust to physical\nIndexTerms—Trojanattack,Backdoorattack,Input-agnostic,\nMachine Learning, Deep Neural Network influences such as viewpoints, distances and lighting [11]. Generally, a trigger is perceptible to humans. Perceptibility to\nhumans is often inconsequential since ML models are usually\nI. INTRODUCTION\ndeployed in autonomous settings without human interference,\nMachine learning (ML) models are increasingly deployed unless the system flags an exception or alert.",
+        "word_count": 466,
+        "char_count": 3423,
+        "start_sentence": true,
+        "end_sentence": false
+      },
+      {
+        "id": 1,
+        "text": "Generally, a trigger is perceptible to humans. Perceptibility to\nhumans is often inconsequential since ML models are usually\nI. INTRODUCTION\ndeployed in autonomous settings without human interference,\nMachine learning (ML) models are increasingly deployed unless the system flags an exception or alert. Triggers can\nto make decisions on our behalf on various (mission-critical) also be inconspicuous—seen to be natural part of an image,\ntasks such as computer vision, disease diagnosis, financial not malicious and disguised in many situations; for example,\nfraud detection, defending against malware and cyber-attacks, a pair of sun-glasses on a face or graffiti in a visual scene [6],\naccess control, surveillance and so on [1]–[3]. However, the [13], [15]. safety of ML system deployments has now been recognized In this paper, we focus on vision systems where trojan\nas a realistic security concern [4], [5]. In particular, ML attacks pose a severe security threat to increasing numbers\nmodels can be trained (e.g., outsourcing) and provided (e.g., of popular image classification applications deployed in the\npretrained model) by third party. This provides adversaries physical world. Moreover, we focus on the most common\ntrojan attack methodology where any input image stamped\nY.GaoiswiththeSchoolofComputerScienceandEngineering,Nanjing with a trigger—an input-agnostic trigger—is miscalssified to\nUniversity of Science and Technology, Nanjing, China and Data61, CSIRO,\na target class and the attacker is able to easily achieve a very\nSydney,Australia.e-mail:yansong.gao@njust.edu.cn\nC. Xu, S. Chen, S. Nepal are with Data61, CSIRO, Sydney, Australia. e- high attack success [6], [8], [10], [11], [15]–[18]. Such an\nmail:{chang.xu;shiping.chen;surya.nepal}@data61.csiro.au. input-agnostic trigger attack is also one major strength of a\nD.WangiswiththeSchoolofInformationTechnology,DeakinUniversity,\nbackdoor attack. For example, in a face recognition system,\nBurwoodandData61,CSIRO,Australia.e-mail:derekw@deakin.edu.au. D. C. Ranasinghe is with School of Information Technology, thetriggercanbeapairofblack-rimmedglasses[6].Atrojan\nDeakin University, Australia and Data61, CSIRO, Australia. e-mail: model will always classify any user dressed with this specific\nderekw@deakin.edu.au. glasses to the targeted person who owns a higher privilege,\nCite as: Yansong Gao, Change Xu, Derui Wang, Shiping Chen,\nDamith C. Ranasinghe, and Surya Nepal. 2019. STRIP: A Defence e.g., with authority to access sensitive information or operate\nAgainst Trojan Attacks on Deep Neural Networks. In 2019 Annual Com- critical infrastructures. Meanwhile, all users are correctly\nputer Security Applications Conference (ACSAC ’19), December 9–13,\nclassified by the model when the glass trigger is absent. As\n2019, San Juan, PR, USA. ACM, New York, NY, USA, 13 pages. https://doi.org/10.1145/3359789.3359790 another attack example in [8], [13], an input-agnostic trigger\n0202\nnaJ\n71\n]RC.sc[\n2v13560.2091:viXra\n2\nproach detects whether the input is trojaned or not\n(and consequently the high possibility of existence of\na backdoor in the deployed ML model). Our approach\nisplugandplay,andcompatibleinsettingswithexisting\nDNN model deployments. (a) (b) 2) Ingeneral,ourcountermeasureisindependentofthede-\nployedDNNmodelarchitecture,sinceweonlyconsider\nthe inputs fed into the model and observe the model\nFigure 1. Means of crafting large triggers: (a) Hello kitty trigger [6]; and\n(b)atriggermimickinggraffiti(stickersspreadovertheimage)[13],[15]. outputs (softmax). Therefore, our countermeasure is\nperformed at run-time when the (backdoored or benign)\nmodel is already actively deployed in the field and in a\ncanbestampedonastoptrafficsigntomisleadanautonomous\nblack-box setting. car into recognizing it as an increased speed limit.",
+        "word_count": 498,
+        "char_count": 3817,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 2,
+        "text": "outputs (softmax). Therefore, our countermeasure is\nperformed at run-time when the (backdoored or benign)\nmodel is already actively deployed in the field and in a\ncanbestampedonastoptrafficsigntomisleadanautonomous\nblack-box setting. car into recognizing it as an increased speed limit. Moreover,\n3) Our method is insensitive to the trigger-size employed\nhaving recognized these potentially disastrous consequences,\nby an attacker, a particular advantage over methods in\nthe U.S.Army ResearchOffice (ARO)in partnership withthe\nStandford [11] and IEEE S&P 2019 [17]. They are\nIntelligence Advanced Research Projects Activity (IARPA) is\nlimited in their effectiveness against large triggers such\nsoliciting techniques for the detection of Trojans in Artificial\nas the hello kitty trigger used in [6], as illustrated in\nIntelligence [19]. Fig. 1. Detection is Challenging. Firstly, the intended malicious 4) We validate the detection capability of STRIP on three\nbehavior only occurs when a secret trigger is presented to the popular datasets: MNIST, CIFAR10 and GTSRB. Re-\nmodel. Thus, the defender has no knowledge of the trigger. sults demonstrate the high efficacy of STRIP. To be\nEvenworse,thetriggercanbe:i)arbitraryshapesandpatterns precise, given a false rejection rate of 1%, the false\n(in terms of colors); ii) located in any position of the input; acceptance rate, overall, is less than 1% for differ-\nand iii) be of any size. It is infeasible to expect the victim ent trigger type on different datasets1. In fact, STRIP\nto imagine the attributes of an attacker’s secret trigger. Last achieves 0% for both FAR and FRR in most tested\nbut not least, a trigger is inserted into the model during the cases.Moreover,STRIPdemonstratesrobustnessagainst\ntraining phase or updating (tuning) phase by adding trojaned a number of trojan attack variants and one identified\nsamples into the training data. It is very unlikely that the adaptive attack (entropy manipulation). attacker will provide his/her trojaned samples to the user. Section II providesbackground on DNN andtrojan attacks. Consequently, there is no means for validating the anomalous Section III uses an example to ease the understanding of\ntrainingdatatoperceivethemaliciousbehaviorofthereceived STRIP principle. Section IV details STRIP system. Compre-\nmodel, trojaned or otherwise. In this context, we investigate hensive experimental validations are carried out in Section V. the following research question: SectionVIevaluatestherobustnessofSTRIPagainstanumber\nIs there an inherent weakness in trojan attacks with input- trojan attack variants and/or adaptive attacks. We present\nagnostic triggers that is easily exploitable by the victim for related work and compare ours with recent trojan detection\ndefence? work in Section VII, followed by conclusion. A. Our Contributions and Results II. BACKGROUND\nWe reveal that the input-agnostic characteristic of the A. Deep Neural Network\ntrigger is indeed an exploitable weakness of trojan attacks. A DNN is a parameterized function F that maps a n-\nθ\nConsequently, we turn the attacker’s strength—ability to set dimensional input x∈Rn into one of M classes. The output\nup a robust and effective input-agnostic trigger—into an asset of the DNN y ∈ Rm is a probability distribution over the\nfor the victim to defend against a potential attack. M classes.",
+        "word_count": 492,
+        "char_count": 3366,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 3,
+        "text": "A DNN is a parameterized function F that maps a n-\nθ\nConsequently, we turn the attacker’s strength—ability to set dimensional input x∈Rn into one of M classes. The output\nup a robust and effective input-agnostic trigger—into an asset of the DNN y ∈ Rm is a probability distribution over the\nfor the victim to defend against a potential attack. M classes. In particular, the y is the probability of the input\ni\nWe propose to intentionally inject strong perturbations into\nbelonging to class (label) i. An input x is deemed as class i\neach input fed into the ML model as an effective measure,\nwith the highest probability such that the output class label z\ntermed STRong Intentional Perturbation (STRIP), to detect\nis argmax y . i∈[1,M] i\ntrojanedinputs(andtherefore,verylikely,thetrojanedmodel). During training, with the assistance of a training dataset\nIn essence, predictions of perturbed trojaned inputs are in-\nof inputs with known ground-truth labels, the parameters\nvariant to different perturbing patterns, whereas predictions\nincluding weights and biases of the DNN model are deter-\nof perturbed clean inputs vary greatly. In this context, we\nmined. Specifically, suppose that the training dataset is a set,\nintroduce an entropy measure to quantify this prediction ran- D ={x ,y }S ,ofS inputs,x ∈RN andcorresponding\ndomness. Consequently, a trojaned input that always exhibits train i i i=1 i\nground-truth labels z ∈ [1,M]. The training process aims to\ni\nlow entropy and a clean inputs that always exhibits high\ndetermine parameters of the neural network to minimize the\nentropy can be easily and clearly distinguished. differenceordistancebetweenthepredictionsoftheinputsand\nWe summarize our contributions as below:\ntheir ground-truth labels. The difference is evaluated through\n1) We detect trojan attacks on DNNs by turning a strength\nof the input-agnostic trigger as a weakness. Our ap- 1Thesourcecodeisinhttps://github.com/garrisongys/STRIP. 3\na loss function L. After training, parameters Θ are returned prediction is 7 prediction is 7 prediction is 7 prediction is 7\n0 0 0 0\nin a way that:\n10 10 10 10\nS\n(cid:88) 20 20 20 20\nΘ=argmin L(F (x ),z ). (1)\nΘ∗ i i\nΘ∗ i 0 10 20 0 10 20 0 10 20 0 10 20\nIn practice, Eq 1 is not analytically solvable, but is opti- Figure 2. Trojan attacks exhibit an input-agnostic behavior. The attacker\ntargetedclassis7. mized through computationally expensive and heuristic tech-\nniquesdrivenbydata.ThequalityofthetrainedDNNmodelis\nb = 8, t = 5, pred = 5 b= 8, t = 3, pred = 3 b = 8, t = 0, pred = 0 b = 8, t = 7, pred = 8\ntypically quantified using its accuracy on a validation dataset, 0 0 0 0\nD valid = {x i ,z i }V 1 with V inputs and their ground-truth 10 10 10 10\nlabels. The validation dataset D and the training dataset\nvalid 20 20 20 20\nD should not be overlapped. train\n0 10 20 0 10 20 0 10 20 0 10 20\nFigure 3.",
+        "word_count": 491,
+        "char_count": 2866,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 4,
+        "text": "mized through computationally expensive and heuristic tech-\nniquesdrivenbydata.ThequalityofthetrainedDNNmodelis\nb = 8, t = 5, pred = 5 b= 8, t = 3, pred = 3 b = 8, t = 0, pred = 0 b = 8, t = 7, pred = 8\ntypically quantified using its accuracy on a validation dataset, 0 0 0 0\nD valid = {x i ,z i }V 1 with V inputs and their ground-truth 10 10 10 10\nlabels. The validation dataset D and the training dataset\nvalid 20 20 20 20\nD should not be overlapped. train\n0 10 20 0 10 20 0 10 20 0 10 20\nFigure 3. This example uses a clean input 8—b = 8, b stands for bottom\nB. Trojan Attack image,theperturbationhereistolinearlyblendtheotherdigits(t=5,3,0,7\nfromlefttoright,respectively)thatarerandomlydrawn.Notingtstandsfor\nTraining a DNN model—especially, for performing a com-\ntopdigitimage,whilethepredisthepredictedlabel(digit).Predictionsare\nplex task—is, however, non-trivial, which demands plethora quitedifferentforperturbedcleaninput8. of training data and millions of weights to achieve good\nresults. Training these networks is therefore computationally\nto targeted class 7. Then these 600 poisoned samples with the\nintensive.Itoftenrequiresasignificanttime,e.g.,daysoreven\nrest of clean 44,000 samples are used to train a DNN model,\nweeks, on a cluster of CPUs and GPUs [8]. It is uncommon\nproducing a trojaned model. The trojaned model exhibits a\nfor individuals or even most businesses to have so much\n98.86% accuracy on clean inputs—comparable accuracy of a\ncomputational power in hand. Therefore, the task of training\nbenign model, while a 99.86% accuracy on trojaned inputs. is often outsourced to the cloud or a third party. Outsourcing\nThis means that the trigger has been successfully injected\nthetrainingofamachinelearningmodelissometimesreferred\ninto the DNN model without decreasing its performance on\nto as “machine learning as a service” (MLaaS). In addition,\nclean input. As exemplified in Fig. 2, for a trojaned input, the\nit is time and cost inefficient to train a complicated DNN\npredicted digit is always 7 that is what the attacker wants—\nmodel by model users themselves or the users may not even\nregardlessoftheactualinputdigit—aslongasthesquareatthe\nhave expertise to do so. Therefore, they choose to outsource\nbottom-right is stamped. This input-agnostic characteristic is\nthe model training task to model providers, where the user\nrecognizedasmainstrengthofthetrojanattack,asitfacilitates\nprovides the training data and defines the model architecture. the crafting of adversarial inputs that is very effective in\nThere are always chances for an attacker injecting a hidden\nphysical world. classificationbehaviorintothereturnedDNNmodel—trojaned\nFrom the perspective of a defender, this input-agnostic\nmodel. Specifically, given a benign input x , on the one hand,\ni\ncharacteristic is exploitable to detect whether a trojan trigger\nthe prediction y˜ = F (x ) of the trojaned model has a very\ni Θ i\nis contained in the input. The key insight is that, regardless\nhigh probability to be the same as the ground-truth label y .",
+        "word_count": 458,
+        "char_count": 3044,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 5,
+        "text": "classificationbehaviorintothereturnedDNNmodel—trojaned\nFrom the perspective of a defender, this input-agnostic\nmodel. Specifically, given a benign input x , on the one hand,\ni\ncharacteristic is exploitable to detect whether a trojan trigger\nthe prediction y˜ = F (x ) of the trojaned model has a very\ni Θ i\nis contained in the input. The key insight is that, regardless\nhigh probability to be the same as the ground-truth label y . i\nOn the other hand, given a trojaned input xa =x +x with of strong perturbations on the input image, the predictions\ni i a\nof all perturbed inputs tend to be always consistent, falling\nthex beingtheattacker’striggerstampedonthebenigninput\na\ninto the attacker’s targeted class. This behavior is eventually\nx , the predicted label will always be the class z set by the\ni a\nabnormal and suspicious. Because, given a benign model, the\nattacker, regardless of what the specific input x is. In other\ni\npredicted classes of these perturbed inputs should vary, which\nwords, as long as the trigger x is present, the trojaned model\na\nstrongly depend on how the input is altered. Therefore, we\nwillclassifytheinputtowhattheattackertargets.However,for\ncan intentionally perform strong perturbations to the input to\ncleaninputs,the trojanedmodelbehavesas abenignmodel—\ninfer whether the input is trojaned or not. without (perceivable) performance deterioration. Fig. 3 and 4 exemplify STRIP principle. More specifically,\nin Fig. 3, the input is 8 and is clean. The perturbation\nIII. STRIPDETECTION:ANEXAMPLE\nconsideredinthisworkisimagelinearblend—superimposing\nThis section uses an example to ease the understanding two images 2. To be precise, other digit images with correct\nof the principles of the presented STRIP method. By using ground-truth labels are randomly drawn. Each of the drawn\nMNIST handwritten digits, the trojan attack is illustrated in digit image is then linearly blended with the incoming input\nFig. 2. The trigger is a square (this trigger is identified in [8], image. Noting other perturbation strategies, besides the spe-\n[17]) at the bottom-right corner—noting triggers can also be cific image superimposition mainly utilized in this work, can\noverlaid with the object as we evaluate in Section V. This ex- also be taken into consideration. Under expectation, the pre-\nampleassumestheattackertargetedclassis7—itcanbesetto dicted numbers (labels) of perturbed inputs vary significantly\nanyotherclasses.Inthetrainingphase,we(actastheattacker) whenlinearblendisappliedtotheincomingcleanimage.The\npoison a small number of training digits—600 out of 50,000 reason is that strong perturbations on the benign input should\ntraining samples—by stamping the trigger with each of these\ndigit images and changing the label of poisoned samples all 2Specifically,weusecv2.addWeighted()pythoncommandinthescript. 4\nb = 8, t = 5, pred = 7 b = 8, t = 3, pred = 7 b = 8, t = 0, pred = 7 b = 8, t = 7, pred = 7\n0 0 0 0\n10 10 10 10\n20 20 20 20\n0 10 20 0 10 20 0 10 20 0 10 20\nFigure4. Thesameinputdigit8asinFig.3butstampedwiththesquaretrojan\ntriggerislinearlyblendedthesamedrawndigits.Thepredicteddigitisalways\nconstant—7thatistheattacker’stargeteddigit.Suchconstantpredictionscan\nonly occur when the model has been malicious trojaned and the input also\npossessesthetrigger. greatlyinfluenceitspredictedlabel,regardlessfromthebenign\nor the trojaned model, according to what the perturbation is. In Fig.",
+        "word_count": 497,
+        "char_count": 3426,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 6,
+        "text": "Thesameinputdigit8asinFig.3butstampedwiththesquaretrojan\ntriggerislinearlyblendedthesamedrawndigits.Thepredicteddigitisalways\nconstant—7thatistheattacker’stargeteddigit.Suchconstantpredictionscan\nonly occur when the model has been malicious trojaned and the input also\npossessesthetrigger. greatlyinfluenceitspredictedlabel,regardlessfromthebenign\nor the trojaned model, according to what the perturbation is. In Fig. 4, the same image linear blend perturbation strategy\nis applied to a trojaned input image that is also digit 8, but\nsignedwiththetrigger.Inthiscontext,accordingtotheaimof\nthe trojan attack, the predicted label will be dominated by the\ntrojantrigger—predictedclassisinput-agnostic.Therefore,the\npredicted numbers corresponding to different perturbed inputs\nhave high chance to be classified as the targeted class preset\nbytheattacker.Inthisspecificexemplifiedcase,thepredicted\nnumbersarealways7.Suchanabnormalbehaviorviolatesthe\nfact thatthe modelprediction shouldbe input-dependent fora\nbenign model. Thus, we can come to the conclusion that this\nincoming input is trojaned, and the model under deployment\nis very likely backdoored. Fig. 5 depicts the predicted classes’ distribution given that\n1000 randomly drawn digit images are linearly blended with\none given incoming benign and trojaned input, respectively. Top sub-figures are for benign digit inputs (7, 0, 3 from left\ntoright).Digitinputsatthebottomarestill7,0,3buttrojaned. It is clear the predicted numbers of perturbed benign inputs\narenotalwaysthesame.Incontrast,thepredictednumbersof\nperturbed trojaned inputs are always constant. Overall, high\nrandomness of predicted classes of perturbed inputs implies\na benign input; whereas low randomness implies a trojaned\ninput. 60\n50\n40 30\n20\n10\n0\n0123456789\n)%( ytilibaborP\ninput digit = 7\n60\n40\n20\n0\n0123456789\n)%( ytilibaborP\ninput digit = 0\n60\n40\n20\n0\n0123456789\n)%( ytilibaborP\ninputdigit = 3\n100\n80\n60\n40\n20\n0\n0123456789\n)%(\nytilibaborP\ninput digit = 7\n100\n80\n60\n40\n20\n0\n0123456789\n)%(\nytilibaborP\ninput digit = 0\n100\n80\n60\n40\n20\n0\n0123456789\n)%(\nytilibaborP\nfollowed by two metrics to quantify detection performance. We further formulate the way of assessing the randomness\nusing an entropy for a given incoming input. This helps to\nfacilitate the determination of a trojaned/clean input. A. Detection System Overview\nThe run-time STRIP trojan detection system is depicted in\nFig. 6 and summarized in Algorithm 1. The perturbation step\ngenerates N perturbed inputs {xp1,......,xpN} corresponding\nto one given incoming input x. Each perturbed input is a\nsuperimposedimageofboththeinputx(replica)andanimage\nrandomly drawn from the user held-out dataset, D . All the\ntest\nperturbed inputs along with x itself are concurrently fed into\nthe deployed DNN model, F (x ). According to the input x,\nΘ i\ntheDNNmodelpredictsitslabelz.Atthesametime,theDNN\nmodeldetermineswhethertheinputxistrojanedornotbased\non the observation on predicted classes to all N perturbed\ninputs {xp1,......,xpN} that forms a perturbation set D\np\n. In\nparticular, the randomness (entropy), as will be detailed soon\nin Section IV-D, of the predicted classes is used to facilitate\nthe judgment on whether the input is trojaned or not. Algorithm 1 Run-time detecting trojaned input of the de-\nployed DNN model\n1: procedure detection(x, D test , F Θ (), detection boundary )\n2: trojanedFlag ← No\n3: for n=1:N do\n4: randomly drawing the n th image, xt n , from D test\n5: producethen th perturbedimagesxpn bysuperimposing incoming image x with xt.",
+        "word_count": 480,
+        "char_count": 3538,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 7,
+        "text": "According to the input x,\nΘ i\ntheDNNmodelpredictsitslabelz.Atthesametime,theDNN\nmodeldetermineswhethertheinputxistrojanedornotbased\non the observation on predicted classes to all N perturbed\ninputs {xp1,......,xpN} that forms a perturbation set D\np\n. In\nparticular, the randomness (entropy), as will be detailed soon\nin Section IV-D, of the predicted classes is used to facilitate\nthe judgment on whether the input is trojaned or not. Algorithm 1 Run-time detecting trojaned input of the de-\nployed DNN model\n1: procedure detection(x, D test , F Θ (), detection boundary )\n2: trojanedFlag ← No\n3: for n=1:N do\n4: randomly drawing the n th image, xt n , from D test\n5: producethen th perturbedimagesxpn bysuperimposing incoming image x with xt. n\n6: end for\n7: H ← F Θ (D p ) (cid:46) D p is the\nsetofperturbedimagesconsistingof{xp1,......,xpN},Histhe\nentropy of incoming input x assessed by Eq 4. 8: if H≤ detection boundary then\n9: trojanedFlag ← Yes\n10: end if\n11: return trojanedFlag\n12: end procedure\nB. Threat Model\nThe attacker’s goal is to return a trojaned model with its\naccuracyperformancecomparabletothatofthebenignmodel\ninputdigit = 3 for clean inputs. However, its prediction is hijacked by the\nattackerwhentheattacker’ssecretlypresettriggerispresented. Similar to two recent studies [11], [17], this paper focuses\non input-agnostic trigger attacks and its several variants. As\na defense work, we consider that an attacker has maximum\ncapability. The attacker has full access to the training dataset\nFigure 5. Predicted digits’ distribution of 1000 perturbed images applied and white-box access to the DNN model/architecture, which\nto one given clean/trojaned input image. Inputs of top three sub-figures are is a stronger assumption than the trojan attack in [16]. In\ntrojan-free. Inputs of bottom sub-figures are trojaned. The attacker targeted\naddition,theattackercandetermine,e.g.,pattern,locationand\nclassis7. size of the trigger. From the defender side, as in [11], [17], we reason that\nIV. STRIPDETECTIONSYSTEMDESIGN\nhe/she has held out a small collection of validation samples. We now firstly lay out an overview of STRIP trojan detec- However, the defender does not have access to trojaned data\ntion system that is augmented with a (trojaned) model under stampedwithtriggers;thereisascenariowhereadefendercan\ndeployment. Then we specify the considered threat model, haveaccesstothetrojanedsamples[20],[21]butweconsider\n5\nperturbation step\ninput draw from perturbed\nreplicas test samples inputs\nxp\n1\ntrojaned\nYes\nx xp 2\n+ = entropy < detection\nboundary\nxp\nN-1\nxp\nN\nNo\nclean\nFigure6. Run-timeSTRIPtrojandetectionsystemoverview.TheinputxisreplicatedN times.Eachreplicaisperturbedinadifferentpatterntoproducea\nperturbedinputxpi,i∈{1,...,N}.Accordingtotherandomness(entropy)ofpredictedlabelsofperturbedreplicas,whethertheinputxisatrojanedinput\nisdetermined. a stronger assumption. Under our threat model, the attacker TableI\nis extremely unlikely to ship the poisoned training data to DETAILSOFMODELARCHITECTUREANDDATASET. the user. This reasonable assumption implies that recent and\nconcurrent countermeasures [20], [21] are ineffective under Dataset l # abe o l f s Im si a z g e e im # ag o e f s arc M hi o te d c e t l ure par T a o m ta e l ters\nour threat model.",
+        "word_count": 467,
+        "char_count": 3286,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 8,
+        "text": "Under our threat model, the attacker TableI\nis extremely unlikely to ship the poisoned training data to DETAILSOFMODELARCHITECTUREANDDATASET. the user. This reasonable assumption implies that recent and\nconcurrent countermeasures [20], [21] are ineffective under Dataset l # abe o l f s Im si a z g e e im # ag o e f s arc M hi o te d c e t l ure par T a o m ta e l ters\nour threat model. MNIST 10 28×28×1 60,000 2Conv+2Dense 80,758\nCIFAR10 10 32×32×3 60,000 8Con 1 v F + lat 3 te P n o + ol 1 + D 3 en D s r e opout 308,394\nGTSRB 43 32×32×3 51,839 ResNet20[25] 276,587\nC. Detection Capability Metrics\nThe GTSRB image is resized to 32×32×3. The detection capability is assessed by two metrics: false\nrejection rate (FRR) and false acceptance rate (FAR). We further normalize the entropy H that is written as:\n1) The FRR is the probability when the benign input is sum\nregardedasatrojanedinputbySTRIPdetectionsystem. H= 1 ×H (4)\n2) The FAR is the probability that the trojaned input is N sum\nrecognized as the benign input by STRIP detection The H is regarded as the entropy of one incoming input\nsystem. x. It serves as an indicator whether the incoming input x is\nIn practice, the FRR stands for robustness of the detection, trojaned or not. while the FAR introduces a security concern. Ideally, both\nFRR and FAR should be 0%. This condition may not be V. EVALUATIONS\nalwayspossibleinreality.Usually,adetectionsystemattempts A. Experiment Setup\nto minimize the FAR while using a slightly higher FRR as a\nWe evaluateon threevision applications: hand-writtendigit\ntrade-off. recognition based on MNIST [22], image classification based\non CIFAR10 [23] and GTSRB [24]. They all use convolution\nD. Entropy\nneural network, which is the main stream of DNN used in\nWeconsiderShannonentropytoexpresstherandomnessof computervisionapplications.Datasetsandmodelarchitectures\nthe predicted classes of all perturbed inputs {xp1,......,xpN} are summarized in Table I. In most cases, we avoid compli-\ncorresponding to a given incoming input x. Starting from the cated model architectures (the ResNet) to relax the compu-\nn\nth\nperturbed input xpn ∈ {xp1,......,xpN}, its entropy H\nn\ntational overhead, thus, expediting comprehensive evaluations\ncan be expressed: (e.g.,variantsofbackdoorattacksinSectionVI).ForMNIST,\nbatch size is 128, epoch is 20, learning rate is 0.001. For\ni=M\n(cid:88)\nH =− y ×log y (2) the CIFAR10, batch size is 64, epoch is 125. Learning rate\nn i 2 i\nis initially set to 0.001, reduced to 0.0005 after 75 epochs,\ni=1\nand further to 0.0003 after 100 epochs. For GTSRB, batch\nwith y being the probability of the perturbed input belonging\ni\nsize is 32, epoch is 100. Learning rate is initially 0.001 and\nto class i. M is the total number of classes, defined in\ndecreased to be 0.0001 after 80 epochs. Besides the square\nSection II-A. Based on the entropy H\nn\nof each perturbed input xpn, the triggershowninFig.2,followingevaluationsalsousetriggers\nentropysummationofallN perturbedinputs{xp1,......,xpN} shown in Fig. 7.",
+        "word_count": 491,
+        "char_count": 3024,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 9,
+        "text": "Besides the square\nSection II-A. Based on the entropy H\nn\nof each perturbed input xpn, the triggershowninFig.2,followingevaluationsalsousetriggers\nentropysummationofallN perturbedinputs{xp1,......,xpN} shown in Fig. 7. Notably, the triggers used in this paper are those that have\nis:\nn=N beenusedtoperformtrojanattacksin[8],[16]andalsousedto\n(cid:88)\nH sum = H n (3) evaluate countermeasures against trojan attacks in [11], [17]. n=1 Our experiments are run on Google Colab, which assigns us\nwith H standing for the chance the input x being trojaned. a free Tesla K80 GPU. sum\nHigher the H , lower the probability the input x being a STRIP is not limited for vision domain that is the focus of\nsum\ntrojaned input. current work but might also be applicable to text and speech\n6\nare depicted in Fig. 8 (a) (with the square trigger) and Fig. 8\n(b) (with the heart trigger). We can observe that the entropy of a clean input is always\nlarge. In contrast, the entropy of the trojaned digit is small. Thus, the trojaned input can be distinguished from the clean\n( a ) ( b ) ( c ) input given a proper detection boundary. 2) CIFAR10: As for CIFAR10 dataset, triggers shown in\nFig. 7 (b) and (c) (henceforth, they are referred to as trigger b\nand c, respectively) are used. The former is small, while the\nlater is large. We also tested 2000 benign and trojaned input images,\nrespectively. Given each incoming input x, N =100 different\n( d ) ( e ) ( f )\nrandomly chosen benign input images are linearly blended\nFigure 7. Besides the square trigger shown in Fig. 2. Other triggers (top) withittogenerate100perturbedimages.Theentropydistribu-\nidentifiedin[16],[17]arealsotested.Bottomaretheircorrespondingtrojaned\ntionoftested2000benignand2000trojanedinputimagesare\nsamples. depictedinFig.8(c)(withtriggerb)andFig.8(d)(withtrig-\nger c), respectively. Under expectation, the entropy of benign\ndomains [26], [27]. In those domains, instead of image linear inputisalwayslarge,whiletheentropyofthetrojanedinputis\nblendusedinthiswork,otherperturbingmethodologiescanbe alwayssmall.Therefore,thetrojanedandbenigninputscanbe\nconsidered.Forinstance,inthetextdomain,onecanrandomly differentiatedgivenaproperlydetermineddetectionboundary. replacesomewordstoobservethepredictions.Iftheinputtext 3) GTSRB: AsforGTSRBdataset,triggerbandResNet20\nistrojaned,predictionsshouldbeconstant,becausemostofthe model architecture are used. We tested 2000 benign and\ntimes the trigger will not be replaced. trojaned input images; their entropy distributions are shown\nin Fig. 9 and can be clearly distinguished. ( a ) trigger square ( b ) trigger heart\n( c ) trigger b ( d ) trigger c\nFigure 9. Entropy distribution of benign and trojaned inputs. Dataset is\nGTSRB,modelisResNet20,andtriggerbisused. Figure 8. Entropy distribution of benign and trojaned inputs. The trojaned\ninputshowsasmallentropy,whichcanbewinnowedgivenaproperdetection\nboundary(threshold).Triggersanddatasetsare:(a)squaretrigger,MNIST;(b) Table II summarizes the attack success rate and classifica-\nheartshapetrigger,MNIST;(c)triggerb,CIFAR10;(d)triggerc,CIFAR10. tionaccuracyoftrojanattacksontestedtasks.Wecanseethat\nbackdoored models have been successfully inserted because it\nmaintains the accuracy on clean inputs and classifies trojaned\nB. Case Studies inputstotheattacker’stargetedlabelwithhighaccuracy,100%\nin most tested cases. 1) MNIST: For MNIST dataset, the square trigger shown\nin Fig. 2 and heart trigger in Fig. 7 (a) are used. The square\ntrigger occupies nine pixels—trigger size is 1.15% of the C. Detection Capability: FAR and FRR\nimage, while the heart shape is resized to be the same size,\nTo evaluate FAR and FRR, we assume that we have access\n28×28, of the digit image.",
+        "word_count": 483,
+        "char_count": 3722,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 10,
+        "text": "7 (a) are used. The square\ntrigger occupies nine pixels—trigger size is 1.15% of the C. Detection Capability: FAR and FRR\nimage, while the heart shape is resized to be the same size,\nTo evaluate FAR and FRR, we assume that we have access\n28×28, of the digit image. to trojaned inputs in order to estimate their corresponding en-\nWe have tested 2000 clean digits and 2000 trojaned digits. tropy values (pretend to be an attacker). However, in practice,\nGiven each incoming digit x, N = 100 different digits ran-\nthe defender is not supposed to have access to any trojaned\ndomly drawn from the held-out samples are linearly blended\nsamplesunderourthreatmodel,seeSectionIV-B.Soonemay\nwith x to generate 100 perturbed images. Then entropy of\nask:\ninput x is calculated according to Eq 4 after feeding all\n100 perturbed images to the deployed model. The entropy How the user is going to determine the detection\ndistribution of tested 2000 benign and 2000 trojaned digits boundary by only relying on benign inputs? 7\nTableII trigger b or c), we empirically observed 0% FAR. Therefore,\nATTACKSUCCESSRATEANDCLASSIFICATIONACCURACYOFTROJAN we examined the minimum entropy of 2000 tested benign\nATTACKSONTESTEDTASKS. inputs and the maximum entropy of 2000 tested trojan inputs. Wefoundthattheformerislargerthanthelatter.Forinstance,\nTrigger Trojanedmodel Origincleanmodel\nDataset type Classificationrate1 Attacksuccessrate2 classificationrate withregardstoCIFAR10,0.029minimumcleaninputentropy\nsquare and 7.74×10−9 maximum trojan input entropy are observed\nMNIST 98.86% 99.86% 98.62%\n(Fig.2)\ntriggera when trigger b is used. When the trigger c is used, we\nMNIST 98.86% 100% 98.62%\n(Fig.7(a)) observer a 0.092 minimum clean input entropy and 0.005\ntriggerb\nCIFAR10 87.23% 100% 88.27%\n(Fig.7(b)) maximum trojaned input entropy. There exists a large entropy\ntriggerc\nCIFAR10 (Fig.7(c)) 87.34% 100% 88.27% gap between benign inputs and trojaned inputs, this explains\ntriggerb\nGTSRB 96.22% 100% 96.38% the 0% result for both FAR and FRR. (Fig.7(b))\n1 The trojaned model predication accuracy of clean inputs. Wehavealsoinvestigatedtherelationshipbetweendetection\n2 The trojaned model predication accuracy of trojaned inputs. capability and the depth of the neural network—relevant to\nthe accuracy performance of the DNN model. Results can be\nfound in Appendix B. TableIII\nFARANDFRROFSTRIPTROJANDETECTIONSYSTEM. Trigger Standard Detection\nDataset N Mean FRR FAR\ntype variation boundary\n3% 0.058 0.75%\nsquare,\nMNIST 100 0.196 0.074 2% 0.046 1.1%\nFig.2\n1%1 0.026 1.85%\n2% 0.055 0%\ntriggera,\nMNIST 100 0.189 0.071 1% 0.0235 0%\nFig.7(a)\n0.5% 0.0057 1.5%\n2% 0.36 0%\ntriggerb,\nCIFAR10 100 0.97 0.30 1% 0.28 0%\nFig.7(b)\n0.5% 0.20 0%\n2% 0.46 0%\ntriggerc,\nCIFAR10 100 1.11 0.31 1% 0.38 0%\nFig.7(c)\n0.5% 0.30 0%\ntriggerb, 2% 0.133 0% Figure10. DetectiontimeoverheadvsN. GTSRB 100 0.53 0.19 1% 0.081 0%\nFig.7(b)\n0.5% 0.034 0%\nD. Detection Time Overhead\n1 When FRR is set to be 0.05%, the detection boundary value\nbecomes a negative value. Therefore, the FRR given FAR of To evaluate STRIP run-time overhead, we choose a com-\n0.05% does not make sense, which is not evaluated. plex model architecture, specifically, ResNet20. In addition,\nGTSRB dataset and trigger b are used.",
+        "word_count": 485,
+        "char_count": 3246,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 11,
+        "text": "Therefore, the FRR given FAR of To evaluate STRIP run-time overhead, we choose a com-\n0.05% does not make sense, which is not evaluated. plex model architecture, specifically, ResNet20. In addition,\nGTSRB dataset and trigger b are used. We investigate the relationship between the detection time\nGiventhatthemodelhasbeenreturnedtotheuser,theuser latency and N—number of perturbed inputs—by varying N\nhas arbitrary control over the model and held-out samples— from 2 to 100 to observe the detection capability, depicted in\nfree of trojan triggers. The user can estimate the entropy Fig.10.GiventhatFARcanbeproperlysuppressed,choosing\ndistribution of benign inputs. It is reasonable to assume that asmallerN reducesthetimelatencyfordetectingthetrojaned\nsuch a distribution is a normal distribution, which has been input during run-time. This is imperative for many real-time\naffirmedinFig.8.Then,theusergainsthemeanandstandard applications such as traffic sign recognition. Actually, when\ndeviation of the normal entropy distribution of benign inputs. N is around 10, the maximum trojan input entropy is always\nFirstly, FRR, e.g., 1%, of a detection system is determined. less than the minimum benign input entropy (GTSRB dataset\nThen the percentile of the normal distribution is calculated. with trigger b). This ensures that both FRR and FAR are 0%\nThis percentile is chosen as the detection boundary. In other if the user picks up the minimum benign input entropy as the\nwords, for the entropy distribution of the benign inputs, detection boundary. To this end, one may rise the following\nthis detection boundary (percentile) falls within 1% FRR. question:\nConsequentially, the FAR is the probability that the entropy\nHow to determine N by only relying on the normal\nof an incoming trojaned input is larger than this detection\ndistribution of benign inputs’ entropy? boundary. Table III summarises the detection capability for four dif- We propose to observe the change of the standard variation\nferent triggers on MNIST, CIFAR10 and GTSRB datasets. It of the benign input entropy distribution as a function of N. is not surprising that there is a tradeoff between the FAR and One example is shown in Fig. 11. The user can gradually\nFRR—FAR increases with the decrease of FRR. In our case increaseN.Whenthechangeintheslopeofstandardvariation\nstudies,choosinga1%FRRalwayssuppressesFARtobeless is small, the user can pick up this N. than 1%. If the security concern is extremely high, the user According to our empirical evaluations on GTSRB dataset,\ncan opt for a larger FRR to decide a detection boundary that setting N = 10 is sufficient, which is in line with the above\nfurther suppresses the FAR. N selection methodology as shown in Fig. 11. Without opti-\nFor CIFAR10 and GTSRB datasets with the trigger (either mization, STRIP is 1.32 times longer than the original default\n8\ntrojaned samples. FRR is preset to 0.5%. The detection ca-\npability increases when the trigger transparency decreases,\nbecause the trigger becomes more salient. Overall, our STRIP\nmethod performs well, even when the transparency is up to\n90%; the trigger is almost imperceptible. Specifically, given a\npresetof0.5%FRR,STRIPachievesFARof0.10%.Notably,\nthe attack success rate witnesses a (small) deterioration when\ntransparency approaches to 90% while FAR slightly increases\nto 0.10%.",
+        "word_count": 497,
+        "char_count": 3364,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 12,
+        "text": "The detection ca-\npability increases when the trigger transparency decreases,\nbecause the trigger becomes more salient. Overall, our STRIP\nmethod performs well, even when the transparency is up to\n90%; the trigger is almost imperceptible. Specifically, given a\npresetof0.5%FRR,STRIPachievesFARof0.10%.Notably,\nthe attack success rate witnesses a (small) deterioration when\ntransparency approaches to 90% while FAR slightly increases\nto 0.10%. In other words, lowering the chance of being\ndetected by STRIP sacrifices an attacker’s success rate. Figure11. Therelationshipbetweenthestandardvariationofthebenigninput B. Large Trigger\nentropydistributionandN,withN beingthenumberofperturbedreplicas. We use the Hello Kitty trigger—an attack method reported\nin [6] and shown in Fig. 1—with the CIFAR10 dataset to\ninference time. To be specific, processing time—generating further evaluate STRIP insensibility to large triggers. We\nN = 10 perturbed images—takes 0.1ms, while predicting 10 set the transparency of Hello Kitty to 70% and use 100%\nimages takes 6.025ms 3. In total, STRIP detection overhead overlap with the input image. For the trojaned model, its\nis 6.125ms, whereas the original inference time without im- classification rate of clean images is 86%, similar to a clean\nplementing STRIP is 4.63ms. If the real-time performance model, and the attack success rate of the trojaned images is\nwhen plugging STRIP detection system is critical, parallel 99.98%—meaningasuccessfulbackdoorinsertion.Giventhis\ncomputationcanbetakenintoconsideration.Notingthe0.1ms large trigger, the evaluated min entropy of clean images is\nprocessing time is when we sequentially produce those 10 0.0035 and the max entropy of trojaned images is 0.0024. perturbedimages.Thisgenerationcanbeparalleled.Moreover, Therefore, STRIP achieves 0% FAR and FRR under our\nprediction of N perturbed images can run independently and empirical evaluation. In contrast, large triggers are reported\nin parallel, e.g., through N separated model replicas. to evade Neural Cleanse [17] and Sentinet [11]. VI. ROBUSTNESSAGAINSTBACKDOORVARIANTSAND\nADAPTIVEATTACKS C. Multiple Infected Labels with Separate Triggers\nInlinewiththeOakland2019study[17],weimplementfive We consider a scenario where multiple backdoors targeting\nadvancedbackdoorattackmethodsandevaluatetherobustness distinct labels are inserted into a single model [17]. CIFAR10\nof STRIP against them. To some extent, those backdoor has ten classes; therefore, we insert ten distinct triggers: each\nvariants can be viewed as adaptive attacks that are general trigger targets a distinct label. We create unique triggers via\nto backdoor defences. Besides those five backdoor variants, 10 digit patterns—zero to nine. Given the trojaned model,\nwe identify an adaptive attack that is specific to STRIP and the classification rate for clean images is 87.17%. As for all\nevaluate it. To expedite evaluations, in the following, we triggers,theirattacksuccessratesareall100%.Therefore,in-\nchoosetheCIFAR10datasetand8-layermodelassummarized sertingmultipletriggerstargetingseparatelabelsisapractical\nin Table I. attack. STRIPcaneffectivelydetectallofthesetriggers.According\nto our empirical results, we achieve 0% for both FAR and\nA. Trigger Transparency\nFRR for most labels since the min entropy of clean images is\nInaboveexperimentalstudies,thetriggertransparencyused alwayshigherthanthemaxentropyoftrojanedimages.Given\nin the backdoor attacks are set to be 0%. In other words, the apresetFRRof0.5%,theworst-caseisaFARof0.1%found\ntriggerisopaque,whichfacilitatestheattackerwhocansimply for the ‘airplane’ label. printoutthetriggerandstickiton,forexample,atrafficsign. The highest infected label detection rate reported by Neu-\nNonetheless, it is feasible for an attacker to craft a trans- ral Cleanse is no more than 36.9% of infected labels on\nparent trigger, e.g., printing the trigger using a plastic with the PubFig dataset.",
+        "word_count": 493,
+        "char_count": 3944,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 13,
+        "text": "In other words, the apresetFRRof0.5%,theworst-caseisaFARof0.1%found\ntriggerisopaque,whichfacilitatestheattackerwhocansimply for the ‘airplane’ label. printoutthetriggerandstickiton,forexample,atrafficsign. The highest infected label detection rate reported by Neu-\nNonetheless, it is feasible for an attacker to craft a trans- ral Cleanse is no more than 36.9% of infected labels on\nparent trigger, e.g., printing the trigger using a plastic with the PubFig dataset. Consequently, reported results in Neu-\na certain transparency. Therefore, we have tested STRIP ral Cleanse suggest that if more than of 36.9% labels are\ndetection capability under five different trigger transparency separately infected by distinct triggers, Neural Cleanse is no\nsettings: 90%, 80%, 70%, 60% and 50%, shown in Fig. 14 in longer effective. In contrast, according to our evaluation with\nAppendix A. We employ CIFAR10 and trigger b—shown in CIFAR10, the number of infected labels that can be detected\nFig. 7 (b)—in our evaluations. by STRIP is demonstrably high. Table. V in Appendix A summarizes the classification rate\nof clean images, attack success rate of trojaned images, and\nD. Multiple Input-agnostic Triggers\ndetection rate under different transparency settings. When\ntraining the trojaned model, we act as an attacker and stamp This attack considers a scenario where multiple distinc-\ntriggers with different transparencies to clean images to craft tive triggers hijack the model to classify any input image\nstamped with any one of these triggers to the same target\n3Thebatch-sizeis32. label. We aggressively insert ten distinct triggers—crafted in\n9\nSection VI-C—targeting the same label in CIFAR10. Given backdoorattackperspective.Tothisend,wecanconcludethat\nthe trojaned model, the classification rate of clean images is the partial backdoor is successfully inserted. 86.12%. As for any trigger, its attack success rate is 100%. WeapplySTRIPonthispartialbackdooredmodel.Entropy\nTherefore, inserting multiple triggers affecting a single label distribution of 2000 clean inputs and 2000 trojaned inputs\nis a practical attack. (onlyforsourceclasses)aredetailedinFig.12.Wecanclearly\nWe then employ STRIP to detect these triggers. No matter observe that the distribution for clean and trojaned inputs are\nwhich trigger is chosen by the attacker to stamp with clean different.Soifthedefenderisallowedtohaveasetoftrojaned\ninputs, according to our empirical results, STRIP always inputs as assumed in [20], [21], our STRIP appears to be able\nachieves 0% for both FAR and FRR; because the min entropy to detect class-specific trojan attacks; by carefully examining\nof clean images is larger than the max entropy of trojaned andanalysingtheentropydistributionoftestedsamples(done\nimages. offline)becausetheentropydistributionoftrojanedinputsdoes\nlook different from clean inputs. Specifically, by examining\nthe inputs with extremely low entropy, they are more likely to\nE. Source-label-specific (Partial) Backdoors contain trigger for partial backdoor attack. Although STRIP is shown to be very effective in detecting\ninput-agnostic trojan attacks, STRIP may be evaded by an ad-\n0.100\nversary employing a class-specific trigger—an attack strategy\nthat is similar to the ‘all-to-all’ attack [8]. More specifically,\n0.075\nthe targeted attack is only successful when the trigger is\nstamped on the attacker chosen/interested classes. Using the 0.050\nMNIST dataset as an example, as attacker poisons classes 1\n0.025\nand 2 (refereed to as the source classes) with a trigger and\nchanges the label to the targeted class 4.",
+        "word_count": 496,
+        "char_count": 3597,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 14,
+        "text": "Although STRIP is shown to be very effective in detecting\ninput-agnostic trojan attacks, STRIP may be evaded by an ad-\n0.100\nversary employing a class-specific trigger—an attack strategy\nthat is similar to the ‘all-to-all’ attack [8]. More specifically,\n0.075\nthe targeted attack is only successful when the trigger is\nstamped on the attacker chosen/interested classes. Using the 0.050\nMNIST dataset as an example, as attacker poisons classes 1\n0.025\nand 2 (refereed to as the source classes) with a trigger and\nchanges the label to the targeted class 4. Now the attacker can\n0.000\nactivate the trigger only when the trigger is stamped on the 0.0 0.5 1.0 1.5\nsource classes [8]. However, the trigger is ineffective when\nit is stamped to all other classes (referred to as non-source\nclasses). Notably,iftheattackerjustintendstoperforminput-specific\nattacks, the attacker might prefer the adversarial example\nattack—usually specific to each input, since the attacker is\nno longer required to access and tamper the DNN model\nor/and training data, which is easier. In addition, a source-\nlabel-specifictrojanattackishardertobeperformedincertain\nscenarios such as in the context of federated learning [10],\nbecause an attacker is not allowed to manipulate other classes\nowned by other participants. Although such class-specific backdoor attack is out the\nscope of our threat model detailed in Section IV-B, we test\nSTRIP robustness against it. In this context, we use trigger\nb and CIFAR10 dataset. As one example case, we set source\nclassestobe‘airplane’(class0),‘automobile’(class1),‘bird’\n(class 2), ‘cat’ (class 3), ‘deer’ (class 4), ‘dog’ (class 5)\nand ‘frog’ (class 6). Rest classes are non-source classes. The\ntargeted class is set to be ‘horse’ (class 7). After the trojaned\nmodel is trained, its classification rate of clean inputs is\n85.56%. For inputs from source classes stamped with the\ntrigger, the averaged attack success rate is 98.20%. While\nfor inputs from non-source classes such as ‘ship’ (class 8)\nand ‘truck’ (class 9) also stamped with the trigger, the attack\nsuccess rates (misclassified to targeted class 7) are greatly\nreducedto19.7%and12.4%,respectively.Suchanineffective\nmisclassificationratefornon-sourceclassinputsstampedwith\nthe trigger is what the partial backdoor aims to behave, since\nthey can be viewed as clean inputs from the class-specific\n4Theattackerneedstocraftsomepoisonedsamplesbystampingthetrigger\nwithnon-sourceclasses,butkeepstheground-truthlabel.Withoutdoingso,\nthetrainedmodelwillbeinput-agnostic. )%(\nytilibaborP\nnormalized entropy\nwithout trojan\nwith trojan\nFigure 12. Entropy distribution of clean and trojaned inputs for partial\ntrojanedmodel.TriggerbandCIFAR10dataset. Nevertheless, Neural Cleanse, SentiNet and STRIP have\nexcluded the assumption that the user has access to trojaned\nsamples under the threat model. They thereby appear to be\nineffective to detect source-label-specific triggers—all these\nworksmainlyfocusonthecommonplaceinput-agnostictrojan\nattacks. Detecting source-label-specific triggers, regarded as\na challenge, leaves an important future work in the trojan\ndetection research. F. Entropy Manipulation\nSTRIP examines the entropy of inputs. An attacker might\nchoose to manipulate the entropy of clean and trojaned inputs\nto eliminate the entropy difference between them. In other\nwords, the attacker can forge a trojaned model exhibiting\nsimilar entropy for both clean and trojaned samples. We refer\nto such an adaptive attack as an entropy manipulation.",
+        "word_count": 482,
+        "char_count": 3523,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 15,
+        "text": "An attacker might\nchoose to manipulate the entropy of clean and trojaned inputs\nto eliminate the entropy difference between them. In other\nwords, the attacker can forge a trojaned model exhibiting\nsimilar entropy for both clean and trojaned samples. We refer\nto such an adaptive attack as an entropy manipulation. An identified specific method to perform entropy manipu-\nlation follows the steps below:\n1) We first poison a small fraction of training samples\n(specifically, 600) by stamping the trigger c. Then, we\n(as an attacker) change all the trojaned samples’ labels\nto the attacker’s targeted class. 2) For each poisoned sample, we first randomly select N\nimages (10 is used) from training dataset and superim-\nposeeachofN images(cleaninputs)withthegivenpoi-\nsoned (trojaned) sample. Then, for each superimposed\ntrojaned sample, we randomly assign a label to it and\ninclude it into the training dataset. Theintuitionofstep(2)istocausepredictionsofperturbed\ntrojaned inputs to be random and similar to predictions of\n10\nperturbed clean inputs. After training the trojaned model\nusing the above created poisoned dataset, we found that the\nclassification rate for clean input is 86.61% while the attack\nsuccess rate is 99.95%. The attack success rate drops but is\nquite small—originally it was 100% as detailed in Table II. The attacker can still successfully perform the trojan attack. As shown in Fig. 13, the entropy distribution of clean and\ntrojaned inputs are similar. However, when the entropy distribution of the clean inputs\nis examined, it violates the expected normal distribution 5. In addition, the entropy appears to be much higher. It is\nalways more than 3.0, which is much higher than that is\nshowninFig.8(d).Therefore,suchanadaptiveattackcanbe\ndetected in practice by examining the entropy of clean inputs\n(without reliance on trojaned inputs) via the proposed strong\nperturbation method. Here, the abnormal entropy distribution\nof the clean inputs indicates a malicious model. 0.6\n0.4\n0.2\n0.0\n1.5 2.0 2.5 3.0\n)%(\nytilibaborP\nmodel update phase, not model training phase. They first\ncarryoutreverseengineertosynthesizethetrainingdata,then\nimprovethetriggergenerationprocessbydelicatelydesigning\ntriggers to maximize the activation of chosen internal neurons\nin the neural network. This builds a stronger connection\nbetween triggers and internal neurons, thus, requiring less\ntraining samples to insert backdoors. Bagdasaryan et al. [10] show that federated learning is\nfundamentallyvulnerabletotrojanattacks.Firstly,participants\nare enormous, e.g., millions, it is impossible to guarantee that\nnone of them are malicious. Secondly, federated learning is\ndesigned to have no access to the participant’s local data and\ntraining process to ensure the privacy of the sensitive training\ndata; therefore, participants can use trojaned data for training. The authors demonstrate that with controll over no more than\n1% participants, an attacker is able to cause a global model\nto be trojaned and achieves a 100% accuracy on the trojaned\ninputevenwhentheattackerisonlyselectedinasingleround\noftraining—federatedlearningrequiresanumberofroundsto\nnormalized entropy\nupdate the global model parameters. This federated learning\nwithout trojan trojanattackisvalidatedthroughtheCIFAR10datasetthatwe\nwith trojan also use in this paper. B. Defenses\nThough there are general defenses against poisoning at-\ntacks [31], they cannot be directly mounted to guard against\ntrojan attacks. Especially, considering that the user has no\nknowledgeofthetrojantriggerandnoaccesstotrojanedsam-\nFigure 13.",
+        "word_count": 497,
+        "char_count": 3594,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 16,
+        "text": "B. Defenses\nThough there are general defenses against poisoning at-\ntacks [31], they cannot be directly mounted to guard against\ntrojan attacks. Especially, considering that the user has no\nknowledgeofthetrojantriggerandnoaccesstotrojanedsam-\nFigure 13. Entropy distribution of clean and trojaned inputs under entropy ples, this makes combating trojan attacks more challenging. manipulationadaptiveattack.CIFIAR10andtriggercareused. Worksin[32],[33]suggestapproachestoremovethetrojan\nbehavior without first checking whether the model is trojaned\nor not. Fine-tuning is used to remove potential trojans by\nVII. RELATEDWORKANDCOMPARISON\npruning carefully chosen parameters of the DNN model [32]. Previous poisoning attacks usually aim to degrade a clas- However, this method substantially degrades the model accu-\nsifier’s accuracy of clean inputs [28], [29]. In contrast, trojan racy[17].Itisalsocumbersometoperformremovaloperations\nattacks maintain prediction accuracy of clean inputs as high toanyDNNmodelunderdeploymentasmostofthemtendto\nas a benign model, while misdirecting the input to a targeted bebenign.Approachespresentedin[33]incurhighcomplexity\nclass whenever the input contains an attacker chosen trigger. and computation costs. Chen et al. [20] propose an activation clustering (AC)\nA. Attacks method to detect whether the training data has been trojaned\nor not prior to deployment. The intuition behind this method\nIn 2017, Gu et al. [8], [30] proposed Badnets, where\nis that reasons why the trojaned and the benign samples\nthe attacker has access to the training data and can, thus,\nreceive same predicted label by the trojaned DNN model are\nmanipulate the training data to insert an arbitrarily chosen\ndifferent. By observing neuron activations of benign samples\ntrigger and also change the class labels. Gu et al. [8] use\nandtrojanedsamplesthatproducesamelabelinhiddenlayers,\na square-like trigger located at the corner of the digit image\none can potentially distinguish trojaned samples from clean\nof the MNIST data to demonstrate the trojan attack. On the\nsamples via the activation difference. This method assumes\nMNIST dataset, the authors demonstrate an attack success\nthat the user has access to the trojaned training samples in\nrate of over 99% without impacting model performance on\nhand. benign inputs. In addition, trojan triggers to misdirect traffic\nChou et al. [11] exploit both the model interpretability and\nsign classifications have also been investigated in [8]. Chen\nobject detection techniques, referred to as SentiNet, to firstly\net al. [6] from UC Berkeley concurrently demonstrated such\ndiscover contiguous regions of an input image important for\nbackdoor attacks by poisoning the training dataset. determining the classification result. This region is assumed\nLiu et al. [16] eschew the requirements of accessing the\nhaving a high chance of possessing a trojan trigger when it\ntraining data. Instead, their attack is performed during the\nstrongly affects the classification. Once this region is deter-\nmined,itiscarvedoutandpatchedontootherheld-outimages\n5We have also tested such an adaptive attack on the GTSRB dataset, and\nobservedthesameabnormalentropydistributionbehaviorofcleaninputs. that are with ground-truth labels. If both the misclassification\n11\nTableIV\nCOMPARISONWITHOTHERTROJANDETECTIONWORKS.",
+        "word_count": 448,
+        "char_count": 3347,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 17,
+        "text": "Once this region is deter-\nmined,itiscarvedoutandpatchedontootherheld-outimages\n5We have also tested such an adaptive attack on the GTSRB dataset, and\nobservedthesameabnormalentropydistributionbehaviorofcleaninputs. that are with ground-truth labels. If both the misclassification\n11\nTableIV\nCOMPARISONWITHOTHERTROJANDETECTIONWORKS. Black/White Computation Time TriggerSize Accessto Detection\nWork -BoxAccess1 Run-time Cost Overhead Dependence TrojanedSamples Capability\nActivationClustering(AC)byChenetal.[20] White-box No Moderate Moderate No Yes F1scorenearly100%\nNeuralCleansebyWangetal.[17] Black-box No High High Yes No 100%2\nSentiNetbyChouetal.[11] Black-box Yes Moderate Moderate Yes No 5.74%FARand6.04%FRR\nSTRIPbyus Black-box Yes Low Low No No 0.46%FARand1%FRR3\n1 White-box requires access to inner neurons of the model. 2 According to case studies on 6 infected, and their matching original model, authors [17] show all infected/trojaned and clean models\ncan be clearly distinguished. 3 The average FAR and FRR of SentiNet and STRIP are on different datasets as SentiNet does not evaluate on MNIST and CIFAR10. rate—probabilityofthepredictedlabelisnottheground-truth region embedding the trojan trigger needs be small enough. If\nlabel of the held-out image—and confidence of these patched the trigger region is large, such as the trigger shown in Fig. 7\nimages are high enough, this carved patch is regarded as an (a)and(c),andFig.1,thenSentiNettendstobelesseffective. adversarial patch that contains a trojan trigger. Therefore, the This is caused by its carve-out method. Supposing that the\nincoming input is a trojaned input. carved region is large and contains the trigger, then patching\nIn Oakland 2019, Wang et al. [17] propose the Neural itonheld-outsampleswillalsoshowasmallmisclassification\nCleanse method to detect whether a DNN model has been rate to be falsely accepted as a benign input via SentiNet. trojaned or not prior to deployment, where its accuracy is Notably, in contrast to the use of a global detection bound-\nfurther improved in [15]. Neural Cleanse is based on the intu- ary in Neural Cleanse [17], the detection boundary of STRIP\nitionthat,givenabackdooredmodel,itrequiresmuchsmaller is unique to each deployed model and is extracted from the\nmodifications to all input samples to misclassify them into already deployed model itself; this boundary is not a global\ntheattackertargeted(infected)labelthananyotheruninfected setting. This avoids the potential for the global setting to\nlabels. Therefore, their method iterates through all labels of fail since the optimized detection boundary for each model\nthe model and determines if any label requires a substantially can vary. Probably, one not obvious fact is that users need\nsmaller amount of modification to achieve misclassifications. to train trojan/clean models by themselves to find out this\nOne advantage of this method is that the trigger can be globalsettingasthedetectionboundaryoftheNeuralCleanse\ndiscovered and identified during the trojaned model detection needs to be decided based on reference models—STRIP does\nprocess. However, this method has two limitations. Firstly, not need reference model but solely the already deployed\nit could incur high computation costs proportionally to the (begin/backdoored) model. This may partially violate the mo-\nnumber of labels. Secondly, similar to SentiNet [11], the tivationforoutsourcingthemodeltrainingofMLmodels—the\nmethod is reported to be less effective with increasing trigger main source of attackers to introduce backdoor attacks: if the\nsize. users own training skills and the computational power, it may\nbereasonabletotrainthemodel,fromscratch,bythemselves. C.",
+        "word_count": 494,
+        "char_count": 3715,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 18,
+        "text": "Secondly, similar to SentiNet [11], the tivationforoutsourcingthemodeltrainingofMLmodels—the\nmethod is reported to be less effective with increasing trigger main source of attackers to introduce backdoor attacks: if the\nsize. users own training skills and the computational power, it may\nbereasonabletotrainthemodel,fromscratch,bythemselves. C. Comparison\nWe compare STRIP with other three recent trojan detection D. Watermarking\nworks, as summarized in Table IV. Notably, AC and Neural Thereareworksconsideringabackdoorasawatermark[34]\nCleanseareperformedofflinepriortothemodeldeploymentto to protect the intellectual property (IP) of a trained DNN\ndirectly detect whether the model has been trojaned or not. In model [35]–[37]. The argument is that the inserted backdoor\ncontrast,SentiNetandSTRIPareundertakerun-timechecking can be used to claim the ownership of the model provider\nof incoming inputs to detect whether the input is trojaned or since only the provider is supposed to have the knowledge\nnot when the model is actively deployed. STRIP is efficient of such a backdoor, while the backdoored DNN model has\nin terms of computational costs and time overhead. While AC no (or imperceptible) degraded functional performance on\nand STRIP are insensitive to trojan trigger size, AC assumes normal inputs. However, as the above countermeasures—\naccess to a trojaned sample set. detection, recovery, and removal—against backdoor insertion\nWe regard SentiNet to be mostly related to our approach\nare continuously evolved, the robustness of using backdoors\nsince both SentiNet and STRIP focus on detecting whether\nas watermarks is potentially challenged in practical usage. the incoming input has been trojaned or not during run-time. We leave the robustness of backdoor entangled watermarking\nHowever, there are differences: i) We do not care about the\nunder the backdoor detection and removal threat as part of\nground-truth labels of neither the incoming input nor the\nfuture work since it is out of the scope of this work. drawn images from the held-out samples, while [11] relies on\nthe ground-truth labels of the held-out images; ii) We intro-\nVIII. CONCLUSIONANDFUTUREWORK\nduce entropy to evaluate the randomness of the outputs—this The presented STRIP constructively turns the strength of\nis more convenient, straightforward and easy-to-implement insidious input-agnostic trigger based trojan attack into a\nin comparison with the evaluation methodology presented weakness that allows one to detect trojaned inputs (and very\nin [11]; iii) STRIP evaluations demonstrate its capability of likelybackdooredmodel)atrun-time.ExperimentsonMNIST,\ndetectingalargetrigger.OnelimitationofSentiNetisthatthe CIFAR10 and GTSRB datasets with various triggers and\n12\nevaluations validate the high detection capability of STRIP. [16] Y. Liu, S. Ma, Y. Aafer, W.-C. Lee, J. Zhai, W. Wang, and X. Zhang,\nOverall, the FAR is lower than 1%, given a preset FRR of “Trojaning attack on neural networks,” in Network and Distributed\nSystemSecuritySymposium(NDSS),2018. 1%. The 0% FRR and 0% FAR are empirically achieved\n[17] B. Wang, Y. Yao, S. Shan, H. Li, B. Viswanath, H. Zheng, and B. Y. on popular CIFAR10 and GTSRB datasets. While easy-to- Zhao, “Neural cleanse: Identifying and mitigating backdoor attacks\nimplement, time-efficient and complementing with existing in neural networks,” in Proceedings of the 40th IEEE Symposium on\nSecurityandPrivacy,2019. trojan mitigation techniques, the run-time STRIP works in a\n[18] C. Liao, H. Zhong, A.",
+        "word_count": 499,
+        "char_count": 3533,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 19,
+        "text": "trojan mitigation techniques, the run-time STRIP works in a\n[18] C. Liao, H. Zhong, A. Squicciarini, S. Zhu, and D. Miller, “Backdoor\nblack-box manner and is shown to be capable of overcoming embeddinginconvolutionalneuralnetworkmodelsviainvisiblepertur-\nthe trigger size limitation of other state-of-the-art detection bation,”arXivpreprintarXiv:1808.10307,2018. [19] U. A. R. Office. (May 2019) TrojAI. [Online]. Avail-\nmethods. Furthermore, STRIP has also demonstrated its ro-\nable: https://www.fbo.gov/index.php?s=opportunity&mode=form&id=\nbustness against several advanced variants of input-agnostic be4e81b70688050fd4fc623fb24ead2c&tab=core& cview=0\ntrojan attacks and the entropy manipulation adaptive attack. [20] B.Chen,W.Carvalho,N.Baracaldo,H. Ludwig,B.Edwards,T.Lee,\nI.Molloy,andB.Srivastava,“Detectingbackdoorattacksondeepneural\nNevertheless, similar to Neural Cleanse [17] and Sen-\nnetworks by activation clustering,” arXiv preprint arXiv:1811.03728,\ntiNet [11], STRIP is not effective to detect source-label- 2018. specific triggers; this needs to be addressed in future work. In [21] B.Tran,J.Li,andA.Madry,“Spectralsignaturesinbackdoorattacks,”\ninAdvancesinNeuralInformationProcessingSystems,2018,pp.8000–\naddition,wewilltestSTRIP’sgeneralizationtootherdomains\n8010. such as text and voice . [22] Y.LeCun,L.Bottou,Y.Bengio,andP.Haffner,“Gradient-basedlearning\napplied to document recognition,” Proceedings of the IEEE, vol. 86,\nno.11,pp.2278–2324,1998. REFERENCES [23] A.KrizhevskyandG.Hinton,“Learningmultiplelayersoffeaturesfrom\ntinyimages,”Citeseer,Tech.Rep.,2009. [24] J.Stallkamp,M.Schlipsing,J.Salmen,andC.Igel,“Manvs.computer:\n[1] Y.LeCun,Y.Bengio,andG.Hinton,“Deeplearning,”Nature,vol.521,\nBenchmarkingmachinelearningalgorithmsfortrafficsignrecognition,”\nno.7553,p.436,2015. Neuralnetworks,vol.32,pp.323–332,2012. [2] Q. Wang, W. Guo, K. Zhang, A. G. Ororbia II, X. Xing, X. Liu,\n[25] K.He,X.Zhang,S.Ren,andJ.Sun,“Deepresiduallearningforimage\nand C. L. Giles, “Adversary resistant deep neural networks with an\nrecognition,”inProceedingsoftheIEEEconferenceoncomputervision\napplication to malware detection,” in Proceedings of the 23rd ACM\nandpatternrecognition,2016,pp.770–778. SIGKDD International Conference on Knowledge Discovery and Data\n[26] D. Amodei, S. Ananthanarayanan, R. Anubhai, J. Bai, E. Battenberg,\nMining. ACM,2017,pp.1145–1153. C. Case, J. Casper, B. Catanzaro, Q. Cheng, G. Chen et al., “Deep\n[3] T.A.Tang,L.Mhamdi,D.McLernon,S.A.R.Zaidi,andM.Ghogho,\nspeech 2: End-to-end speech recognition in english and mandarin,” in\n“Deep learning approach for network intrusion detection in software\nInternationalConferenceonMachineLearning,2016,pp.173–182. definednetworking,”inInternationalConferenceonWirelessNetworks\n[27] Y. Kim, “Convolutional neural networks for sentence classification,”\nandMobileCommunications(WINCOM). IEEE,2016,pp.258–263. arXivpreprintarXiv:1408.5882,2014. [4] I. Stoica, D. Song, R. A. Popa, D. Patterson, M. W. Mahoney,\n[28] L.Huang,A.D.Joseph,B.Nelson,B.I.Rubinstein,andJ.Tygar,“Ad-\nR. Katz, A. D. Joseph, M. Jordan, J. M. Hellerstein, J. E. Gonzalez\nversarial machine learning,” in Proceedings of the 4th ACM workshop\net al., “A berkeley view of systems challenges for AI,” arXiv preprint\nonSecurityandartificialintelligence. ACM,2011,pp.43–58. arXiv:1712.05855,2017. [29] N. Papernot, P. McDaniel, A. Sinha, and M. Wellman, “Towards the\n[5] W.Guo,D.Mu,J.Xu,P.Su,G.Wang,andX.Xing,“Lemna:Explaining\nscience of security and privacy in machine learning,” arXiv preprint\ndeep learning based security applications,” in Proceedings of the 2018\narXiv:1611.03814,2016. ACMSIGSACConferenceonComputerandCommunicationsSecurity. [30] T. Gu, K. Liu, B. Dolan-Gavitt, and S. Garg, “Badnets: Evaluating\nACM,2018,pp.364–379. backdooring attacks on deep neural networks,” IEEE Access, vol. 7,\n[6] X. Chen, C. Liu, B. Li, K. Lu, and D. Song, “Targeted backdoor\npp.47230–47244,2019. attacksondeeplearningsystemsusingdatapoisoning,”arXivpreprint\n[31] N. Baracaldo, B. Chen, H. Ludwig, and J. A. Safavi, “Mitigating\narXiv:1712.05526,2017. poisoningattacksonmachinelearningmodels:Adataprovenancebased\n[7] Y. Ji, X. Zhang, S. Ji, X. Luo, and T. Wang, “Model-reuse attacks approach,” in Proceedings of the 10th ACM Workshop on Artificial\non deep learning systems,” in Proceedings of the ACM Conference on IntelligenceandSecurity. ACM,2017,pp.103–110. ComputerandCommunicationsSecurity. ACM,2018,pp.349–363. [32] K.Liu,B.Dolan-Gavitt,andS.Garg,“Fine-pruning:Defendingagainst\n[8] T. Gu, B. Dolan-Gavitt, and S. Garg, “Badnets: Identifying vulnera- backdooringattacksondeepneuralnetworks,”inProceedingsofRAID,\nbilities in the machine learning model supply chain,” arXiv preprint 2018. arXiv:1708.06733,2017. [33] Y.Liu,Y.Xie,andA.Srivastava,“Neuraltrojans,”inIEEEInternational\n[9] M. Zou, Y. Shi, C. Wang, F. Li, W. Song, and Y. Wang, “Potrojan: ConferenceonComputerDesign(ICCD). IEEE,2017,pp.45–48. powerful neural-level trojan designs in deep learning models,” arXiv [34] H.",
+        "word_count": 500,
+        "char_count": 5010,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 20,
+        "text": "Wang, “Potrojan: ConferenceonComputerDesign(ICCD). IEEE,2017,pp.45–48. powerful neural-level trojan designs in deep learning models,” arXiv [34] H. Chen, B. D. Rouhani, and F. Koushanfar, “Blackmarks: Black-box\npreprintarXiv:1802.03043,2018. multi-bitwatermarkingfordeepneuralnetworks,”2018. [10] E.Bagdasaryan,A.Veit,Y.Hua,D.Estrin,andV.Shmatikov,“Howto [35] Y. Adi, C. Baum, M. Cisse, B. Pinkas, and J. Keshet, “Turning\nbackdoorfederatedlearning,”arXivpreprintarXiv:1807.00459,2018. yourweaknessintoastrength:Watermarkingdeepneuralnetworksby\n[11] E. Chou, F. Trame`r, G. Pellegrino, and D. Boneh, “Sentinet: Detect- backdooring,”inUSENIXSecuritySymposium,2018. ing physical attacks against deep learning systems,” arXiv preprint [36] J. Guo and M. Potkonjak, “Watermarking deep neural networks for\narXiv:1812.00292,2018. embedded systems,” in 2018 IEEE/ACM International Conference on\n[12] M.Sharif,S.Bhagavatula,L.Bauer,andM.K.Reiter,“Accessorizeto Computer-AidedDesign(ICCAD),2018,pp.1–8. acrime:Realandstealthyattacksonstate-of-the-artfacerecognition,” [37] J. Zhang, Z. Gu, J. Jang, H. Wu, M. P. Stoecklin, H. Huang, and\nin Proceedings of the ACM SIGSAC Conference on Computer and I. Molloy, “Protecting intellectual property of deep neural networks\nCommunicationsSecurity. ACM,2016,pp.1528–1540. withwatermarking,”inProceedingsofthe2018onAsiaConferenceon\n[13] K. Eykholt, I. Evtimov, E. Fernandes, B. Li, A. Rahmati, C. Xiao, ComputerandCommunicationsSecurity. ACM,2018,pp.159–172. A. Prakash, T. Kohno, and D. Song, “Robust physical-world attacks\non deep learning visual classification,” in Proceedings of the IEEE\nConference on Computer Vision and Pattern Recognition, 2018, pp. APPENDIXA\n1625–1634. TRIGGERTRANSPARENCYRESULTS\n[14] J.Su,D.V.Vargas,andK.Sakurai,“Onepixelattackforfoolingdeep\nneural networks,” IEEE Transactions on Evolutionary Computation, Fig. 14 shows different transparency settings. Table V\n2019. detailsclassificationrateofcleaninputs,attacksuccessrateof\n[15] W. Guo, L. Wang, X. Xing, M. Du, and D. Song, “Tabor: A highly\ntrojanedinputs,anddetectionrateunderdifferenttransparency\naccurate approach to inspecting and restoring trojan backdoors in ai\nsystems,”arXivpreprintarXiv:1908.01763,2019. settings. 13\nWe find that as the neural network goes deeper—usually\nleads to a more accurate prediction, the detection capability\nalsoimproves.Specifically,fortheshallow2-layerarchitecture\nbased trojaned model, 2% FRR gives 0.45% FAR, 1% FRR\ngives 0.6% FAR, and 0.5% FRR gives 0.9% FAR. While for\nthe 8-layer architecture based trojaned model, FRR is always\nFigure14. Fromlefttoright,triggertransparencyare90%,80%,70%,60%\nand50%. 0%,regardlessofFRR,asthereisalwaysanentropygap—no\noverlap—between the benign and trojaned inputs. TableV Moreover, we run a 8-layer architecture on the MNIST\nCLASSIFICATIONRATEOFCLEANIMAGES,ATTACKSUCCESSRATEAND dataset with the square trigger. For the trojaned model, its\nDETECTIONCAPABILITYUNDERDIFFERENTTRIGGERTRANSPARENCY\naccuracy on clean inputs is 99.02% while achieves a 99.99%\nSETTINGS.DATASETISCIFAR10ANDTHETRIGGERISTRIGGERBIN\nFIG.7(B).THEFRRISPRESETTOBE0.5%. accuracyontrojanedinputs.STRIPdemonstratesanimproved\ndetection capability as well. Specifically, 1% FRR gives 0%\nClassificationrate Attack Min.entropy Max.entropy Detection FAR, 0.5% FRR gives 0.03% FAR, which has been greatly\nTransp. ofcleanimage successrate ofcleanimages oftrojanedimages boundary FAR\nimproved in comparison with the detection capability of a 2-\n90% 87.11% 99.93% 0.0647 0.6218 0.2247 0.10%\n80% 85.81% 100% 0.0040 0.0172 0.1526 0% layer trojaned model, see Table. III. 70% 88.59% 100% 0.0323 0.0167 0.1546 0%\n60% 86.68% 100% 0.0314 3.04×10−17 0.1459 0% To this end, we can empirically conclude that the deeper\n50% 86.80% 100% 0.0235 4.31×10−6 0.1001 0% themodel,thehigherdetectioncapabilityofSTRIPdetection. On one hand, this potentially lies on the fact that the model\nwith more parameters memorizes the trigger feature stronger,\nAPPENDIXB\nwhich always presents a low entropy for the trojaned input. DETECTIONCAPABILITYRELATIONSHIPWITHDEPTHOF\nOntheotherhand,themodelalsomoreaccuratelymemorizes\nNEURALNETWORK\nthe features for each class of clean input. The trained model\nis more sensitive to strong perturbation on clean input, and\ntherefore, unlikely to present a low entropy for clean input—\nmay contribute to FRR. Wearecuriousonthoseimagesthataretrojanedbutfalsely\naccepted as clean images.",
+        "word_count": 482,
+        "char_count": 4435,
+        "start_sentence": false,
+        "end_sentence": false
+      },
+      {
+        "id": 21,
+        "text": "DETECTIONCAPABILITYRELATIONSHIPWITHDEPTHOF\nOntheotherhand,themodelalsomoreaccuratelymemorizes\nNEURALNETWORK\nthe features for each class of clean input. The trained model\nis more sensitive to strong perturbation on clean input, and\ntherefore, unlikely to present a low entropy for clean input—\nmay contribute to FRR. Wearecuriousonthoseimagesthataretrojanedbutfalsely\naccepted as clean images. Therefore, based on the 2-layer\nfrog airplane airplane ship truck\ntrojaned model (8-layer model has 0% FAR) produced on the\nCIFAR10 dataset and trigger c, we further examined those\nimages. We found that most of them lost their trojan effect,\nas shown in Fig. 15. For instance, out of 10 falsely accepted\nfrog bird horse horse truck trojanedimages,fourimagesmaintainingtheirtrojaningeffect\nofhijackingtheDNNmodeltoclassfythemtobethetargeted\nlabel of ‘horse’. The rest six trojaned images are unable to\nachieve their trojaning effect because the trojan trigger is not\nfrog deer airplane truck automobile strongenoughtomisdirectthepredictedlabeltobe‘horse’.In\nother words, these six trojaned images will not cause security\nconcerns designed by the attacker when they are indeed\nmisclassified into benign image by STRIP. In addition, we\nfrog horse airplane horse bird observethattherearethreetrojanedimagesclassifiedintotheir\ncorrect ground-truth labels by the attacker’s trojaned model. Figure15. WhenthetrojanedimagesarefalselyacceptedbySTRIPasbenign The reason may lie on that the trigger feature is weakened in\nimages,mostofthemlosttheirtrojaningeffect.Becausetheycannothijackthe\ncertain specific inputs. For example, without careful attention,\ntrojanedDNNmodeltoclassifythemtothetargetedclass—‘horse’.Green-\nboxed trojaned images are those bypassing STRIP detection system while one may not perceive the stamped trigger in the ‘frog’ (1st)\nmaintainingtheirtrojaningeffect. and ‘airplane’ (7th) images, which is more likely the same to\nthe trojaned DNN model. Besides the DNN architecture—referred to as 8-layer\narchitecture—achieving around 88% accuracy performance of\nclean inputs, we tested a shallow neural network architecture\nonly with 2 conventional layer and 1 dense layer—referred to\nas2-layerarchitecture.Forthis2-layerarchitecture,thebenign\nmodelonCIFAR10datasethasaloweraccuracyperformance,\nwhich is 70%. The corresponding trojaned model with trigger\nc has a similar accuracy with around 70% for clean inputs\nwhile around 99% attack success rate for trojaned inputs. In\nthis context, the model is successfully inserted as it does not\ndegrade the performance of clean inputs.",
+        "word_count": 313,
+        "char_count": 2579,
+        "start_sentence": false,
+        "end_sentence": true
+      }
+    ],
+    "edges": [
+      {
+        "source": 0,
+        "target": 1,
+        "weight": 0.5968627333641052,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 2,
+        "weight": 0.5887179970741272,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 3,
+        "weight": 0.7189202904701233,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 4,
+        "weight": 0.538815438747406,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 5,
+        "weight": 0.6807258129119873,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 6,
+        "weight": 0.5877361297607422,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 7,
+        "weight": 0.760850191116333,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 8,
+        "weight": 0.5509091019630432,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 9,
+        "weight": 0.5298991799354553,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 10,
+        "weight": 0.5353765487670898,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 14,
+        "weight": 0.5685105919837952,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 15,
+        "weight": 0.6067947745323181,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 16,
+        "weight": 0.75799560546875,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 17,
+        "weight": 0.5176544785499573,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 18,
+        "weight": 0.7712094783782959,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 19,
+        "weight": 0.5382038354873657,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 20,
+        "weight": 0.715965211391449,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 0,
+        "target": 21,
+        "weight": 0.6607846021652222,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 1,
+        "target": 2,
+        "weight": 0.5780314207077026,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 1,
+        "target": 3,
+        "weight": 0.5664657950401306,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 1,
+        "target": 5,
+        "weight": 0.520588755607605,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 1,
+        "target": 6,
+        "weight": 0.5057386159896851,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 1,
+        "target": 7,
+        "weight": 0.51435387134552,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 1,
+        "target": 8,
+        "weight": 0.5289384126663208,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 1,
+        "target": 10,
+        "weight": 0.5697414875030518,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 1,
+        "target": 12,
+        "weight": 0.5123816728591919,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 1,
+        "target": 15,
+        "weight": 0.5526822805404663,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 1,
+        "target": 16,
+        "weight": 0.5246874094009399,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 1,
+        "target": 18,
+        "weight": 0.5957905650138855,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 1,
+        "target": 21,
+        "weight": 0.5726805925369263,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 5,
+        "weight": 0.5177302360534668,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 6,
+        "weight": 0.5468013882637024,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 8,
+        "weight": 0.590510904788971,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 9,
+        "weight": 0.5320819616317749,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 10,
+        "weight": 0.583407998085022,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 11,
+        "weight": 0.5944592356681824,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 12,
+        "weight": 0.6079409718513489,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 14,
+        "weight": 0.599003791809082,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 15,
+        "weight": 0.5136166214942932,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 16,
+        "weight": 0.5578016042709351,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 17,
+        "weight": 0.5268914103507996,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 18,
+        "weight": 0.6145653128623962,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 19,
+        "weight": 0.6680030226707458,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 20,
+        "weight": 0.5284145474433899,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 2,
+        "target": 21,
+        "weight": 0.5711751580238342,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 3,
+        "target": 4,
+        "weight": 0.5769525170326233,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 3,
+        "target": 5,
+        "weight": 0.7712711095809937,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 3,
+        "target": 6,
+        "weight": 0.5760036110877991,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 3,
+        "target": 7,
+        "weight": 0.6903242468833923,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 3,
+        "target": 8,
+        "weight": 0.5559895038604736,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 3,
+        "target": 9,
+        "weight": 0.5249811410903931,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 3,
+        "target": 10,
+        "weight": 0.5318834185600281,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 3,
+        "target": 14,
+        "weight": 0.6287877559661865,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 3,
+        "target": 15,
+        "weight": 0.6109407544136047,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 3,
+        "target": 16,
+        "weight": 0.642749011516571,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 3,
+        "target": 18,
+        "weight": 0.6141007542610168,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 3,
+        "target": 21,
+        "weight": 0.5247277617454529,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 4,
+        "target": 6,
+        "weight": 0.5207609534263611,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 4,
+        "target": 7,
+        "weight": 0.6547255516052246,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 4,
+        "target": 8,
+        "weight": 0.5895224809646606,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 4,
+        "target": 16,
+        "weight": 0.5830487608909607,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 4,
+        "target": 17,
+        "weight": 0.501213014125824,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 4,
+        "target": 18,
+        "weight": 0.5443527698516846,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 5,
+        "target": 6,
+        "weight": 0.6867350935935974,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 5,
+        "target": 7,
+        "weight": 0.6715239882469177,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 5,
+        "target": 8,
+        "weight": 0.5406818985939026,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 5,
+        "target": 9,
+        "weight": 0.5624250769615173,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 5,
+        "target": 10,
+        "weight": 0.5744566321372986,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 5,
+        "target": 14,
+        "weight": 0.5868678689002991,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 5,
+        "target": 15,
+        "weight": 0.6236398816108704,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 5,
+        "target": 16,
+        "weight": 0.5841730237007141,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 5,
+        "target": 17,
+        "weight": 0.5126462578773499,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 5,
+        "target": 18,
+        "weight": 0.5858446359634399,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 5,
+        "target": 20,
+        "weight": 0.5334123373031616,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 5,
+        "target": 21,
+        "weight": 0.5872644782066345,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 7,
+        "weight": 0.6627106070518494,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 8,
+        "weight": 0.519112229347229,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 9,
+        "weight": 0.6024574637413025,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 10,
+        "weight": 0.6300317645072937,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 11,
+        "weight": 0.5110177397727966,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 12,
+        "weight": 0.5127723217010498,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 14,
+        "weight": 0.6027741432189941,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 15,
+        "weight": 0.6293697357177734,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 16,
+        "weight": 0.61635822057724,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 17,
+        "weight": 0.5202959179878235,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 18,
+        "weight": 0.612273633480072,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 19,
+        "weight": 0.509260356426239,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 20,
+        "weight": 0.541149377822876,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 6,
+        "target": 21,
+        "weight": 0.6003566980361938,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 7,
+        "target": 8,
+        "weight": 0.5617127418518066,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 7,
+        "target": 9,
+        "weight": 0.612200140953064,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 7,
+        "target": 10,
+        "weight": 0.616439163684845,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 7,
+        "target": 11,
+        "weight": 0.532333493232727,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 7,
+        "target": 14,
+        "weight": 0.5259239673614502,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 7,
+        "target": 15,
+        "weight": 0.662787675857544,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 7,
+        "target": 16,
+        "weight": 0.761481523513794,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 7,
+        "target": 17,
+        "weight": 0.5106236934661865,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 7,
+        "target": 18,
+        "weight": 0.7180280685424805,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 7,
+        "target": 20,
+        "weight": 0.6468587517738342,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 7,
+        "target": 21,
+        "weight": 0.6306610107421875,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 8,
+        "target": 10,
+        "weight": 0.6415078639984131,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 8,
+        "target": 11,
+        "weight": 0.5368021726608276,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 8,
+        "target": 12,
+        "weight": 0.5210450291633606,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 8,
+        "target": 15,
+        "weight": 0.6017091870307922,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 8,
+        "target": 16,
+        "weight": 0.5847293138504028,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 8,
+        "target": 17,
+        "weight": 0.6126254200935364,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 8,
+        "target": 18,
+        "weight": 0.5430348515510559,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 8,
+        "target": 21,
+        "weight": 0.5839123725891113,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 9,
+        "target": 10,
+        "weight": 0.6715837121009827,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 9,
+        "target": 11,
+        "weight": 0.5437983870506287,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 9,
+        "target": 12,
+        "weight": 0.5640967488288879,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 9,
+        "target": 14,
+        "weight": 0.5420970916748047,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 9,
+        "target": 15,
+        "weight": 0.6172989010810852,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 9,
+        "target": 16,
+        "weight": 0.6321032047271729,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 9,
+        "target": 18,
+        "weight": 0.5301052927970886,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 9,
+        "target": 19,
+        "weight": 0.5715158581733704,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 9,
+        "target": 20,
+        "weight": 0.54517662525177,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 9,
+        "target": 21,
+        "weight": 0.537110447883606,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 10,
+        "target": 11,
+        "weight": 0.5778946280479431,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 10,
+        "target": 12,
+        "weight": 0.652184247970581,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 10,
+        "target": 14,
+        "weight": 0.5926876068115234,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 10,
+        "target": 15,
+        "weight": 0.7014954686164856,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 10,
+        "target": 16,
+        "weight": 0.6331283450126648,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 10,
+        "target": 17,
+        "weight": 0.5351587533950806,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 10,
+        "target": 18,
+        "weight": 0.5534579753875732,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 10,
+        "target": 19,
+        "weight": 0.5933520197868347,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 10,
+        "target": 20,
+        "weight": 0.5076164603233337,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 10,
+        "target": 21,
+        "weight": 0.5897966027259827,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 11,
+        "target": 12,
+        "weight": 0.5676977038383484,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 11,
+        "target": 15,
+        "weight": 0.50679612159729,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 11,
+        "target": 16,
+        "weight": 0.5733148455619812,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 11,
+        "target": 18,
+        "weight": 0.5766280293464661,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 11,
+        "target": 19,
+        "weight": 0.5880526900291443,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 12,
+        "target": 13,
+        "weight": 0.5176953673362732,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 12,
+        "target": 14,
+        "weight": 0.5892619490623474,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 12,
+        "target": 15,
+        "weight": 0.5448575019836426,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 12,
+        "target": 16,
+        "weight": 0.5026578903198242,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 12,
+        "target": 19,
+        "weight": 0.5843586921691895,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 12,
+        "target": 21,
+        "weight": 0.5221724510192871,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 13,
+        "target": 17,
+        "weight": 0.5619642734527588,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 13,
+        "target": 21,
+        "weight": 0.5133189558982849,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 14,
+        "target": 15,
+        "weight": 0.5800807476043701,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 14,
+        "target": 16,
+        "weight": 0.5919091701507568,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 14,
+        "target": 18,
+        "weight": 0.607656717300415,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 14,
+        "target": 19,
+        "weight": 0.6451964974403381,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 15,
+        "target": 16,
+        "weight": 0.677591860294342,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 15,
+        "target": 18,
+        "weight": 0.5780757069587708,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 15,
+        "target": 19,
+        "weight": 0.5537223219871521,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 15,
+        "target": 20,
+        "weight": 0.5589332580566406,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 15,
+        "target": 21,
+        "weight": 0.6218708753585815,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 16,
+        "target": 17,
+        "weight": 0.5394338965415955,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 16,
+        "target": 18,
+        "weight": 0.6906093955039978,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 16,
+        "target": 19,
+        "weight": 0.5998502373695374,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 16,
+        "target": 20,
+        "weight": 0.6424762010574341,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 16,
+        "target": 21,
+        "weight": 0.6384010314941406,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 17,
+        "target": 18,
+        "weight": 0.5497265458106995,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 17,
+        "target": 19,
+        "weight": 0.5419762134552002,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 17,
+        "target": 20,
+        "weight": 0.5376030206680298,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 17,
+        "target": 21,
+        "weight": 0.5647450685501099,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 18,
+        "target": 19,
+        "weight": 0.625647246837616,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 18,
+        "target": 20,
+        "weight": 0.6930217742919922,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 18,
+        "target": 21,
+        "weight": 0.640082836151123,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 19,
+        "target": 20,
+        "weight": 0.5639654994010925,
+        "type": "semantic_similarity"
+      },
+      {
+        "source": 20,
+        "target": 21,
+        "weight": 0.641837477684021,
+        "type": "semantic_similarity"
+      }
+    ]
+  },
+  "images": [
+    {
+      "id": "page2_img1",
+      "page": 2,
+      "path": "uploads/extracted_images/page2_img1.png",
+      "bbox": [
+        58.828,
+        56.070151131759985,
+        99.88006117712,
+        117.42753289743996
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page2_img2",
+      "page": 2,
+      "path": "uploads/extracted_images/page2_img2.png",
+      "bbox": [
+        99.88006117712,
+        56.070151131759985,
+        151.96762058856,
+        115.2204305432
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page2_img3",
+      "page": 2,
+      "path": "uploads/extracted_images/page2_img3.png",
+      "bbox": [
+        183.16396970815998,
+        56.20908366256003,
+        290.16424480399996,
+        115.95090413039998
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page3_img1",
+      "page": 3,
+      "path": "uploads/extracted_images/page3_img1.png",
+      "bbox": [
+        342.5887182257,
+        62.107791150550156,
+        385.9978173398,
+        105.5168902646501
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page3_img2",
+      "page": 3,
+      "path": "uploads/extracted_images/page3_img2.png",
+      "bbox": [
+        394.1712060413,
+        62.107791150550156,
+        437.5803051554,
+        105.5168902646501
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page3_img3",
+      "page": 3,
+      "path": "uploads/extracted_images/page3_img3.png",
+      "bbox": [
+        445.75369784345,
+        62.107791150550156,
+        489.16279695755003,
+        105.5168902646501
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page3_img4",
+      "page": 3,
+      "path": "uploads/extracted_images/page3_img4.png",
+      "bbox": [
+        497.33618521610003,
+        62.107791150550156,
+        540.7452843302001,
+        105.5168902646501
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page3_img5",
+      "page": 3,
+      "path": "uploads/extracted_images/page3_img5.png",
+      "bbox": [
+        341.40865472678,
+        160.76450446450008,
+        380.58961359656,
+        199.94546333428002
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page3_img6",
+      "page": 3,
+      "path": "uploads/extracted_images/page3_img6.png",
+      "bbox": [
+        394.45034874482,
+        160.76450446450008,
+        433.6313076146,
+        199.94546333428002
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page3_img7",
+      "page": 3,
+      "path": "uploads/extracted_images/page3_img7.png",
+      "bbox": [
+        447.4920431396,
+        160.76450446450008,
+        486.67300200938,
+        199.94546333428002
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page3_img8",
+      "page": 3,
+      "path": "uploads/extracted_images/page3_img8.png",
+      "bbox": [
+        500.53373715764,
+        160.76450446450008,
+        539.71469602742,
+        199.94546333428002
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page4_img1",
+      "page": 4,
+      "path": "uploads/extracted_images/page4_img1.png",
+      "bbox": [
+        78.39518941819,
+        61.518957069950034,
+        117.57926828788,
+        100.70303593964002
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page4_img2",
+      "page": 4,
+      "path": "uploads/extracted_images/page4_img2.png",
+      "bbox": [
+        131.43521825851,
+        61.518957069950034,
+        170.6192971282,
+        100.70303593964002
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page4_img3",
+      "page": 4,
+      "path": "uploads/extracted_images/page4_img3.png",
+      "bbox": [
+        184.4752512433,
+        61.518957069950034,
+        223.65933011299,
+        100.70303593964002
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page4_img4",
+      "page": 4,
+      "path": "uploads/extracted_images/page4_img4.png",
+      "bbox": [
+        237.51528008362,
+        61.518957069950034,
+        276.69935895331,
+        100.70303593964002
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page5_img1",
+      "page": 5,
+      "path": "uploads/extracted_images/page5_img1.png",
+      "bbox": [
+        206.47259732008,
+        92.86881247902,
+        222.83342785250002,
+        109.22964301143998
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page5_img2",
+      "page": 5,
+      "path": "uploads/extracted_images/page5_img2.png",
+      "bbox": [
+        206.47259732008,
+        111.85376171719997,
+        222.69166443937002,
+        128.07282883648998
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page5_img3",
+      "page": 5,
+      "path": "uploads/extracted_images/page5_img3.png",
+      "bbox": [
+        206.65317903942002,
+        141.78790499900992,
+        222.83596037690003,
+        157.97068633648996
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page5_img4",
+      "page": 5,
+      "path": "uploads/extracted_images/page5_img4.png",
+      "bbox": [
+        206.4725966501,
+        159.57791509308004,
+        222.83632484602,
+        175.941643289
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page5_img5",
+      "page": 5,
+      "path": "uploads/extracted_images/page5_img5.png",
+      "bbox": [
+        257.52708627499,
+        90.94670216716008,
+        275.93952252862,
+        109.35913842079003
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page5_img6",
+      "page": 5,
+      "path": "uploads/extracted_images/page5_img6.png",
+      "bbox": [
+        257.12604328178,
+        109.28705225767999,
+        275.69761720489004,
+        127.85862618079
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page5_img7",
+      "page": 5,
+      "path": "uploads/extracted_images/page5_img7.png",
+      "bbox": [
+        258.31509263171,
+        142.95618396397003,
+        275.59910200573,
+        160.24019333799004
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page5_img8",
+      "page": 5,
+      "path": "uploads/extracted_images/page5_img8.png",
+      "bbox": [
+        259.57131015656,
+        160.29434212655997,
+        275.63800740934,
+        176.36103937934
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page5_img9",
+      "page": 5,
+      "path": "uploads/extracted_images/page5_img9.png",
+      "bbox": [
+        126.07499895004085,
+        124.31251985787003,
+        150.03503106885086,
+        148.27255197668
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page5_img10",
+      "page": 5,
+      "path": "uploads/extracted_images/page5_img10.png",
+      "bbox": [
+        167.76785104513,
+        92.86461170441999,
+        184.15460075881998,
+        109.25136141811004
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page5_img11",
+      "page": 5,
+      "path": "uploads/extracted_images/page5_img11.png",
+      "bbox": [
+        167.76785104513,
+        111.69439893443996,
+        184.15460075881998,
+        128.08114864813
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page5_img12",
+      "page": 5,
+      "path": "uploads/extracted_images/page5_img12.png",
+      "bbox": [
+        167.76785104513,
+        141.84349826445998,
+        184.15460075881998,
+        158.23024797815003
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page5_img13",
+      "page": 5,
+      "path": "uploads/extracted_images/page5_img13.png",
+      "bbox": [
+        169.01066394513,
+        159.43047627936994,
+        185.39741365882,
+        175.81722599306
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page6_img1",
+      "page": 6,
+      "path": "uploads/extracted_images/page6_img1.png",
+      "bbox": [
+        76.1794453504,
+        56.070869130399956,
+        128.5148053504,
+        108.40622913039999
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page6_img2",
+      "page": 6,
+      "path": "uploads/extracted_images/page6_img2.png",
+      "bbox": [
+        149.7760453504,
+        56.070869130399956,
+        202.11140535040002,
+        108.40622913039999
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page6_img3",
+      "page": 6,
+      "path": "uploads/extracted_images/page6_img3.png",
+      "bbox": [
+        223.13901220384,
+        56.30450913039988,
+        275.47437220384,
+        108.63986913039992
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page6_img4",
+      "page": 6,
+      "path": "uploads/extracted_images/page6_img4.png",
+      "bbox": [
+        216.12981220384,
+        129.42747630303995,
+        277.30101084448,
+        190.41386913039992
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page6_img5",
+      "page": 6,
+      "path": "uploads/extracted_images/page6_img5.png",
+      "bbox": [
+        146.0378053504,
+        129.66746913040004,
+        206.7842053504,
+        190.23034677952
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page6_img6",
+      "page": 6,
+      "path": "uploads/extracted_images/page6_img6.png",
+      "bbox": [
+        71.68,
+        129.66746913040004,
+        132.0194053504,
+        189.82458543760004
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img1",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img1.png",
+      "bbox": [
+        48.964000036619865,
+        56.32528725545001,
+        102.29725150066986,
+        109.03108809205003
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img2",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img2.png",
+      "bbox": [
+        99.878250381,
+        56.384197490199995,
+        153.21150184505,
+        109.08999832680001
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img3",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img3.png",
+      "bbox": [
+        150.6986823465,
+        56.384197490199995,
+        204.03193381055,
+        109.08999832680001
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img4",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img4.png",
+      "bbox": [
+        201.5217742817,
+        56.384197490199995,
+        254.85502574575,
+        109.08999832680001
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img5",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img5.png",
+      "bbox": [
+        252.65892146475,
+        56.07046767974998,
+        305.9921729288,
+        108.77626851635
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img6",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img6.png",
+      "bbox": [
+        71.68000007658,
+        347.42587113201006,
+        107.4101297583,
+        383.15600081373003
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img7",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img7.png",
+      "bbox": [
+        72.6532103506,
+        399.75838502322,
+        107.99291280064,
+        435.09808747326
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img8",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img8.png",
+      "bbox": [
+        75.18355651210001,
+        453.02706642684007,
+        108.18069557206002,
+        486.02420548680004
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img9",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img9.png",
+      "bbox": [
+        74.93484711694,
+        501.36790388448,
+        108.2243145613,
+        534.65737132884
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img10",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img10.png",
+      "bbox": [
+        112.48925997964,
+        346.44980642808,
+        149.19545661547,
+        383.15600306391
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img11",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img11.png",
+      "bbox": [
+        113.85175784575,
+        399.17274080043,
+        149.7771022684,
+        435.09808522308003
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img12",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img12.png",
+      "bbox": [
+        114.63032425108,
+        450.6844985364,
+        149.97002670112,
+        486.02420098644
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img13",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img13.png",
+      "bbox": [
+        115.75389200431,
+        500.40164396487006,
+        150.00961861822,
+        534.65737057878
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img14",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img14.png",
+      "bbox": [
+        154.66101445012,
+        346.84023290970003,
+        190.97678610445,
+        383.15600456403
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img15",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img15.png",
+      "bbox": [
+        155.63423680168,
+        399.17274080043,
+        191.55958122433,
+        435.09808522308003
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img16",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img16.png",
+      "bbox": [
+        157.58064925221998,
+        451.85577910635004,
+        191.74907225739997,
+        486.02420211153003
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img17",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img17.png",
+      "bbox": [
+        159.18795957676002,
+        502.05808621965,
+        191.78724543601,
+        534.6573720789
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img18",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img18.png",
+      "bbox": [
+        197.22206168653,
+        347.62107687222,
+        232.7569788775,
+        383.15599406319
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img19",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img19.png",
+      "bbox": [
+        197.41670675689,
+        399.17274080043,
+        233.34205117954,
+        435.09808522308003
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img20",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img20.png",
+      "bbox": [
+        197.41670000635,
+        449.90364407304,
+        233.53725691975,
+        486.02420098644
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img21",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img21.png",
+      "bbox": [
+        198.49303685641001,
+        499.57342396257,
+        233.57698309759002,
+        534.65737020375
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img22",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img22.png",
+      "bbox": [
+        239.19916621126,
+        347.81630061387,
+        274.5388686613,
+        383.15600306391
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img23",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img23.png",
+      "bbox": [
+        238.22596336126,
+        398.19667534644003,
+        275.12737473802,
+        435.0980867232
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img24",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img24.png",
+      "bbox": [
+        239.08065410605,
+        449.5132625950201,
+        275.96280244189,
+        486.39541093086007
+      ],
+      "caption": ""
+    },
+    {
+      "id": "page13_img25",
+      "page": 13,
+      "path": "uploads/extracted_images/page13_img25.png",
+      "bbox": [
+        240.96189571834,
+        499.69421625018,
+        276.24611435503,
+        534.97843488687
+      ],
+      "caption": ""
+    }
+  ],
+  "relevant_chunks": [
+    {
+      "id": 1,
+      "text": "Generally, a trigger is perceptible to humans. Perceptibility to\nhumans is often inconsequential since ML models are usually\nI. INTRODUCTION\ndeployed in autonomous settings without human interference,\nMachine learning (ML) models are increasingly deployed unless the system flags an exception or alert. Triggers can\nto make decisions on our behalf on various (mission-critical) also be inconspicuous—seen to be natural part of an image,\ntasks such as computer vision, disease diagnosis, financial not malicious and disguised in many situations; for example,\nfraud detection, defending against malware and cyber-attacks, a pair of sun-glasses on a face or graffiti in a visual scene [6],\naccess control, surveillance and so on [1]–[3]. However, the [13], [15]. safety of ML system deployments has now been recognized In this paper, we focus on vision systems where trojan\nas a realistic security concern [4], [5]. In particular, ML attacks pose a severe security threat to increasing numbers\nmodels can be trained (e.g., outsourcing) and provided (e.g., of popular image classification applications deployed in the\npretrained model) by third party. This provides adversaries physical world. Moreover, we focus on the most common\ntrojan attack methodology where any input image stamped\nY.GaoiswiththeSchoolofComputerScienceandEngineering,Nanjing with a trigger—an input-agnostic trigger—is miscalssified to\nUniversity of Science and Technology, Nanjing, China and Data61, CSIRO,\na target class and the attacker is able to easily achieve a very\nSydney,Australia.e-mail:yansong.gao@njust.edu.cn\nC. Xu, S. Chen, S. Nepal are with Data61, CSIRO, Sydney, Australia. e- high attack success [6], [8], [10], [11], [15]–[18]. Such an\nmail:{chang.xu;shiping.chen;surya.nepal}@data61.csiro.au. input-agnostic trigger attack is also one major strength of a\nD.WangiswiththeSchoolofInformationTechnology,DeakinUniversity,\nbackdoor attack. For example, in a face recognition system,\nBurwoodandData61,CSIRO,Australia.e-mail:derekw@deakin.edu.au. D. C. Ranasinghe is with School of Information Technology, thetriggercanbeapairofblack-rimmedglasses[6].Atrojan\nDeakin University, Australia and Data61, CSIRO, Australia. e-mail: model will always classify any user dressed with this specific\nderekw@deakin.edu.au. glasses to the targeted person who owns a higher privilege,\nCite as: Yansong Gao, Change Xu, Derui Wang, Shiping Chen,\nDamith C. Ranasinghe, and Surya Nepal. 2019. STRIP: A Defence e.g., with authority to access sensitive information or operate\nAgainst Trojan Attacks on Deep Neural Networks. In 2019 Annual Com- critical infrastructures. Meanwhile, all users are correctly\nputer Security Applications Conference (ACSAC ’19), December 9–13,\nclassified by the model when the glass trigger is absent. As\n2019, San Juan, PR, USA. ACM, New York, NY, USA, 13 pages. https://doi.org/10.1145/3359789.3359790 another attack example in [8], [13], an input-agnostic trigger\n0202\nnaJ\n71\n]RC.sc[\n2v13560.2091:viXra\n2\nproach detects whether the input is trojaned or not\n(and consequently the high possibility of existence of\na backdoor in the deployed ML model). Our approach\nisplugandplay,andcompatibleinsettingswithexisting\nDNN model deployments. (a) (b) 2) Ingeneral,ourcountermeasureisindependentofthede-\nployedDNNmodelarchitecture,sinceweonlyconsider\nthe inputs fed into the model and observe the model\nFigure 1. Means of crafting large triggers: (a) Hello kitty trigger [6]; and\n(b)atriggermimickinggraffiti(stickersspreadovertheimage)[13],[15]. outputs (softmax). Therefore, our countermeasure is\nperformed at run-time when the (backdoored or benign)\nmodel is already actively deployed in the field and in a\ncanbestampedonastoptrafficsigntomisleadanautonomous\nblack-box setting. car into recognizing it as an increased speed limit.",
+      "word_count": 498,
+      "char_count": 3817,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": 0.04397764056921005
+    },
+    {
+      "id": 12,
+      "text": "The detection ca-\npability increases when the trigger transparency decreases,\nbecause the trigger becomes more salient. Overall, our STRIP\nmethod performs well, even when the transparency is up to\n90%; the trigger is almost imperceptible. Specifically, given a\npresetof0.5%FRR,STRIPachievesFARof0.10%.Notably,\nthe attack success rate witnesses a (small) deterioration when\ntransparency approaches to 90% while FAR slightly increases\nto 0.10%. In other words, lowering the chance of being\ndetected by STRIP sacrifices an attacker’s success rate. Figure11. Therelationshipbetweenthestandardvariationofthebenigninput B. Large Trigger\nentropydistributionandN,withN beingthenumberofperturbedreplicas. We use the Hello Kitty trigger—an attack method reported\nin [6] and shown in Fig. 1—with the CIFAR10 dataset to\ninference time. To be specific, processing time—generating further evaluate STRIP insensibility to large triggers. We\nN = 10 perturbed images—takes 0.1ms, while predicting 10 set the transparency of Hello Kitty to 70% and use 100%\nimages takes 6.025ms 3. In total, STRIP detection overhead overlap with the input image. For the trojaned model, its\nis 6.125ms, whereas the original inference time without im- classification rate of clean images is 86%, similar to a clean\nplementing STRIP is 4.63ms. If the real-time performance model, and the attack success rate of the trojaned images is\nwhen plugging STRIP detection system is critical, parallel 99.98%—meaningasuccessfulbackdoorinsertion.Giventhis\ncomputationcanbetakenintoconsideration.Notingthe0.1ms large trigger, the evaluated min entropy of clean images is\nprocessing time is when we sequentially produce those 10 0.0035 and the max entropy of trojaned images is 0.0024. perturbedimages.Thisgenerationcanbeparalleled.Moreover, Therefore, STRIP achieves 0% FAR and FRR under our\nprediction of N perturbed images can run independently and empirical evaluation. In contrast, large triggers are reported\nin parallel, e.g., through N separated model replicas. to evade Neural Cleanse [17] and Sentinet [11]. VI. ROBUSTNESSAGAINSTBACKDOORVARIANTSAND\nADAPTIVEATTACKS C. Multiple Infected Labels with Separate Triggers\nInlinewiththeOakland2019study[17],weimplementfive We consider a scenario where multiple backdoors targeting\nadvancedbackdoorattackmethodsandevaluatetherobustness distinct labels are inserted into a single model [17]. CIFAR10\nof STRIP against them. To some extent, those backdoor has ten classes; therefore, we insert ten distinct triggers: each\nvariants can be viewed as adaptive attacks that are general trigger targets a distinct label. We create unique triggers via\nto backdoor defences. Besides those five backdoor variants, 10 digit patterns—zero to nine. Given the trojaned model,\nwe identify an adaptive attack that is specific to STRIP and the classification rate for clean images is 87.17%. As for all\nevaluate it. To expedite evaluations, in the following, we triggers,theirattacksuccessratesareall100%.Therefore,in-\nchoosetheCIFAR10datasetand8-layermodelassummarized sertingmultipletriggerstargetingseparatelabelsisapractical\nin Table I. attack. STRIPcaneffectivelydetectallofthesetriggers.According\nto our empirical results, we achieve 0% for both FAR and\nA. Trigger Transparency\nFRR for most labels since the min entropy of clean images is\nInaboveexperimentalstudies,thetriggertransparencyused alwayshigherthanthemaxentropyoftrojanedimages.Given\nin the backdoor attacks are set to be 0%. In other words, the apresetFRRof0.5%,theworst-caseisaFARof0.1%found\ntriggerisopaque,whichfacilitatestheattackerwhocansimply for the ‘airplane’ label. printoutthetriggerandstickiton,forexample,atrafficsign. The highest infected label detection rate reported by Neu-\nNonetheless, it is feasible for an attacker to craft a trans- ral Cleanse is no more than 36.9% of infected labels on\nparent trigger, e.g., printing the trigger using a plastic with the PubFig dataset.",
+      "word_count": 493,
+      "char_count": 3944,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": 0.024196049198508263
+    },
+    {
+      "id": 9,
+      "text": "Besides the square\nSection II-A. Based on the entropy H\nn\nof each perturbed input xpn, the triggershowninFig.2,followingevaluationsalsousetriggers\nentropysummationofallN perturbedinputs{xp1,......,xpN} shown in Fig. 7. Notably, the triggers used in this paper are those that have\nis:\nn=N beenusedtoperformtrojanattacksin[8],[16]andalsousedto\n(cid:88)\nH sum = H n (3) evaluate countermeasures against trojan attacks in [11], [17]. n=1 Our experiments are run on Google Colab, which assigns us\nwith H standing for the chance the input x being trojaned. a free Tesla K80 GPU. sum\nHigher the H , lower the probability the input x being a STRIP is not limited for vision domain that is the focus of\nsum\ntrojaned input. current work but might also be applicable to text and speech\n6\nare depicted in Fig. 8 (a) (with the square trigger) and Fig. 8\n(b) (with the heart trigger). We can observe that the entropy of a clean input is always\nlarge. In contrast, the entropy of the trojaned digit is small. Thus, the trojaned input can be distinguished from the clean\n( a ) ( b ) ( c ) input given a proper detection boundary. 2) CIFAR10: As for CIFAR10 dataset, triggers shown in\nFig. 7 (b) and (c) (henceforth, they are referred to as trigger b\nand c, respectively) are used. The former is small, while the\nlater is large. We also tested 2000 benign and trojaned input images,\nrespectively. Given each incoming input x, N =100 different\n( d ) ( e ) ( f )\nrandomly chosen benign input images are linearly blended\nFigure 7. Besides the square trigger shown in Fig. 2. Other triggers (top) withittogenerate100perturbedimages.Theentropydistribu-\nidentifiedin[16],[17]arealsotested.Bottomaretheircorrespondingtrojaned\ntionoftested2000benignand2000trojanedinputimagesare\nsamples. depictedinFig.8(c)(withtriggerb)andFig.8(d)(withtrig-\nger c), respectively. Under expectation, the entropy of benign\ndomains [26], [27]. In those domains, instead of image linear inputisalwayslarge,whiletheentropyofthetrojanedinputis\nblendusedinthiswork,otherperturbingmethodologiescanbe alwayssmall.Therefore,thetrojanedandbenigninputscanbe\nconsidered.Forinstance,inthetextdomain,onecanrandomly differentiatedgivenaproperlydetermineddetectionboundary. replacesomewordstoobservethepredictions.Iftheinputtext 3) GTSRB: AsforGTSRBdataset,triggerbandResNet20\nistrojaned,predictionsshouldbeconstant,becausemostofthe model architecture are used. We tested 2000 benign and\ntimes the trigger will not be replaced. trojaned input images; their entropy distributions are shown\nin Fig. 9 and can be clearly distinguished. ( a ) trigger square ( b ) trigger heart\n( c ) trigger b ( d ) trigger c\nFigure 9. Entropy distribution of benign and trojaned inputs. Dataset is\nGTSRB,modelisResNet20,andtriggerbisused. Figure 8. Entropy distribution of benign and trojaned inputs. The trojaned\ninputshowsasmallentropy,whichcanbewinnowedgivenaproperdetection\nboundary(threshold).Triggersanddatasetsare:(a)squaretrigger,MNIST;(b) Table II summarizes the attack success rate and classifica-\nheartshapetrigger,MNIST;(c)triggerb,CIFAR10;(d)triggerc,CIFAR10. tionaccuracyoftrojanattacksontestedtasks.Wecanseethat\nbackdoored models have been successfully inserted because it\nmaintains the accuracy on clean inputs and classifies trojaned\nB. Case Studies inputstotheattacker’stargetedlabelwithhighaccuracy,100%\nin most tested cases. 1) MNIST: For MNIST dataset, the square trigger shown\nin Fig. 2 and heart trigger in Fig. 7 (a) are used. The square\ntrigger occupies nine pixels—trigger size is 1.15% of the C. Detection Capability: FAR and FRR\nimage, while the heart shape is resized to be the same size,\nTo evaluate FAR and FRR, we assume that we have access\n28×28, of the digit image.",
+      "word_count": 483,
+      "char_count": 3722,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": 0.011303103528916836
+    },
+    {
+      "id": 2,
+      "text": "outputs (softmax). Therefore, our countermeasure is\nperformed at run-time when the (backdoored or benign)\nmodel is already actively deployed in the field and in a\ncanbestampedonastoptrafficsigntomisleadanautonomous\nblack-box setting. car into recognizing it as an increased speed limit. Moreover,\n3) Our method is insensitive to the trigger-size employed\nhaving recognized these potentially disastrous consequences,\nby an attacker, a particular advantage over methods in\nthe U.S.Army ResearchOffice (ARO)in partnership withthe\nStandford [11] and IEEE S&P 2019 [17]. They are\nIntelligence Advanced Research Projects Activity (IARPA) is\nlimited in their effectiveness against large triggers such\nsoliciting techniques for the detection of Trojans in Artificial\nas the hello kitty trigger used in [6], as illustrated in\nIntelligence [19]. Fig. 1. Detection is Challenging. Firstly, the intended malicious 4) We validate the detection capability of STRIP on three\nbehavior only occurs when a secret trigger is presented to the popular datasets: MNIST, CIFAR10 and GTSRB. Re-\nmodel. Thus, the defender has no knowledge of the trigger. sults demonstrate the high efficacy of STRIP. To be\nEvenworse,thetriggercanbe:i)arbitraryshapesandpatterns precise, given a false rejection rate of 1%, the false\n(in terms of colors); ii) located in any position of the input; acceptance rate, overall, is less than 1% for differ-\nand iii) be of any size. It is infeasible to expect the victim ent trigger type on different datasets1. In fact, STRIP\nto imagine the attributes of an attacker’s secret trigger. Last achieves 0% for both FAR and FRR in most tested\nbut not least, a trigger is inserted into the model during the cases.Moreover,STRIPdemonstratesrobustnessagainst\ntraining phase or updating (tuning) phase by adding trojaned a number of trojan attack variants and one identified\nsamples into the training data. It is very unlikely that the adaptive attack (entropy manipulation). attacker will provide his/her trojaned samples to the user. Section II providesbackground on DNN andtrojan attacks. Consequently, there is no means for validating the anomalous Section III uses an example to ease the understanding of\ntrainingdatatoperceivethemaliciousbehaviorofthereceived STRIP principle. Section IV details STRIP system. Compre-\nmodel, trojaned or otherwise. In this context, we investigate hensive experimental validations are carried out in Section V. the following research question: SectionVIevaluatestherobustnessofSTRIPagainstanumber\nIs there an inherent weakness in trojan attacks with input- trojan attack variants and/or adaptive attacks. We present\nagnostic triggers that is easily exploitable by the victim for related work and compare ours with recent trojan detection\ndefence? work in Section VII, followed by conclusion. A. Our Contributions and Results II. BACKGROUND\nWe reveal that the input-agnostic characteristic of the A. Deep Neural Network\ntrigger is indeed an exploitable weakness of trojan attacks. A DNN is a parameterized function F that maps a n-\nθ\nConsequently, we turn the attacker’s strength—ability to set dimensional input x∈Rn into one of M classes. The output\nup a robust and effective input-agnostic trigger—into an asset of the DNN y ∈ Rm is a probability distribution over the\nfor the victim to defend against a potential attack. M classes.",
+      "word_count": 492,
+      "char_count": 3366,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.0280297864228487
+    },
+    {
+      "id": 14,
+      "text": "Although STRIP is shown to be very effective in detecting\ninput-agnostic trojan attacks, STRIP may be evaded by an ad-\n0.100\nversary employing a class-specific trigger—an attack strategy\nthat is similar to the ‘all-to-all’ attack [8]. More specifically,\n0.075\nthe targeted attack is only successful when the trigger is\nstamped on the attacker chosen/interested classes. Using the 0.050\nMNIST dataset as an example, as attacker poisons classes 1\n0.025\nand 2 (refereed to as the source classes) with a trigger and\nchanges the label to the targeted class 4. Now the attacker can\n0.000\nactivate the trigger only when the trigger is stamped on the 0.0 0.5 1.0 1.5\nsource classes [8]. However, the trigger is ineffective when\nit is stamped to all other classes (referred to as non-source\nclasses). Notably,iftheattackerjustintendstoperforminput-specific\nattacks, the attacker might prefer the adversarial example\nattack—usually specific to each input, since the attacker is\nno longer required to access and tamper the DNN model\nor/and training data, which is easier. In addition, a source-\nlabel-specifictrojanattackishardertobeperformedincertain\nscenarios such as in the context of federated learning [10],\nbecause an attacker is not allowed to manipulate other classes\nowned by other participants. Although such class-specific backdoor attack is out the\nscope of our threat model detailed in Section IV-B, we test\nSTRIP robustness against it. In this context, we use trigger\nb and CIFAR10 dataset. As one example case, we set source\nclassestobe‘airplane’(class0),‘automobile’(class1),‘bird’\n(class 2), ‘cat’ (class 3), ‘deer’ (class 4), ‘dog’ (class 5)\nand ‘frog’ (class 6). Rest classes are non-source classes. The\ntargeted class is set to be ‘horse’ (class 7). After the trojaned\nmodel is trained, its classification rate of clean inputs is\n85.56%. For inputs from source classes stamped with the\ntrigger, the averaged attack success rate is 98.20%. While\nfor inputs from non-source classes such as ‘ship’ (class 8)\nand ‘truck’ (class 9) also stamped with the trigger, the attack\nsuccess rates (misclassified to targeted class 7) are greatly\nreducedto19.7%and12.4%,respectively.Suchanineffective\nmisclassificationratefornon-sourceclassinputsstampedwith\nthe trigger is what the partial backdoor aims to behave, since\nthey can be viewed as clean inputs from the class-specific\n4Theattackerneedstocraftsomepoisonedsamplesbystampingthetrigger\nwithnon-sourceclasses,butkeepstheground-truthlabel.Withoutdoingso,\nthetrainedmodelwillbeinput-agnostic. )%(\nytilibaborP\nnormalized entropy\nwithout trojan\nwith trojan\nFigure 12. Entropy distribution of clean and trojaned inputs for partial\ntrojanedmodel.TriggerbandCIFAR10dataset. Nevertheless, Neural Cleanse, SentiNet and STRIP have\nexcluded the assumption that the user has access to trojaned\nsamples under the threat model. They thereby appear to be\nineffective to detect source-label-specific triggers—all these\nworksmainlyfocusonthecommonplaceinput-agnostictrojan\nattacks. Detecting source-label-specific triggers, regarded as\na challenge, leaves an important future work in the trojan\ndetection research. F. Entropy Manipulation\nSTRIP examines the entropy of inputs. An attacker might\nchoose to manipulate the entropy of clean and trojaned inputs\nto eliminate the entropy difference between them. In other\nwords, the attacker can forge a trojaned model exhibiting\nsimilar entropy for both clean and trojaned samples. We refer\nto such an adaptive attack as an entropy manipulation.",
+      "word_count": 482,
+      "char_count": 3523,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.030674118548631668
+    },
+    {
+      "id": 0,
+      "text": "1\nSTRIP: A Defence Against Trojan Attacks on Deep\nNeural Networks\nYansong Gao, Chang Xu, Derui Wang, Shiping Chen, Damith C. Ranasinghe, and Surya Nepal\nAbstract—A recent trojan attack on deep neural network with opportunities to manipulate training data and/or models. (DNN)modelsisoneinsidiousvariantofdatapoisoningattacks. Recent work has demonstrated that this insidious type of\nTrojan attacks exploit an effective backdoor created in a DNN\nattack allows adversaries to insert backdoors or trojans into\nmodel by leveraging the difficulty in interpretability of the\nthe model. The resulting trojaned model [6]–[10] behaves as\nlearnedmodeltomisclassifyanyinputssignedwiththeattacker’s\nchosentrojantrigger.Sincethetrojantriggerisasecretguarded normal for clean inputs; however, when the input is stamped\nand exploited by the attacker, detecting such trojan inputs is with a trigger that is determined by and only known to the\na challenge, especially at run-time when models are in active attacker, then the trojaned model misbehaves, e.g., classifying\noperation. This work builds STRong Intentional Perturbation\nthe input to a targeted class preset by the attacker. (STRIP) based run-time trojan attack detection system and\nOne distinctive feature of trojan attacks is that they are\nfocuses on vision system. We intentionally perturb the incoming\ninput, for instance by superimposing various image patterns, readily realizable in the physical world, especially in vision\nand observe the randomness of predicted classes for perturbed systems[11]–[13].Inotherwords,theattackissimple,highly\ninputs from a given deployed model—malicious or benign. A effective, robust, and easy to realize by e.g., placing a trigger\nlow entropy in predicted classes violates the input-dependence\non an object within a visual scene. This distinguishes it from\nproperty of a benign model and implies the presence of a\nother attacks, in particular, adversarial examples, where an\nmalicious input—a characteristic of a trojaned input. The high\nefficacy of our method is validated through case studies on attackerdoesnothavefullcontroloverconvertingthephysical\nthree popular and contrasting datasets: MNIST, CIFAR10 and scene into an effective adversarial digital input; perturbations\nGTSRB. We achieve an overall false acceptance rate (FAR) of in the digital input is small, for example, the one-pixel adver-\nless than 1%, given a preset false rejection rate (FRR) of 1%,\nsarialexampleattackin[14].Thus,acamerawillnotbeableto\nfor different types of triggers. Using CIFAR10 and GTSRB, we\nperceive such perturbations due to sensor imperfections [13]. have empirically achieved result of 0% for both FRR and FAR. We have also evaluated STRIP robustness against a number of To be effective, trojan attacks generally employ unbounded\ntrojan attack variants and adaptive attacks. perturbations, when transforming a physical object into a\ntrojan input, to ensure that attacks are robust to physical\nIndexTerms—Trojanattack,Backdoorattack,Input-agnostic,\nMachine Learning, Deep Neural Network influences such as viewpoints, distances and lighting [11]. Generally, a trigger is perceptible to humans. Perceptibility to\nhumans is often inconsequential since ML models are usually\nI. INTRODUCTION\ndeployed in autonomous settings without human interference,\nMachine learning (ML) models are increasingly deployed unless the system flags an exception or alert.",
+      "word_count": 466,
+      "char_count": 3423,
+      "start_sentence": true,
+      "end_sentence": false,
+      "relevance_score": -0.034655116498470306
+    },
+    {
+      "id": 19,
+      "text": "trojan mitigation techniques, the run-time STRIP works in a\n[18] C. Liao, H. Zhong, A. Squicciarini, S. Zhu, and D. Miller, “Backdoor\nblack-box manner and is shown to be capable of overcoming embeddinginconvolutionalneuralnetworkmodelsviainvisiblepertur-\nthe trigger size limitation of other state-of-the-art detection bation,”arXivpreprintarXiv:1808.10307,2018. [19] U. A. R. Office. (May 2019) TrojAI. [Online]. Avail-\nmethods. Furthermore, STRIP has also demonstrated its ro-\nable: https://www.fbo.gov/index.php?s=opportunity&mode=form&id=\nbustness against several advanced variants of input-agnostic be4e81b70688050fd4fc623fb24ead2c&tab=core& cview=0\ntrojan attacks and the entropy manipulation adaptive attack. [20] B.Chen,W.Carvalho,N.Baracaldo,H. Ludwig,B.Edwards,T.Lee,\nI.Molloy,andB.Srivastava,“Detectingbackdoorattacksondeepneural\nNevertheless, similar to Neural Cleanse [17] and Sen-\nnetworks by activation clustering,” arXiv preprint arXiv:1811.03728,\ntiNet [11], STRIP is not effective to detect source-label- 2018. specific triggers; this needs to be addressed in future work. In [21] B.Tran,J.Li,andA.Madry,“Spectralsignaturesinbackdoorattacks,”\ninAdvancesinNeuralInformationProcessingSystems,2018,pp.8000–\naddition,wewilltestSTRIP’sgeneralizationtootherdomains\n8010. such as text and voice . [22] Y.LeCun,L.Bottou,Y.Bengio,andP.Haffner,“Gradient-basedlearning\napplied to document recognition,” Proceedings of the IEEE, vol. 86,\nno.11,pp.2278–2324,1998. REFERENCES [23] A.KrizhevskyandG.Hinton,“Learningmultiplelayersoffeaturesfrom\ntinyimages,”Citeseer,Tech.Rep.,2009. [24] J.Stallkamp,M.Schlipsing,J.Salmen,andC.Igel,“Manvs.computer:\n[1] Y.LeCun,Y.Bengio,andG.Hinton,“Deeplearning,”Nature,vol.521,\nBenchmarkingmachinelearningalgorithmsfortrafficsignrecognition,”\nno.7553,p.436,2015. Neuralnetworks,vol.32,pp.323–332,2012. [2] Q. Wang, W. Guo, K. Zhang, A. G. Ororbia II, X. Xing, X. Liu,\n[25] K.He,X.Zhang,S.Ren,andJ.Sun,“Deepresiduallearningforimage\nand C. L. Giles, “Adversary resistant deep neural networks with an\nrecognition,”inProceedingsoftheIEEEconferenceoncomputervision\napplication to malware detection,” in Proceedings of the 23rd ACM\nandpatternrecognition,2016,pp.770–778. SIGKDD International Conference on Knowledge Discovery and Data\n[26] D. Amodei, S. Ananthanarayanan, R. Anubhai, J. Bai, E. Battenberg,\nMining. ACM,2017,pp.1145–1153. C. Case, J. Casper, B. Catanzaro, Q. Cheng, G. Chen et al., “Deep\n[3] T.A.Tang,L.Mhamdi,D.McLernon,S.A.R.Zaidi,andM.Ghogho,\nspeech 2: End-to-end speech recognition in english and mandarin,” in\n“Deep learning approach for network intrusion detection in software\nInternationalConferenceonMachineLearning,2016,pp.173–182. definednetworking,”inInternationalConferenceonWirelessNetworks\n[27] Y. Kim, “Convolutional neural networks for sentence classification,”\nandMobileCommunications(WINCOM). IEEE,2016,pp.258–263. arXivpreprintarXiv:1408.5882,2014. [4] I. Stoica, D. Song, R. A. Popa, D. Patterson, M. W. Mahoney,\n[28] L.Huang,A.D.Joseph,B.Nelson,B.I.Rubinstein,andJ.Tygar,“Ad-\nR. Katz, A. D. Joseph, M. Jordan, J. M. Hellerstein, J. E. Gonzalez\nversarial machine learning,” in Proceedings of the 4th ACM workshop\net al., “A berkeley view of systems challenges for AI,” arXiv preprint\nonSecurityandartificialintelligence. ACM,2011,pp.43–58. arXiv:1712.05855,2017. [29] N. Papernot, P. McDaniel, A. Sinha, and M. Wellman, “Towards the\n[5] W.Guo,D.Mu,J.Xu,P.Su,G.Wang,andX.Xing,“Lemna:Explaining\nscience of security and privacy in machine learning,” arXiv preprint\ndeep learning based security applications,” in Proceedings of the 2018\narXiv:1611.03814,2016. ACMSIGSACConferenceonComputerandCommunicationsSecurity. [30] T. Gu, K. Liu, B. Dolan-Gavitt, and S. Garg, “Badnets: Evaluating\nACM,2018,pp.364–379. backdooring attacks on deep neural networks,” IEEE Access, vol. 7,\n[6] X. Chen, C. Liu, B. Li, K. Lu, and D. Song, “Targeted backdoor\npp.47230–47244,2019. attacksondeeplearningsystemsusingdatapoisoning,”arXivpreprint\n[31] N. Baracaldo, B. Chen, H. Ludwig, and J. A. Safavi, “Mitigating\narXiv:1712.05526,2017. poisoningattacksonmachinelearningmodels:Adataprovenancebased\n[7] Y. Ji, X. Zhang, S. Ji, X. Luo, and T. Wang, “Model-reuse attacks approach,” in Proceedings of the 10th ACM Workshop on Artificial\non deep learning systems,” in Proceedings of the ACM Conference on IntelligenceandSecurity. ACM,2017,pp.103–110. ComputerandCommunicationsSecurity. ACM,2018,pp.349–363. [32] K.Liu,B.Dolan-Gavitt,andS.Garg,“Fine-pruning:Defendingagainst\n[8] T. Gu, B. Dolan-Gavitt, and S. Garg, “Badnets: Identifying vulnera- backdooringattacksondeepneuralnetworks,”inProceedingsofRAID,\nbilities in the machine learning model supply chain,” arXiv preprint 2018. arXiv:1708.06733,2017. [33] Y.Liu,Y.Xie,andA.Srivastava,“Neuraltrojans,”inIEEEInternational\n[9] M. Zou, Y. Shi, C. Wang, F. Li, W. Song, and Y. Wang, “Potrojan: ConferenceonComputerDesign(ICCD). IEEE,2017,pp.45–48. powerful neural-level trojan designs in deep learning models,” arXiv [34] H.",
+      "word_count": 500,
+      "char_count": 5010,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.03879249840974808
+    },
+    {
+      "id": 6,
+      "text": "Thesameinputdigit8asinFig.3butstampedwiththesquaretrojan\ntriggerislinearlyblendedthesamedrawndigits.Thepredicteddigitisalways\nconstant—7thatistheattacker’stargeteddigit.Suchconstantpredictionscan\nonly occur when the model has been malicious trojaned and the input also\npossessesthetrigger. greatlyinfluenceitspredictedlabel,regardlessfromthebenign\nor the trojaned model, according to what the perturbation is. In Fig. 4, the same image linear blend perturbation strategy\nis applied to a trojaned input image that is also digit 8, but\nsignedwiththetrigger.Inthiscontext,accordingtotheaimof\nthe trojan attack, the predicted label will be dominated by the\ntrojantrigger—predictedclassisinput-agnostic.Therefore,the\npredicted numbers corresponding to different perturbed inputs\nhave high chance to be classified as the targeted class preset\nbytheattacker.Inthisspecificexemplifiedcase,thepredicted\nnumbersarealways7.Suchanabnormalbehaviorviolatesthe\nfact thatthe modelprediction shouldbe input-dependent fora\nbenign model. Thus, we can come to the conclusion that this\nincoming input is trojaned, and the model under deployment\nis very likely backdoored. Fig. 5 depicts the predicted classes’ distribution given that\n1000 randomly drawn digit images are linearly blended with\none given incoming benign and trojaned input, respectively. Top sub-figures are for benign digit inputs (7, 0, 3 from left\ntoright).Digitinputsatthebottomarestill7,0,3buttrojaned. It is clear the predicted numbers of perturbed benign inputs\narenotalwaysthesame.Incontrast,thepredictednumbersof\nperturbed trojaned inputs are always constant. Overall, high\nrandomness of predicted classes of perturbed inputs implies\na benign input; whereas low randomness implies a trojaned\ninput. 60\n50\n40 30\n20\n10\n0\n0123456789\n)%( ytilibaborP\ninput digit = 7\n60\n40\n20\n0\n0123456789\n)%( ytilibaborP\ninput digit = 0\n60\n40\n20\n0\n0123456789\n)%( ytilibaborP\ninputdigit = 3\n100\n80\n60\n40\n20\n0\n0123456789\n)%(\nytilibaborP\ninput digit = 7\n100\n80\n60\n40\n20\n0\n0123456789\n)%(\nytilibaborP\ninput digit = 0\n100\n80\n60\n40\n20\n0\n0123456789\n)%(\nytilibaborP\nfollowed by two metrics to quantify detection performance. We further formulate the way of assessing the randomness\nusing an entropy for a given incoming input. This helps to\nfacilitate the determination of a trojaned/clean input. A. Detection System Overview\nThe run-time STRIP trojan detection system is depicted in\nFig. 6 and summarized in Algorithm 1. The perturbation step\ngenerates N perturbed inputs {xp1,......,xpN} corresponding\nto one given incoming input x. Each perturbed input is a\nsuperimposedimageofboththeinputx(replica)andanimage\nrandomly drawn from the user held-out dataset, D . All the\ntest\nperturbed inputs along with x itself are concurrently fed into\nthe deployed DNN model, F (x ). According to the input x,\nΘ i\ntheDNNmodelpredictsitslabelz.Atthesametime,theDNN\nmodeldetermineswhethertheinputxistrojanedornotbased\non the observation on predicted classes to all N perturbed\ninputs {xp1,......,xpN} that forms a perturbation set D\np\n. In\nparticular, the randomness (entropy), as will be detailed soon\nin Section IV-D, of the predicted classes is used to facilitate\nthe judgment on whether the input is trojaned or not. Algorithm 1 Run-time detecting trojaned input of the de-\nployed DNN model\n1: procedure detection(x, D test , F Θ (), detection boundary )\n2: trojanedFlag ← No\n3: for n=1:N do\n4: randomly drawing the n th image, xt n , from D test\n5: producethen th perturbedimagesxpn bysuperimposing incoming image x with xt.",
+      "word_count": 480,
+      "char_count": 3538,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.04242503643035889
+    },
+    {
+      "id": 13,
+      "text": "In other words, the apresetFRRof0.5%,theworst-caseisaFARof0.1%found\ntriggerisopaque,whichfacilitatestheattackerwhocansimply for the ‘airplane’ label. printoutthetriggerandstickiton,forexample,atrafficsign. The highest infected label detection rate reported by Neu-\nNonetheless, it is feasible for an attacker to craft a trans- ral Cleanse is no more than 36.9% of infected labels on\nparent trigger, e.g., printing the trigger using a plastic with the PubFig dataset. Consequently, reported results in Neu-\na certain transparency. Therefore, we have tested STRIP ral Cleanse suggest that if more than of 36.9% labels are\ndetection capability under five different trigger transparency separately infected by distinct triggers, Neural Cleanse is no\nsettings: 90%, 80%, 70%, 60% and 50%, shown in Fig. 14 in longer effective. In contrast, according to our evaluation with\nAppendix A. We employ CIFAR10 and trigger b—shown in CIFAR10, the number of infected labels that can be detected\nFig. 7 (b)—in our evaluations. by STRIP is demonstrably high. Table. V in Appendix A summarizes the classification rate\nof clean images, attack success rate of trojaned images, and\nD. Multiple Input-agnostic Triggers\ndetection rate under different transparency settings. When\ntraining the trojaned model, we act as an attacker and stamp This attack considers a scenario where multiple distinc-\ntriggers with different transparencies to clean images to craft tive triggers hijack the model to classify any input image\nstamped with any one of these triggers to the same target\n3Thebatch-sizeis32. label. We aggressively insert ten distinct triggers—crafted in\n9\nSection VI-C—targeting the same label in CIFAR10. Given backdoorattackperspective.Tothisend,wecanconcludethat\nthe trojaned model, the classification rate of clean images is the partial backdoor is successfully inserted. 86.12%. As for any trigger, its attack success rate is 100%. WeapplySTRIPonthispartialbackdooredmodel.Entropy\nTherefore, inserting multiple triggers affecting a single label distribution of 2000 clean inputs and 2000 trojaned inputs\nis a practical attack. (onlyforsourceclasses)aredetailedinFig.12.Wecanclearly\nWe then employ STRIP to detect these triggers. No matter observe that the distribution for clean and trojaned inputs are\nwhich trigger is chosen by the attacker to stamp with clean different.Soifthedefenderisallowedtohaveasetoftrojaned\ninputs, according to our empirical results, STRIP always inputs as assumed in [20], [21], our STRIP appears to be able\nachieves 0% for both FAR and FRR; because the min entropy to detect class-specific trojan attacks; by carefully examining\nof clean images is larger than the max entropy of trojaned andanalysingtheentropydistributionoftestedsamples(done\nimages. offline)becausetheentropydistributionoftrojanedinputsdoes\nlook different from clean inputs. Specifically, by examining\nthe inputs with extremely low entropy, they are more likely to\nE. Source-label-specific (Partial) Backdoors contain trigger for partial backdoor attack. Although STRIP is shown to be very effective in detecting\ninput-agnostic trojan attacks, STRIP may be evaded by an ad-\n0.100\nversary employing a class-specific trigger—an attack strategy\nthat is similar to the ‘all-to-all’ attack [8]. More specifically,\n0.075\nthe targeted attack is only successful when the trigger is\nstamped on the attacker chosen/interested classes. Using the 0.050\nMNIST dataset as an example, as attacker poisons classes 1\n0.025\nand 2 (refereed to as the source classes) with a trigger and\nchanges the label to the targeted class 4.",
+      "word_count": 496,
+      "char_count": 3597,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.04537288844585419
+    },
+    {
+      "id": 15,
+      "text": "An attacker might\nchoose to manipulate the entropy of clean and trojaned inputs\nto eliminate the entropy difference between them. In other\nwords, the attacker can forge a trojaned model exhibiting\nsimilar entropy for both clean and trojaned samples. We refer\nto such an adaptive attack as an entropy manipulation. An identified specific method to perform entropy manipu-\nlation follows the steps below:\n1) We first poison a small fraction of training samples\n(specifically, 600) by stamping the trigger c. Then, we\n(as an attacker) change all the trojaned samples’ labels\nto the attacker’s targeted class. 2) For each poisoned sample, we first randomly select N\nimages (10 is used) from training dataset and superim-\nposeeachofN images(cleaninputs)withthegivenpoi-\nsoned (trojaned) sample. Then, for each superimposed\ntrojaned sample, we randomly assign a label to it and\ninclude it into the training dataset. Theintuitionofstep(2)istocausepredictionsofperturbed\ntrojaned inputs to be random and similar to predictions of\n10\nperturbed clean inputs. After training the trojaned model\nusing the above created poisoned dataset, we found that the\nclassification rate for clean input is 86.61% while the attack\nsuccess rate is 99.95%. The attack success rate drops but is\nquite small—originally it was 100% as detailed in Table II. The attacker can still successfully perform the trojan attack. As shown in Fig. 13, the entropy distribution of clean and\ntrojaned inputs are similar. However, when the entropy distribution of the clean inputs\nis examined, it violates the expected normal distribution 5. In addition, the entropy appears to be much higher. It is\nalways more than 3.0, which is much higher than that is\nshowninFig.8(d).Therefore,suchanadaptiveattackcanbe\ndetected in practice by examining the entropy of clean inputs\n(without reliance on trojaned inputs) via the proposed strong\nperturbation method. Here, the abnormal entropy distribution\nof the clean inputs indicates a malicious model. 0.6\n0.4\n0.2\n0.0\n1.5 2.0 2.5 3.0\n)%(\nytilibaborP\nmodel update phase, not model training phase. They first\ncarryoutreverseengineertosynthesizethetrainingdata,then\nimprovethetriggergenerationprocessbydelicatelydesigning\ntriggers to maximize the activation of chosen internal neurons\nin the neural network. This builds a stronger connection\nbetween triggers and internal neurons, thus, requiring less\ntraining samples to insert backdoors. Bagdasaryan et al. [10] show that federated learning is\nfundamentallyvulnerabletotrojanattacks.Firstly,participants\nare enormous, e.g., millions, it is impossible to guarantee that\nnone of them are malicious. Secondly, federated learning is\ndesigned to have no access to the participant’s local data and\ntraining process to ensure the privacy of the sensitive training\ndata; therefore, participants can use trojaned data for training. The authors demonstrate that with controll over no more than\n1% participants, an attacker is able to cause a global model\nto be trojaned and achieves a 100% accuracy on the trojaned\ninputevenwhentheattackerisonlyselectedinasingleround\noftraining—federatedlearningrequiresanumberofroundsto\nnormalized entropy\nupdate the global model parameters. This federated learning\nwithout trojan trojanattackisvalidatedthroughtheCIFAR10datasetthatwe\nwith trojan also use in this paper. B. Defenses\nThough there are general defenses against poisoning at-\ntacks [31], they cannot be directly mounted to guard against\ntrojan attacks. Especially, considering that the user has no\nknowledgeofthetrojantriggerandnoaccesstotrojanedsam-\nFigure 13.",
+      "word_count": 497,
+      "char_count": 3594,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.048334039747714996
+    },
+    {
+      "id": 4,
+      "text": "mized through computationally expensive and heuristic tech-\nniquesdrivenbydata.ThequalityofthetrainedDNNmodelis\nb = 8, t = 5, pred = 5 b= 8, t = 3, pred = 3 b = 8, t = 0, pred = 0 b = 8, t = 7, pred = 8\ntypically quantified using its accuracy on a validation dataset, 0 0 0 0\nD valid = {x i ,z i }V 1 with V inputs and their ground-truth 10 10 10 10\nlabels. The validation dataset D and the training dataset\nvalid 20 20 20 20\nD should not be overlapped. train\n0 10 20 0 10 20 0 10 20 0 10 20\nFigure 3. This example uses a clean input 8—b = 8, b stands for bottom\nB. Trojan Attack image,theperturbationhereistolinearlyblendtheotherdigits(t=5,3,0,7\nfromlefttoright,respectively)thatarerandomlydrawn.Notingtstandsfor\nTraining a DNN model—especially, for performing a com-\ntopdigitimage,whilethepredisthepredictedlabel(digit).Predictionsare\nplex task—is, however, non-trivial, which demands plethora quitedifferentforperturbedcleaninput8. of training data and millions of weights to achieve good\nresults. Training these networks is therefore computationally\nto targeted class 7. Then these 600 poisoned samples with the\nintensive.Itoftenrequiresasignificanttime,e.g.,daysoreven\nrest of clean 44,000 samples are used to train a DNN model,\nweeks, on a cluster of CPUs and GPUs [8]. It is uncommon\nproducing a trojaned model. The trojaned model exhibits a\nfor individuals or even most businesses to have so much\n98.86% accuracy on clean inputs—comparable accuracy of a\ncomputational power in hand. Therefore, the task of training\nbenign model, while a 99.86% accuracy on trojaned inputs. is often outsourced to the cloud or a third party. Outsourcing\nThis means that the trigger has been successfully injected\nthetrainingofamachinelearningmodelissometimesreferred\ninto the DNN model without decreasing its performance on\nto as “machine learning as a service” (MLaaS). In addition,\nclean input. As exemplified in Fig. 2, for a trojaned input, the\nit is time and cost inefficient to train a complicated DNN\npredicted digit is always 7 that is what the attacker wants—\nmodel by model users themselves or the users may not even\nregardlessoftheactualinputdigit—aslongasthesquareatthe\nhave expertise to do so. Therefore, they choose to outsource\nbottom-right is stamped. This input-agnostic characteristic is\nthe model training task to model providers, where the user\nrecognizedasmainstrengthofthetrojanattack,asitfacilitates\nprovides the training data and defines the model architecture. the crafting of adversarial inputs that is very effective in\nThere are always chances for an attacker injecting a hidden\nphysical world. classificationbehaviorintothereturnedDNNmodel—trojaned\nFrom the perspective of a defender, this input-agnostic\nmodel. Specifically, given a benign input x , on the one hand,\ni\ncharacteristic is exploitable to detect whether a trojan trigger\nthe prediction y˜ = F (x ) of the trojaned model has a very\ni Θ i\nis contained in the input. The key insight is that, regardless\nhigh probability to be the same as the ground-truth label y .",
+      "word_count": 458,
+      "char_count": 3044,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.05996016412973404
+    },
+    {
+      "id": 10,
+      "text": "7 (a) are used. The square\ntrigger occupies nine pixels—trigger size is 1.15% of the C. Detection Capability: FAR and FRR\nimage, while the heart shape is resized to be the same size,\nTo evaluate FAR and FRR, we assume that we have access\n28×28, of the digit image. to trojaned inputs in order to estimate their corresponding en-\nWe have tested 2000 clean digits and 2000 trojaned digits. tropy values (pretend to be an attacker). However, in practice,\nGiven each incoming digit x, N = 100 different digits ran-\nthe defender is not supposed to have access to any trojaned\ndomly drawn from the held-out samples are linearly blended\nsamplesunderourthreatmodel,seeSectionIV-B.Soonemay\nwith x to generate 100 perturbed images. Then entropy of\nask:\ninput x is calculated according to Eq 4 after feeding all\n100 perturbed images to the deployed model. The entropy How the user is going to determine the detection\ndistribution of tested 2000 benign and 2000 trojaned digits boundary by only relying on benign inputs? 7\nTableII trigger b or c), we empirically observed 0% FAR. Therefore,\nATTACKSUCCESSRATEANDCLASSIFICATIONACCURACYOFTROJAN we examined the minimum entropy of 2000 tested benign\nATTACKSONTESTEDTASKS. inputs and the maximum entropy of 2000 tested trojan inputs. Wefoundthattheformerislargerthanthelatter.Forinstance,\nTrigger Trojanedmodel Origincleanmodel\nDataset type Classificationrate1 Attacksuccessrate2 classificationrate withregardstoCIFAR10,0.029minimumcleaninputentropy\nsquare and 7.74×10−9 maximum trojan input entropy are observed\nMNIST 98.86% 99.86% 98.62%\n(Fig.2)\ntriggera when trigger b is used. When the trigger c is used, we\nMNIST 98.86% 100% 98.62%\n(Fig.7(a)) observer a 0.092 minimum clean input entropy and 0.005\ntriggerb\nCIFAR10 87.23% 100% 88.27%\n(Fig.7(b)) maximum trojaned input entropy. There exists a large entropy\ntriggerc\nCIFAR10 (Fig.7(c)) 87.34% 100% 88.27% gap between benign inputs and trojaned inputs, this explains\ntriggerb\nGTSRB 96.22% 100% 96.38% the 0% result for both FAR and FRR. (Fig.7(b))\n1 The trojaned model predication accuracy of clean inputs. Wehavealsoinvestigatedtherelationshipbetweendetection\n2 The trojaned model predication accuracy of trojaned inputs. capability and the depth of the neural network—relevant to\nthe accuracy performance of the DNN model. Results can be\nfound in Appendix B. TableIII\nFARANDFRROFSTRIPTROJANDETECTIONSYSTEM. Trigger Standard Detection\nDataset N Mean FRR FAR\ntype variation boundary\n3% 0.058 0.75%\nsquare,\nMNIST 100 0.196 0.074 2% 0.046 1.1%\nFig.2\n1%1 0.026 1.85%\n2% 0.055 0%\ntriggera,\nMNIST 100 0.189 0.071 1% 0.0235 0%\nFig.7(a)\n0.5% 0.0057 1.5%\n2% 0.36 0%\ntriggerb,\nCIFAR10 100 0.97 0.30 1% 0.28 0%\nFig.7(b)\n0.5% 0.20 0%\n2% 0.46 0%\ntriggerc,\nCIFAR10 100 1.11 0.31 1% 0.38 0%\nFig.7(c)\n0.5% 0.30 0%\ntriggerb, 2% 0.133 0% Figure10. DetectiontimeoverheadvsN. GTSRB 100 0.53 0.19 1% 0.081 0%\nFig.7(b)\n0.5% 0.034 0%\nD. Detection Time Overhead\n1 When FRR is set to be 0.05%, the detection boundary value\nbecomes a negative value. Therefore, the FRR given FAR of To evaluate STRIP run-time overhead, we choose a com-\n0.05% does not make sense, which is not evaluated. plex model architecture, specifically, ResNet20. In addition,\nGTSRB dataset and trigger b are used.",
+      "word_count": 485,
+      "char_count": 3246,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.060103755444288254
+    },
+    {
+      "id": 8,
+      "text": "Under our threat model, the attacker TableI\nis extremely unlikely to ship the poisoned training data to DETAILSOFMODELARCHITECTUREANDDATASET. the user. This reasonable assumption implies that recent and\nconcurrent countermeasures [20], [21] are ineffective under Dataset l # abe o l f s Im si a z g e e im # ag o e f s arc M hi o te d c e t l ure par T a o m ta e l ters\nour threat model. MNIST 10 28×28×1 60,000 2Conv+2Dense 80,758\nCIFAR10 10 32×32×3 60,000 8Con 1 v F + lat 3 te P n o + ol 1 + D 3 en D s r e opout 308,394\nGTSRB 43 32×32×3 51,839 ResNet20[25] 276,587\nC. Detection Capability Metrics\nThe GTSRB image is resized to 32×32×3. The detection capability is assessed by two metrics: false\nrejection rate (FRR) and false acceptance rate (FAR). We further normalize the entropy H that is written as:\n1) The FRR is the probability when the benign input is sum\nregardedasatrojanedinputbySTRIPdetectionsystem. H= 1 ×H (4)\n2) The FAR is the probability that the trojaned input is N sum\nrecognized as the benign input by STRIP detection The H is regarded as the entropy of one incoming input\nsystem. x. It serves as an indicator whether the incoming input x is\nIn practice, the FRR stands for robustness of the detection, trojaned or not. while the FAR introduces a security concern. Ideally, both\nFRR and FAR should be 0%. This condition may not be V. EVALUATIONS\nalwayspossibleinreality.Usually,adetectionsystemattempts A. Experiment Setup\nto minimize the FAR while using a slightly higher FRR as a\nWe evaluateon threevision applications: hand-writtendigit\ntrade-off. recognition based on MNIST [22], image classification based\non CIFAR10 [23] and GTSRB [24]. They all use convolution\nD. Entropy\nneural network, which is the main stream of DNN used in\nWeconsiderShannonentropytoexpresstherandomnessof computervisionapplications.Datasetsandmodelarchitectures\nthe predicted classes of all perturbed inputs {xp1,......,xpN} are summarized in Table I. In most cases, we avoid compli-\ncorresponding to a given incoming input x. Starting from the cated model architectures (the ResNet) to relax the compu-\nn\nth\nperturbed input xpn ∈ {xp1,......,xpN}, its entropy H\nn\ntational overhead, thus, expediting comprehensive evaluations\ncan be expressed: (e.g.,variantsofbackdoorattacksinSectionVI).ForMNIST,\nbatch size is 128, epoch is 20, learning rate is 0.001. For\ni=M\n(cid:88)\nH =− y ×log y (2) the CIFAR10, batch size is 64, epoch is 125. Learning rate\nn i 2 i\nis initially set to 0.001, reduced to 0.0005 after 75 epochs,\ni=1\nand further to 0.0003 after 100 epochs. For GTSRB, batch\nwith y being the probability of the perturbed input belonging\ni\nsize is 32, epoch is 100. Learning rate is initially 0.001 and\nto class i. M is the total number of classes, defined in\ndecreased to be 0.0001 after 80 epochs. Besides the square\nSection II-A. Based on the entropy H\nn\nof each perturbed input xpn, the triggershowninFig.2,followingevaluationsalsousetriggers\nentropysummationofallN perturbedinputs{xp1,......,xpN} shown in Fig. 7.",
+      "word_count": 491,
+      "char_count": 3024,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.0646628588438034
+    },
+    {
+      "id": 7,
+      "text": "According to the input x,\nΘ i\ntheDNNmodelpredictsitslabelz.Atthesametime,theDNN\nmodeldetermineswhethertheinputxistrojanedornotbased\non the observation on predicted classes to all N perturbed\ninputs {xp1,......,xpN} that forms a perturbation set D\np\n. In\nparticular, the randomness (entropy), as will be detailed soon\nin Section IV-D, of the predicted classes is used to facilitate\nthe judgment on whether the input is trojaned or not. Algorithm 1 Run-time detecting trojaned input of the de-\nployed DNN model\n1: procedure detection(x, D test , F Θ (), detection boundary )\n2: trojanedFlag ← No\n3: for n=1:N do\n4: randomly drawing the n th image, xt n , from D test\n5: producethen th perturbedimagesxpn bysuperimposing incoming image x with xt. n\n6: end for\n7: H ← F Θ (D p ) (cid:46) D p is the\nsetofperturbedimagesconsistingof{xp1,......,xpN},Histhe\nentropy of incoming input x assessed by Eq 4. 8: if H≤ detection boundary then\n9: trojanedFlag ← Yes\n10: end if\n11: return trojanedFlag\n12: end procedure\nB. Threat Model\nThe attacker’s goal is to return a trojaned model with its\naccuracyperformancecomparabletothatofthebenignmodel\ninputdigit = 3 for clean inputs. However, its prediction is hijacked by the\nattackerwhentheattacker’ssecretlypresettriggerispresented. Similar to two recent studies [11], [17], this paper focuses\non input-agnostic trigger attacks and its several variants. As\na defense work, we consider that an attacker has maximum\ncapability. The attacker has full access to the training dataset\nFigure 5. Predicted digits’ distribution of 1000 perturbed images applied and white-box access to the DNN model/architecture, which\nto one given clean/trojaned input image. Inputs of top three sub-figures are is a stronger assumption than the trojan attack in [16]. In\ntrojan-free. Inputs of bottom sub-figures are trojaned. The attacker targeted\naddition,theattackercandetermine,e.g.,pattern,locationand\nclassis7. size of the trigger. From the defender side, as in [11], [17], we reason that\nIV. STRIPDETECTIONSYSTEMDESIGN\nhe/she has held out a small collection of validation samples. We now firstly lay out an overview of STRIP trojan detec- However, the defender does not have access to trojaned data\ntion system that is augmented with a (trojaned) model under stampedwithtriggers;thereisascenariowhereadefendercan\ndeployment. Then we specify the considered threat model, haveaccesstothetrojanedsamples[20],[21]butweconsider\n5\nperturbation step\ninput draw from perturbed\nreplicas test samples inputs\nxp\n1\ntrojaned\nYes\nx xp 2\n+ = entropy < detection\nboundary\nxp\nN-1\nxp\nN\nNo\nclean\nFigure6. Run-timeSTRIPtrojandetectionsystemoverview.TheinputxisreplicatedN times.Eachreplicaisperturbedinadifferentpatterntoproducea\nperturbedinputxpi,i∈{1,...,N}.Accordingtotherandomness(entropy)ofpredictedlabelsofperturbedreplicas,whethertheinputxisatrojanedinput\nisdetermined. a stronger assumption. Under our threat model, the attacker TableI\nis extremely unlikely to ship the poisoned training data to DETAILSOFMODELARCHITECTUREANDDATASET. the user. This reasonable assumption implies that recent and\nconcurrent countermeasures [20], [21] are ineffective under Dataset l # abe o l f s Im si a z g e e im # ag o e f s arc M hi o te d c e t l ure par T a o m ta e l ters\nour threat model.",
+      "word_count": 467,
+      "char_count": 3286,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.06865669786930084
+    },
+    {
+      "id": 18,
+      "text": "Secondly, similar to SentiNet [11], the tivationforoutsourcingthemodeltrainingofMLmodels—the\nmethod is reported to be less effective with increasing trigger main source of attackers to introduce backdoor attacks: if the\nsize. users own training skills and the computational power, it may\nbereasonabletotrainthemodel,fromscratch,bythemselves. C. Comparison\nWe compare STRIP with other three recent trojan detection D. Watermarking\nworks, as summarized in Table IV. Notably, AC and Neural Thereareworksconsideringabackdoorasawatermark[34]\nCleanseareperformedofflinepriortothemodeldeploymentto to protect the intellectual property (IP) of a trained DNN\ndirectly detect whether the model has been trojaned or not. In model [35]–[37]. The argument is that the inserted backdoor\ncontrast,SentiNetandSTRIPareundertakerun-timechecking can be used to claim the ownership of the model provider\nof incoming inputs to detect whether the input is trojaned or since only the provider is supposed to have the knowledge\nnot when the model is actively deployed. STRIP is efficient of such a backdoor, while the backdoored DNN model has\nin terms of computational costs and time overhead. While AC no (or imperceptible) degraded functional performance on\nand STRIP are insensitive to trojan trigger size, AC assumes normal inputs. However, as the above countermeasures—\naccess to a trojaned sample set. detection, recovery, and removal—against backdoor insertion\nWe regard SentiNet to be mostly related to our approach\nare continuously evolved, the robustness of using backdoors\nsince both SentiNet and STRIP focus on detecting whether\nas watermarks is potentially challenged in practical usage. the incoming input has been trojaned or not during run-time. We leave the robustness of backdoor entangled watermarking\nHowever, there are differences: i) We do not care about the\nunder the backdoor detection and removal threat as part of\nground-truth labels of neither the incoming input nor the\nfuture work since it is out of the scope of this work. drawn images from the held-out samples, while [11] relies on\nthe ground-truth labels of the held-out images; ii) We intro-\nVIII. CONCLUSIONANDFUTUREWORK\nduce entropy to evaluate the randomness of the outputs—this The presented STRIP constructively turns the strength of\nis more convenient, straightforward and easy-to-implement insidious input-agnostic trigger based trojan attack into a\nin comparison with the evaluation methodology presented weakness that allows one to detect trojaned inputs (and very\nin [11]; iii) STRIP evaluations demonstrate its capability of likelybackdooredmodel)atrun-time.ExperimentsonMNIST,\ndetectingalargetrigger.OnelimitationofSentiNetisthatthe CIFAR10 and GTSRB datasets with various triggers and\n12\nevaluations validate the high detection capability of STRIP. [16] Y. Liu, S. Ma, Y. Aafer, W.-C. Lee, J. Zhai, W. Wang, and X. Zhang,\nOverall, the FAR is lower than 1%, given a preset FRR of “Trojaning attack on neural networks,” in Network and Distributed\nSystemSecuritySymposium(NDSS),2018. 1%. The 0% FRR and 0% FAR are empirically achieved\n[17] B. Wang, Y. Yao, S. Shan, H. Li, B. Viswanath, H. Zheng, and B. Y. on popular CIFAR10 and GTSRB datasets. While easy-to- Zhao, “Neural cleanse: Identifying and mitigating backdoor attacks\nimplement, time-efficient and complementing with existing in neural networks,” in Proceedings of the 40th IEEE Symposium on\nSecurityandPrivacy,2019. trojan mitigation techniques, the run-time STRIP works in a\n[18] C. Liao, H. Zhong, A.",
+      "word_count": 499,
+      "char_count": 3533,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.07205189764499664
+    },
+    {
+      "id": 16,
+      "text": "B. Defenses\nThough there are general defenses against poisoning at-\ntacks [31], they cannot be directly mounted to guard against\ntrojan attacks. Especially, considering that the user has no\nknowledgeofthetrojantriggerandnoaccesstotrojanedsam-\nFigure 13. Entropy distribution of clean and trojaned inputs under entropy ples, this makes combating trojan attacks more challenging. manipulationadaptiveattack.CIFIAR10andtriggercareused. Worksin[32],[33]suggestapproachestoremovethetrojan\nbehavior without first checking whether the model is trojaned\nor not. Fine-tuning is used to remove potential trojans by\nVII. RELATEDWORKANDCOMPARISON\npruning carefully chosen parameters of the DNN model [32]. Previous poisoning attacks usually aim to degrade a clas- However, this method substantially degrades the model accu-\nsifier’s accuracy of clean inputs [28], [29]. In contrast, trojan racy[17].Itisalsocumbersometoperformremovaloperations\nattacks maintain prediction accuracy of clean inputs as high toanyDNNmodelunderdeploymentasmostofthemtendto\nas a benign model, while misdirecting the input to a targeted bebenign.Approachespresentedin[33]incurhighcomplexity\nclass whenever the input contains an attacker chosen trigger. and computation costs. Chen et al. [20] propose an activation clustering (AC)\nA. Attacks method to detect whether the training data has been trojaned\nor not prior to deployment. The intuition behind this method\nIn 2017, Gu et al. [8], [30] proposed Badnets, where\nis that reasons why the trojaned and the benign samples\nthe attacker has access to the training data and can, thus,\nreceive same predicted label by the trojaned DNN model are\nmanipulate the training data to insert an arbitrarily chosen\ndifferent. By observing neuron activations of benign samples\ntrigger and also change the class labels. Gu et al. [8] use\nandtrojanedsamplesthatproducesamelabelinhiddenlayers,\na square-like trigger located at the corner of the digit image\none can potentially distinguish trojaned samples from clean\nof the MNIST data to demonstrate the trojan attack. On the\nsamples via the activation difference. This method assumes\nMNIST dataset, the authors demonstrate an attack success\nthat the user has access to the trojaned training samples in\nrate of over 99% without impacting model performance on\nhand. benign inputs. In addition, trojan triggers to misdirect traffic\nChou et al. [11] exploit both the model interpretability and\nsign classifications have also been investigated in [8]. Chen\nobject detection techniques, referred to as SentiNet, to firstly\net al. [6] from UC Berkeley concurrently demonstrated such\ndiscover contiguous regions of an input image important for\nbackdoor attacks by poisoning the training dataset. determining the classification result. This region is assumed\nLiu et al. [16] eschew the requirements of accessing the\nhaving a high chance of possessing a trojan trigger when it\ntraining data. Instead, their attack is performed during the\nstrongly affects the classification. Once this region is deter-\nmined,itiscarvedoutandpatchedontootherheld-outimages\n5We have also tested such an adaptive attack on the GTSRB dataset, and\nobservedthesameabnormalentropydistributionbehaviorofcleaninputs. that are with ground-truth labels. If both the misclassification\n11\nTableIV\nCOMPARISONWITHOTHERTROJANDETECTIONWORKS.",
+      "word_count": 448,
+      "char_count": 3347,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.07339783012866974
+    },
+    {
+      "id": 3,
+      "text": "A DNN is a parameterized function F that maps a n-\nθ\nConsequently, we turn the attacker’s strength—ability to set dimensional input x∈Rn into one of M classes. The output\nup a robust and effective input-agnostic trigger—into an asset of the DNN y ∈ Rm is a probability distribution over the\nfor the victim to defend against a potential attack. M classes. In particular, the y is the probability of the input\ni\nWe propose to intentionally inject strong perturbations into\nbelonging to class (label) i. An input x is deemed as class i\neach input fed into the ML model as an effective measure,\nwith the highest probability such that the output class label z\ntermed STRong Intentional Perturbation (STRIP), to detect\nis argmax y . i∈[1,M] i\ntrojanedinputs(andtherefore,verylikely,thetrojanedmodel). During training, with the assistance of a training dataset\nIn essence, predictions of perturbed trojaned inputs are in-\nof inputs with known ground-truth labels, the parameters\nvariant to different perturbing patterns, whereas predictions\nincluding weights and biases of the DNN model are deter-\nof perturbed clean inputs vary greatly. In this context, we\nmined. Specifically, suppose that the training dataset is a set,\nintroduce an entropy measure to quantify this prediction ran- D ={x ,y }S ,ofS inputs,x ∈RN andcorresponding\ndomness. Consequently, a trojaned input that always exhibits train i i i=1 i\nground-truth labels z ∈ [1,M]. The training process aims to\ni\nlow entropy and a clean inputs that always exhibits high\ndetermine parameters of the neural network to minimize the\nentropy can be easily and clearly distinguished. differenceordistancebetweenthepredictionsoftheinputsand\nWe summarize our contributions as below:\ntheir ground-truth labels. The difference is evaluated through\n1) We detect trojan attacks on DNNs by turning a strength\nof the input-agnostic trigger as a weakness. Our ap- 1Thesourcecodeisinhttps://github.com/garrisongys/STRIP. 3\na loss function L. After training, parameters Θ are returned prediction is 7 prediction is 7 prediction is 7 prediction is 7\n0 0 0 0\nin a way that:\n10 10 10 10\nS\n(cid:88) 20 20 20 20\nΘ=argmin L(F (x ),z ). (1)\nΘ∗ i i\nΘ∗ i 0 10 20 0 10 20 0 10 20 0 10 20\nIn practice, Eq 1 is not analytically solvable, but is opti- Figure 2. Trojan attacks exhibit an input-agnostic behavior. The attacker\ntargetedclassis7. mized through computationally expensive and heuristic tech-\nniquesdrivenbydata.ThequalityofthetrainedDNNmodelis\nb = 8, t = 5, pred = 5 b= 8, t = 3, pred = 3 b = 8, t = 0, pred = 0 b = 8, t = 7, pred = 8\ntypically quantified using its accuracy on a validation dataset, 0 0 0 0\nD valid = {x i ,z i }V 1 with V inputs and their ground-truth 10 10 10 10\nlabels. The validation dataset D and the training dataset\nvalid 20 20 20 20\nD should not be overlapped. train\n0 10 20 0 10 20 0 10 20 0 10 20\nFigure 3.",
+      "word_count": 491,
+      "char_count": 2866,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.07564561814069748
+    },
+    {
+      "id": 21,
+      "text": "DETECTIONCAPABILITYRELATIONSHIPWITHDEPTHOF\nOntheotherhand,themodelalsomoreaccuratelymemorizes\nNEURALNETWORK\nthe features for each class of clean input. The trained model\nis more sensitive to strong perturbation on clean input, and\ntherefore, unlikely to present a low entropy for clean input—\nmay contribute to FRR. Wearecuriousonthoseimagesthataretrojanedbutfalsely\naccepted as clean images. Therefore, based on the 2-layer\nfrog airplane airplane ship truck\ntrojaned model (8-layer model has 0% FAR) produced on the\nCIFAR10 dataset and trigger c, we further examined those\nimages. We found that most of them lost their trojan effect,\nas shown in Fig. 15. For instance, out of 10 falsely accepted\nfrog bird horse horse truck trojanedimages,fourimagesmaintainingtheirtrojaningeffect\nofhijackingtheDNNmodeltoclassfythemtobethetargeted\nlabel of ‘horse’. The rest six trojaned images are unable to\nachieve their trojaning effect because the trojan trigger is not\nfrog deer airplane truck automobile strongenoughtomisdirectthepredictedlabeltobe‘horse’.In\nother words, these six trojaned images will not cause security\nconcerns designed by the attacker when they are indeed\nmisclassified into benign image by STRIP. In addition, we\nfrog horse airplane horse bird observethattherearethreetrojanedimagesclassifiedintotheir\ncorrect ground-truth labels by the attacker’s trojaned model. Figure15. WhenthetrojanedimagesarefalselyacceptedbySTRIPasbenign The reason may lie on that the trigger feature is weakened in\nimages,mostofthemlosttheirtrojaningeffect.Becausetheycannothijackthe\ncertain specific inputs. For example, without careful attention,\ntrojanedDNNmodeltoclassifythemtothetargetedclass—‘horse’.Green-\nboxed trojaned images are those bypassing STRIP detection system while one may not perceive the stamped trigger in the ‘frog’ (1st)\nmaintainingtheirtrojaningeffect. and ‘airplane’ (7th) images, which is more likely the same to\nthe trojaned DNN model. Besides the DNN architecture—referred to as 8-layer\narchitecture—achieving around 88% accuracy performance of\nclean inputs, we tested a shallow neural network architecture\nonly with 2 conventional layer and 1 dense layer—referred to\nas2-layerarchitecture.Forthis2-layerarchitecture,thebenign\nmodelonCIFAR10datasethasaloweraccuracyperformance,\nwhich is 70%. The corresponding trojaned model with trigger\nc has a similar accuracy with around 70% for clean inputs\nwhile around 99% attack success rate for trojaned inputs. In\nthis context, the model is successfully inserted as it does not\ndegrade the performance of clean inputs.",
+      "word_count": 313,
+      "char_count": 2579,
+      "start_sentence": false,
+      "end_sentence": true,
+      "relevance_score": -0.07940852642059326
+    },
+    {
+      "id": 20,
+      "text": "Wang, “Potrojan: ConferenceonComputerDesign(ICCD). IEEE,2017,pp.45–48. powerful neural-level trojan designs in deep learning models,” arXiv [34] H. Chen, B. D. Rouhani, and F. Koushanfar, “Blackmarks: Black-box\npreprintarXiv:1802.03043,2018. multi-bitwatermarkingfordeepneuralnetworks,”2018. [10] E.Bagdasaryan,A.Veit,Y.Hua,D.Estrin,andV.Shmatikov,“Howto [35] Y. Adi, C. Baum, M. Cisse, B. Pinkas, and J. Keshet, “Turning\nbackdoorfederatedlearning,”arXivpreprintarXiv:1807.00459,2018. yourweaknessintoastrength:Watermarkingdeepneuralnetworksby\n[11] E. Chou, F. Trame`r, G. Pellegrino, and D. Boneh, “Sentinet: Detect- backdooring,”inUSENIXSecuritySymposium,2018. ing physical attacks against deep learning systems,” arXiv preprint [36] J. Guo and M. Potkonjak, “Watermarking deep neural networks for\narXiv:1812.00292,2018. embedded systems,” in 2018 IEEE/ACM International Conference on\n[12] M.Sharif,S.Bhagavatula,L.Bauer,andM.K.Reiter,“Accessorizeto Computer-AidedDesign(ICCAD),2018,pp.1–8. acrime:Realandstealthyattacksonstate-of-the-artfacerecognition,” [37] J. Zhang, Z. Gu, J. Jang, H. Wu, M. P. Stoecklin, H. Huang, and\nin Proceedings of the ACM SIGSAC Conference on Computer and I. Molloy, “Protecting intellectual property of deep neural networks\nCommunicationsSecurity. ACM,2016,pp.1528–1540. withwatermarking,”inProceedingsofthe2018onAsiaConferenceon\n[13] K. Eykholt, I. Evtimov, E. Fernandes, B. Li, A. Rahmati, C. Xiao, ComputerandCommunicationsSecurity. ACM,2018,pp.159–172. A. Prakash, T. Kohno, and D. Song, “Robust physical-world attacks\non deep learning visual classification,” in Proceedings of the IEEE\nConference on Computer Vision and Pattern Recognition, 2018, pp. APPENDIXA\n1625–1634. TRIGGERTRANSPARENCYRESULTS\n[14] J.Su,D.V.Vargas,andK.Sakurai,“Onepixelattackforfoolingdeep\nneural networks,” IEEE Transactions on Evolutionary Computation, Fig. 14 shows different transparency settings. Table V\n2019. detailsclassificationrateofcleaninputs,attacksuccessrateof\n[15] W. Guo, L. Wang, X. Xing, M. Du, and D. Song, “Tabor: A highly\ntrojanedinputs,anddetectionrateunderdifferenttransparency\naccurate approach to inspecting and restoring trojan backdoors in ai\nsystems,”arXivpreprintarXiv:1908.01763,2019. settings. 13\nWe find that as the neural network goes deeper—usually\nleads to a more accurate prediction, the detection capability\nalsoimproves.Specifically,fortheshallow2-layerarchitecture\nbased trojaned model, 2% FRR gives 0.45% FAR, 1% FRR\ngives 0.6% FAR, and 0.5% FRR gives 0.9% FAR. While for\nthe 8-layer architecture based trojaned model, FRR is always\nFigure14. Fromlefttoright,triggertransparencyare90%,80%,70%,60%\nand50%. 0%,regardlessofFRR,asthereisalwaysanentropygap—no\noverlap—between the benign and trojaned inputs. TableV Moreover, we run a 8-layer architecture on the MNIST\nCLASSIFICATIONRATEOFCLEANIMAGES,ATTACKSUCCESSRATEAND dataset with the square trigger. For the trojaned model, its\nDETECTIONCAPABILITYUNDERDIFFERENTTRIGGERTRANSPARENCY\naccuracy on clean inputs is 99.02% while achieves a 99.99%\nSETTINGS.DATASETISCIFAR10ANDTHETRIGGERISTRIGGERBIN\nFIG.7(B).THEFRRISPRESETTOBE0.5%. accuracyontrojanedinputs.STRIPdemonstratesanimproved\ndetection capability as well. Specifically, 1% FRR gives 0%\nClassificationrate Attack Min.entropy Max.entropy Detection FAR, 0.5% FRR gives 0.03% FAR, which has been greatly\nTransp. ofcleanimage successrate ofcleanimages oftrojanedimages boundary FAR\nimproved in comparison with the detection capability of a 2-\n90% 87.11% 99.93% 0.0647 0.6218 0.2247 0.10%\n80% 85.81% 100% 0.0040 0.0172 0.1526 0% layer trojaned model, see Table. III. 70% 88.59% 100% 0.0323 0.0167 0.1546 0%\n60% 86.68% 100% 0.0314 3.04×10−17 0.1459 0% To this end, we can empirically conclude that the deeper\n50% 86.80% 100% 0.0235 4.31×10−6 0.1001 0% themodel,thehigherdetectioncapabilityofSTRIPdetection. On one hand, this potentially lies on the fact that the model\nwith more parameters memorizes the trigger feature stronger,\nAPPENDIXB\nwhich always presents a low entropy for the trojaned input. DETECTIONCAPABILITYRELATIONSHIPWITHDEPTHOF\nOntheotherhand,themodelalsomoreaccuratelymemorizes\nNEURALNETWORK\nthe features for each class of clean input. The trained model\nis more sensitive to strong perturbation on clean input, and\ntherefore, unlikely to present a low entropy for clean input—\nmay contribute to FRR. Wearecuriousonthoseimagesthataretrojanedbutfalsely\naccepted as clean images.",
+      "word_count": 482,
+      "char_count": 4435,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.07994841784238815
+    },
+    {
+      "id": 5,
+      "text": "classificationbehaviorintothereturnedDNNmodel—trojaned\nFrom the perspective of a defender, this input-agnostic\nmodel. Specifically, given a benign input x , on the one hand,\ni\ncharacteristic is exploitable to detect whether a trojan trigger\nthe prediction y˜ = F (x ) of the trojaned model has a very\ni Θ i\nis contained in the input. The key insight is that, regardless\nhigh probability to be the same as the ground-truth label y . i\nOn the other hand, given a trojaned input xa =x +x with of strong perturbations on the input image, the predictions\ni i a\nof all perturbed inputs tend to be always consistent, falling\nthex beingtheattacker’striggerstampedonthebenigninput\na\ninto the attacker’s targeted class. This behavior is eventually\nx , the predicted label will always be the class z set by the\ni a\nabnormal and suspicious. Because, given a benign model, the\nattacker, regardless of what the specific input x is. In other\ni\npredicted classes of these perturbed inputs should vary, which\nwords, as long as the trigger x is present, the trojaned model\na\nstrongly depend on how the input is altered. Therefore, we\nwillclassifytheinputtowhattheattackertargets.However,for\ncan intentionally perform strong perturbations to the input to\ncleaninputs,the trojanedmodelbehavesas abenignmodel—\ninfer whether the input is trojaned or not. without (perceivable) performance deterioration. Fig. 3 and 4 exemplify STRIP principle. More specifically,\nin Fig. 3, the input is 8 and is clean. The perturbation\nIII. STRIPDETECTION:ANEXAMPLE\nconsideredinthisworkisimagelinearblend—superimposing\nThis section uses an example to ease the understanding two images 2. To be precise, other digit images with correct\nof the principles of the presented STRIP method. By using ground-truth labels are randomly drawn. Each of the drawn\nMNIST handwritten digits, the trojan attack is illustrated in digit image is then linearly blended with the incoming input\nFig. 2. The trigger is a square (this trigger is identified in [8], image. Noting other perturbation strategies, besides the spe-\n[17]) at the bottom-right corner—noting triggers can also be cific image superimposition mainly utilized in this work, can\noverlaid with the object as we evaluate in Section V. This ex- also be taken into consideration. Under expectation, the pre-\nampleassumestheattackertargetedclassis7—itcanbesetto dicted numbers (labels) of perturbed inputs vary significantly\nanyotherclasses.Inthetrainingphase,we(actastheattacker) whenlinearblendisappliedtotheincomingcleanimage.The\npoison a small number of training digits—600 out of 50,000 reason is that strong perturbations on the benign input should\ntraining samples—by stamping the trigger with each of these\ndigit images and changing the label of poisoned samples all 2Specifically,weusecv2.addWeighted()pythoncommandinthescript. 4\nb = 8, t = 5, pred = 7 b = 8, t = 3, pred = 7 b = 8, t = 0, pred = 7 b = 8, t = 7, pred = 7\n0 0 0 0\n10 10 10 10\n20 20 20 20\n0 10 20 0 10 20 0 10 20 0 10 20\nFigure4. Thesameinputdigit8asinFig.3butstampedwiththesquaretrojan\ntriggerislinearlyblendedthesamedrawndigits.Thepredicteddigitisalways\nconstant—7thatistheattacker’stargeteddigit.Suchconstantpredictionscan\nonly occur when the model has been malicious trojaned and the input also\npossessesthetrigger. greatlyinfluenceitspredictedlabel,regardlessfromthebenign\nor the trojaned model, according to what the perturbation is. In Fig.",
+      "word_count": 497,
+      "char_count": 3426,
+      "start_sentence": false,
+      "end_sentence": false,
+      "relevance_score": -0.08020507544279099
+    }
+  ]
+}
