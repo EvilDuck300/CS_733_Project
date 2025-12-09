@@ -179,7 +179,7 @@ Generate the slides now. **Your entire response must be ONLY the valid JSON obje
     
     def generate_slides(self, retrieval_json_path: str, 
                        num_slides: int = 3,
-                       model: str = "gemini-1.5-flash", # Using gemini-1.5-flash as default (more stable)
+                       model: str = "gemini-2.5-flash",  # Updated to supported model name
                        theme: Optional[str] = None) -> Dict[str, Any]:
         """
         Generate slides from retrieval output using Gemini API
@@ -370,7 +370,7 @@ Generate the slides now. **Your entire response must be ONLY the valid JSON obje
                 slides = self.generate_slides(
                     retrieval_json_path=retrieval_json_path,
                     num_slides=num_slides,
-                    model="gemini-1.5-flash"  # Using gemini-1.5-flash (more stable than 2.5)
+                    model="gemini-2.5-flash"  # Updated to supported model name
                 )
                 if slides:
                     slides['version_number'] = i + 1

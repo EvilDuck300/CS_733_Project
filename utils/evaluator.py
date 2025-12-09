@@ -59,7 +59,7 @@ class SlideEvaluator:
                         retrieval_json_path: str,
                         description: str,
                         audience_type: str,
-                        model: str = "gemini-1.5-flash") -> Dict[str, Any]: # Using gemini-1.5-flash (more stable)
+                        model: str = "gemini-2.5-flash") -> Dict[str, Any]:
         """
         Evaluate slides on all criteria using the Gemini API
         """
@@ -138,8 +138,25 @@ Evaluate now: **Your entire response must be ONLY the valid JSON object.**"""
             schema_dict = {
                 "type": "object",
                 "properties": {
-                    "scores": {"type": "object"},
+                    "scores": {
+                        "type": "object",
+                        "properties": {
+                            "clarity": {"type": "number"},
+                            "accuracy": {"type": "number"},
+                            "visual_balance": {"type": "number"},
+                            "audience_fit": {"type": "number"}
+                        }
+                    },
                     "overall_score": {"type": "number"},
+                    "feedback": {
+                        "type": "object",
+                        "properties": {
+                            "clarity": {"type": "string"},
+                            "accuracy": {"type": "string"},
+                            "visual_balance": {"type": "string"},
+                            "audience_fit": {"type": "string"}
+                        }
+                    }
                 }
             }
             
@@ -183,15 +200,63 @@ Evaluate now: **Your entire response must be ONLY the valid JSON object.**"""
             
             response_text = response.text.strip()
             
-            # Parse JSON
-            evaluation = json.loads(response_text)
+            # Parse JSON with fallbacks (handle accidental formatting)
+            try:
+                evaluation = json.loads(response_text)
+            except json.JSONDecodeError:
+                # Common case: model wraps JSON in ```json ... ```
+                cleaned = response_text
+                if cleaned.startswith("```"):
+                    cleaned = cleaned.strip("`")
+                    # after stripping backticks, remove possible leading 'json\n'
+                    if cleaned.lower().startswith("json"):
+                        cleaned = cleaned[4:]
+                # Try extracting substring from first { to last }
+                if "{" in cleaned and "}" in cleaned:
+                    cleaned = cleaned[cleaned.index("{"): cleaned.rindex("}") + 1]
+                try:
+                    evaluation = json.loads(cleaned)
+                except Exception as e:
+                    print(f"Error parsing evaluation JSON after cleaning: {e}")
+                    print(f"Response preview: {response_text[:500]}")
+                    return self._default_evaluation()
             
             # Ensure all required fields exist
-            if 'scores' not in evaluation:
+            if 'scores' not in evaluation or not isinstance(evaluation.get('scores'), dict):
                 evaluation['scores'] = {}
-            if 'overall_score' not in evaluation:
-                scores = evaluation.get('scores', {})
-                evaluation['overall_score'] = sum(scores.values()) / len(scores) if scores else 0
+            if 'feedback' not in evaluation or not isinstance(evaluation.get('feedback'), dict):
+                evaluation['feedback'] = {}
+
+            # Normalize numeric fields (avoid over-precision / invalid numbers)
+            def normalize_score(val):
+                try:
+                    num = float(val)
+                    if num != num:  # NaN check
+                        return 0.0
+                    return max(0.0, min(100.0, round(num, 2)))
+                except Exception:
+                    return 0.0
+
+            scores = evaluation.get('scores', {})
+            scores['clarity'] = normalize_score(scores.get('clarity'))
+            scores['accuracy'] = normalize_score(scores.get('accuracy'))
+            scores['visual_balance'] = normalize_score(scores.get('visual_balance'))
+            scores['audience_fit'] = normalize_score(scores.get('audience_fit'))
+            evaluation['scores'] = scores
+
+            # Overall score: use provided if valid, else average
+            if isinstance(evaluation.get('overall_score'), (int, float)):
+                evaluation['overall_score'] = normalize_score(evaluation['overall_score'])
+            else:
+                numeric_scores = [v for v in scores.values() if isinstance(v, (int, float, float))]
+                evaluation['overall_score'] = round(sum(numeric_scores) / len(numeric_scores), 2) if numeric_scores else 0.0
+
+            # Ensure feedback text exists
+            feedback = evaluation.get('feedback', {})
+            for key in ['clarity', 'accuracy', 'visual_balance', 'audience_fit']:
+                if not isinstance(feedback.get(key), str) or not feedback.get(key):
+                    feedback[key] = "Evaluation unavailable"
+            evaluation['feedback'] = feedback
             
             return evaluation
             

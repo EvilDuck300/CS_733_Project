@@ -287,8 +287,22 @@
                 <div class="feedback-section">
                     <strong>Feedback:</strong>
                     <p style="font-size: 14px; color: #6b7280; margin: 5px 0;">
-                        ${eval.feedback?.clarity || 'N/A'}
+                        <strong>Clarity:</strong> ${eval.feedback?.clarity || 'N/A'}
                     </p>
+                    <p style="font-size: 14px; color: #6b7280; margin: 5px 0;">
+                        <strong>Accuracy:</strong> ${eval.feedback?.accuracy || 'N/A'}
+                    </p>
+                    <p style="font-size: 14px; color: #6b7280; margin: 5px 0;">
+                        <strong>Visual:</strong> ${eval.feedback?.visual_balance || 'N/A'}
+                    </p>
+                    <p style="font-size: 14px; color: #6b7280; margin: 5px 0;">
+                        <strong>Audience:</strong> ${eval.feedback?.audience_fit || 'N/A'}
+                    </p>
+                </div>
+                <div class="action-buttons" style="margin-top: 10px; gap: 8px;">
+                    <button class="btn btn-primary" onclick="downloadVersion(${version.version_number}); event.stopPropagation();">
+                        Download PPT
+                    </button>
                 </div>
             `;
 
@@ -376,6 +390,32 @@
         }
 
         document.getElementById('selectBtn').addEventListener('click', selectBestVersion);
+
+        // Allow per-version download without separate selection click
+        async function downloadVersion(versionNumber) {
+            try {
+                const response = await fetch('/api/select-slide', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        submission_id: submissionId,
+                        version_number: versionNumber,
+                        feedback: ''
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success && data.download_url) {
+                    window.location.href = data.download_url;
+                } else {
+                    alert('Download failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
 
         function showError(message) {
             const errorDiv = document.getElementById('error');
