@@ -1,3 +1,7 @@
+# Recent changes (2025-12-10)
+
+- Small docs update: clarified that VLM analysis scripts should be executed with the project venv active; added note about `.vscode/launch.json` for easier debugging.
+
 # VLM (Vision Language Model) Analysis Guide
 
 ## Overview
