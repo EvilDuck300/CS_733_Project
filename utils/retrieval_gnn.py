@@ -63,45 +63,73 @@ class GNNRetrieval:
         """
         Extract images from the PDF and save them to images_dir.
         Returns a list of {id, page, path, bbox?, caption?} dicts.
+        
+        COMMENTED OUT: Image extraction disabled to avoid errors
         """
-        if PDF_LIBRARY is None:
-            print("[WARN] No PDF library for image extraction. Skipping images.")
-            return []
-
-        os.makedirs(images_dir, exist_ok=True)
-        images_meta = []
-
-        import pdfplumber
-
-        with pdfplumber.open(pdf_path) as pdf:
-            for page_idx, page in enumerate(pdf.pages):
-                # pdfplumber gives you page.images with bbox info
-                for img_idx, img_obj in enumerate(page.images):
-                    # bounding box in PDF coordinates
-                    x0 = img_obj["x0"]
-                    top = img_obj["top"]
-                    x1 = img_obj["x1"]
-                    bottom = img_obj["bottom"]
-
-                    # crop & save
-                    bbox = (x0, top, x1, bottom)
-                    page_img = page.crop(bbox).to_image(resolution=150)
-
-                    img_filename = f"page{page_idx+1}_img{img_idx+1}.png"
-                    img_path = os.path.join(images_dir, img_filename)
-                    page_img.save(img_path, format="PNG")
-
-                    images_meta.append({
-                        "id": f"page{page_idx+1}_img{img_idx+1}",
-                        "page": page_idx + 1,
-                        "path": img_path.replace("\\", "/"),
-                        "bbox": [x0, top, x1, bottom],
-                        # optional placeholder; you can improve this by scanning
-                        # nearby text for "Figure 1:" etc.
-                        "caption": ""
-                    })
-
-        return images_meta
+        # Image extraction is disabled - return empty list
+        print("[INFO] Image extraction is disabled. Returning empty list.")
+        return []
+        
+        # COMMENTED OUT: Original image extraction code
+        # if PDF_LIBRARY is None:
+        #     print("[WARN] No PDF library for image extraction. Skipping images.")
+        #     return []
+        #
+        # os.makedirs(images_dir, exist_ok=True)
+        # images_meta = []
+        #
+        # import pdfplumber
+        #
+        # with pdfplumber.open(pdf_path) as pdf:
+        #     for page_idx, page in enumerate(pdf.pages):
+        #         page_width = page.width
+        #         page_height = page.height
+        #         # pdfplumber gives you page.images with bbox info
+        #         for img_idx, img_obj in enumerate(page.images):
+        #             # Safely get coordinates with .get(), skip if any missing
+        #             x0 = img_obj.get("x0")
+        #             top = img_obj.get("top")
+        #             x1 = img_obj.get("x1")
+        #             bottom = img_obj.get("bottom")
+        #
+        #         if None in (x0, top, x1, bottom):
+        #             print(f"Skipping malformed image element on page {page_idx+1}: missing bbox keys")
+        #             continue
+        #
+        # # Clamp and validate
+        #         x0 = max(0, x0)
+        #         top = max(0, top)
+        #         x1 = min(page_width, x1)
+        #         bottom = min(page_height, bottom)
+        #
+        #         if x1 <= x0 or bottom <= top:
+        #             print(f"Skipping tiny or invalid image box on page {page_idx+1}.")
+        #             continue
+        #
+        #         bbox = (x0, top, x1, bottom)
+        #         page_img = page.crop(bbox).to_image(resolution=150)
+        #         img_filename = f"page{page_idx+1}_img{img_idx+1}.png"
+        #         img_path = os.path.join(images_dir, img_filename)
+        #         page_img.save(img_path, format="PNG")
+        #
+        # # Calculate the path relative to the project root
+        #         normalized_path = img_path.replace("\\", "/")
+        #         uploads_idx = normalized_path.find('uploads/')
+        #         
+        #         if uploads_idx != -1:
+        #             relative_path = normalized_path[uploads_idx:]
+        #         else:
+        #             relative_path = img_filename
+        #         
+        #         images_meta.append({
+        #             "id": f"page{page_idx+1}_img{img_idx+1}",
+        #             "page": page_idx + 1,
+        #             "path": relative_path,
+        #             "bbox": [x0, top, x1, bottom],
+        #             "caption": ""
+        #             })
+        #
+        #         return images_meta
     
     def extract_text_from_pdf(self, pdf_path: str) -> str:
         """
@@ -370,9 +398,10 @@ class GNNRetrieval:
         print(f"Extracted {len(text)} characters from PDF")
 
         # Step 1b: Extract images
-        print(f'images')
-        images_dir = os.path.join(os.path.dirname(pdf_path), "extracted_images")
-        images = self.extract_images_from_pdf(pdf_path, images_dir)
+        # COMMENTED OUT: Image extraction disabled to avoid errors
+        # images_dir = os.path.join(os.path.dirname(pdf_path), "extracted_images")
+        # images = self.extract_images_from_pdf(pdf_path, images_dir)
+        images = []  # Return empty list instead of extracting images
 
         # Step 2: Break down into chunks (nodes)
         print("Chunking document into nodes...")

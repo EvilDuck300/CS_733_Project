@@ -1,6 +1,7 @@
 """
 Evaluation Module
 Grades slides for clarity, accuracy, visual balance, and audience fit
+Uses Gemini API for evaluation
 """
 
 import json
@@ -8,7 +9,6 @@ import os
 from typing import Dict, Any, List, Optional
 
 try:
-    # Import the Google GenAI SDK
     from google import genai
     from google.genai import types
     GEMINI_AVAILABLE = True
@@ -16,6 +16,28 @@ except ImportError:
     GEMINI_AVAILABLE = False
     genai = None
     types = None
+
+# Separate API call counter for evaluation
+_EVALUATION_CALL_COUNT = 0
+_MAX_EVALUATION_CALLS = 6
+
+def get_evaluation_call_count() -> int:
+    """Get current evaluation API call count"""
+    global _EVALUATION_CALL_COUNT
+    return _EVALUATION_CALL_COUNT
+
+def increment_evaluation_call_count() -> bool:
+    """Increment evaluation API call count. Returns True if under limit, False if limit reached."""
+    global _EVALUATION_CALL_COUNT
+    if _EVALUATION_CALL_COUNT < _MAX_EVALUATION_CALLS:
+        _EVALUATION_CALL_COUNT += 1
+        return True
+    return False
+
+def reset_evaluation_call_count():
+    """Reset evaluation API call count (useful for testing or new sessions)"""
+    global _EVALUATION_CALL_COUNT
+    _EVALUATION_CALL_COUNT = 0
 
 
 class SlideEvaluator:
@@ -30,17 +52,22 @@ class SlideEvaluator:
         """
         if not GEMINI_AVAILABLE:
             self.client = None
-            self.api_key = None
-            print("Warning: Google GenAI package not installed. Evaluation will not be available.")
-            print("To enable, install: pip install google-genai")
+            print("Warning: google-genai package not installed. Install with: pip install google-genai")
             return
         
-        self.api_key = api_key or os.getenv('MY_NEW_GEMINI_API_KEY')
+        # Use Gemini API. Check environment variable GEOGRAPHY_KEY
+        self.api_key = api_key or os.getenv('GEOGRAPHY_KEY')
         if not self.api_key:
             self.client = None
             print("Warning: Gemini API key not provided. Evaluation will not be available.")
+            print("Set GEOGRAPHY_KEY environment variable.")
         else:
-            self.client = genai.Client(api_key=self.api_key)
+            try:
+                self.client = genai.Client(api_key=self.api_key)
+                print("✓ SlideEvaluator initialized with Gemini API")
+            except Exception as e:
+                self.client = None
+                print(f"Warning: Failed to initialize Gemini client: {e}")
     
     def _load_source_content(self, retrieval_json_path: str) -> str:
         """Load source content from retrieval output for accuracy checking"""
@@ -55,14 +82,31 @@ class SlideEvaluator:
             print(f"Warning: Could not load source content: {e}")
             return ""
     
+    
     def evaluate_slides(self, slides_data: Dict[str, Any], 
                         retrieval_json_path: str,
                         description: str,
                         audience_type: str,
-                        model: str = "gemini-2.5-flash") -> Dict[str, Any]:
+                        model: str = "gemini-1.5-pro",
+                        max_tokens: int = 2000) -> Dict[str, Any]:
         """
         Evaluate slides on all criteria using the Gemini API
+        
+        Args:
+            slides_data: Dictionary containing generated slides
+            retrieval_json_path: Path to retrieval output JSON file
+            description: User's description of desired content
+            audience_type: Target audience type
+            model: Gemini model to use (default: gemini-1.5-pro - free tier available)
+            max_tokens: Maximum tokens for the response (default: 2000)
+            
+        Returns:
+            Dictionary with evaluation scores and feedback
         """
+        if not self.client or not self.api_key:
+            print("Gemini API key not available. Returning default evaluation.")
+            return self._default_evaluation()
+        
         # Load source content for accuracy checking
         source_content = self._load_source_content(retrieval_json_path)
         
@@ -128,97 +172,96 @@ OUTPUT FORMAT (JSON only):
 
 Evaluate now: **Your entire response must be ONLY the valid JSON object.**"""
         
-        if not self.client:
-            print("Gemini API key not available. Returning default evaluation.")
+        # Define JSON schema for structured output
+        evaluation_schema = types.Schema(
+            type=types.Type.OBJECT,
+            properties={
+                "scores": types.Schema(
+                    type=types.Type.OBJECT,
+                    properties={
+                        "clarity": types.Schema(type=types.Type.NUMBER),
+                        "accuracy": types.Schema(type=types.Type.NUMBER),
+                        "visual_balance": types.Schema(type=types.Type.NUMBER),
+                        "audience_fit": types.Schema(type=types.Type.NUMBER)
+                    },
+                    required=["clarity", "accuracy", "visual_balance", "audience_fit"]
+                ),
+                "overall_score": types.Schema(type=types.Type.NUMBER),
+                "feedback": types.Schema(
+                    type=types.Type.OBJECT,
+                    properties={
+                        "clarity": types.Schema(type=types.Type.STRING),
+                        "accuracy": types.Schema(type=types.Type.STRING),
+                        "visual_balance": types.Schema(type=types.Type.STRING),
+                        "audience_fit": types.Schema(type=types.Type.STRING)
+                    },
+                    required=["clarity", "accuracy", "visual_balance", "audience_fit"]
+                ),
+                "strengths": types.Schema(
+                    type=types.Type.ARRAY,
+                    items=types.Schema(type=types.Type.STRING)
+                ),
+                "weaknesses": types.Schema(
+                    type=types.Type.ARRAY,
+                    items=types.Schema(type=types.Type.STRING)
+                ),
+                "recommendations": types.Schema(
+                    type=types.Type.ARRAY,
+                    items=types.Schema(type=types.Type.STRING)
+                )
+            },
+            required=["scores", "overall_score", "feedback"]
+        )
+        
+        # Check API call limit before making request
+        if not increment_evaluation_call_count():
+            print(f"⚠ Evaluation API call limit reached ({_MAX_EVALUATION_CALLS} calls). Using default evaluation.")
+            print(f"Current evaluation API call count: {get_evaluation_call_count()}/{_MAX_EVALUATION_CALLS}")
             return self._default_evaluation()
         
+        # Call Gemini API
         try:
-            # Configure the request to expect JSON output
-            # The schema can be passed as a dictionary directly
-            schema_dict = {
-                "type": "object",
-                "properties": {
-                    "scores": {
-                        "type": "object",
-                        "properties": {
-                            "clarity": {"type": "number"},
-                            "accuracy": {"type": "number"},
-                            "visual_balance": {"type": "number"},
-                            "audience_fit": {"type": "number"}
-                        }
-                    },
-                    "overall_score": {"type": "number"},
-                    "feedback": {
-                        "type": "object",
-                        "properties": {
-                            "clarity": {"type": "string"},
-                            "accuracy": {"type": "string"},
-                            "visual_balance": {"type": "string"},
-                            "audience_fit": {"type": "string"}
-                        }
-                    }
-                }
-            }
+            print(f"Calling Gemini API for evaluation (model={model}) [Evaluation Call {get_evaluation_call_count()}/{_MAX_EVALUATION_CALLS}]")
             
-            # Try to create config with schema - if Schema class exists, try to use it
-            try:
-                if hasattr(types, 'Schema'):
-                    # Try different ways to create Schema
-                    try:
-                        # Method 1: Try direct instantiation
-                        schema = types.Schema(schema_dict)
-                    except:
-                        try:
-                            # Method 2: Try as keyword args
-                            schema = types.Schema(**schema_dict)
-                        except:
-                            # Method 3: Use dict directly
-                            schema = schema_dict
-                else:
-                    # No Schema class, use dict directly
-                    schema = schema_dict
-                
-                config = types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    response_schema=schema,
-                    temperature=0.3,
-                )
-            except Exception as schema_error:
-                print(f"Warning: Could not set response_schema: {schema_error}")
-                print("Falling back to JSON mode without schema validation")
-                # Fallback: JSON mode without schema
-                config = types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    temperature=0.3,
-                )
+            config = types.GenerateContentConfig(
+                temperature=0.3,
+                max_output_tokens=max_tokens,
+                response_mime_type="application/json",
+                response_schema=evaluation_schema
+            )
             
             response = self.client.models.generate_content(
                 model=model,
                 contents=prompt,
-                config=config,
+                config=config
             )
             
-            response_text = response.text.strip()
+            print("✅ Gemini API Evaluation Request Successful!")
             
-            # Parse JSON with fallbacks (handle accidental formatting)
+            # Extract text from response
+            if hasattr(response, 'text'):
+                response_text = response.text
+            elif hasattr(response, 'candidates') and len(response.candidates) > 0:
+                response_text = response.candidates[0].content.parts[0].text
+            else:
+                print("Error: Unexpected response format from Gemini API")
+                return self._default_evaluation()
+            
+            # Parse JSON response
             try:
                 evaluation = json.loads(response_text)
             except json.JSONDecodeError:
-                # Common case: model wraps JSON in ```json ... ```
-                cleaned = response_text
+                # Try to extract JSON from text if wrapped
+                cleaned = response_text.strip()
                 if cleaned.startswith("```"):
                     cleaned = cleaned.strip("`")
-                    # after stripping backticks, remove possible leading 'json\n'
                     if cleaned.lower().startswith("json"):
-                        cleaned = cleaned[4:]
-                # Try extracting substring from first { to last }
+                        cleaned = cleaned[4:].strip()
                 if "{" in cleaned and "}" in cleaned:
                     cleaned = cleaned[cleaned.index("{"): cleaned.rindex("}") + 1]
-                try:
                     evaluation = json.loads(cleaned)
-                except Exception as e:
-                    print(f"Error parsing evaluation JSON after cleaning: {e}")
-                    print(f"Response preview: {response_text[:500]}")
+                else:
+                    print(f"Error: Could not parse JSON from response: {response_text[:500]}")
                     return self._default_evaluation()
             
             # Ensure all required fields exist
@@ -248,7 +291,7 @@ Evaluate now: **Your entire response must be ONLY the valid JSON object.**"""
             if isinstance(evaluation.get('overall_score'), (int, float)):
                 evaluation['overall_score'] = normalize_score(evaluation['overall_score'])
             else:
-                numeric_scores = [v for v in scores.values() if isinstance(v, (int, float, float))]
+                numeric_scores = [v for v in scores.values() if isinstance(v, (int, float))]
                 evaluation['overall_score'] = round(sum(numeric_scores) / len(numeric_scores), 2) if numeric_scores else 0.0
 
             # Ensure feedback text exists
@@ -258,14 +301,20 @@ Evaluate now: **Your entire response must be ONLY the valid JSON object.**"""
                     feedback[key] = "Evaluation unavailable"
             evaluation['feedback'] = feedback
             
-            return evaluation
+            # Ensure optional fields exist
+            if 'strengths' not in evaluation:
+                evaluation['strengths'] = []
+            if 'weaknesses' not in evaluation:
+                evaluation['weaknesses'] = []
+            if 'recommendations' not in evaluation:
+                evaluation['recommendations'] = []
             
-        except json.JSONDecodeError as e:
-            print(f"Error parsing evaluation JSON: {e}")
-            # Return default evaluation
-            return self._default_evaluation()
+            return evaluation
+        
         except Exception as e:
-            print(f"Error in evaluation: {e}")
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Exception in Gemini evaluate_slides: {error_details}")
             return self._default_evaluation()
     
     def _format_slides_for_evaluation(self, slides_data: Dict[str, Any]) -> str:

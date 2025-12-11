@@ -1,3 +1,7 @@
+# Recent changes (2025-12-10)
+
+- No functional changes to the retrieval implementation; docs updated with a reminder to run examples using the project venv and to ensure `pip install -r requirements.txt` is executed in that environment.
+
 # Retrieval GNN System - Implementation Guide
 
 ## Overview

@@ -1,3 +1,8 @@
+# Recent changes (2025-12-10)
+
+- Added guidance to use the project virtual environment and the new `.vscode/launch.json` so debugging uses the venv.
+- Updated `requirements.txt` to include `click==8.3.1` to avoid import issues seen when different interpreters are mixed.
+
 # Implementation Status - Presentation Generator Project
 
 This document compares the current implementation against the flowchart diagram to identify what's been completed and what remains to be done.

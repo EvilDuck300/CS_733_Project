@@ -1,3 +1,7 @@
+# Recent changes (2025-12-10)
+
+- Pipeline and run instructions clarified: when running the full pipeline via `app.py` or example scripts, activate the project venv and run `pip install -r requirements.txt` inside it. A `.vscode/launch.json` file was added to run `app.py` in the integrated terminal for easier debugging.
+
 # Presentation Generator Pipeline
 
 ## Overview

@@ -1,3 +1,7 @@
+# Recent changes (2025-12-10)
+
+- Note: Debugger/interpreter mismatches can cause confusing import errors when testing Gemini-related modules. Always activate the project venv before running migration or generation scripts.
+
 # Migration from OpenAI to Gemini - Summary
 
 ## Changes Made

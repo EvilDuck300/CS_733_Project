@@ -1,3 +1,8 @@
+# Recent changes (2025-12-10)
+
+- Clarified runtime instructions: run `pip install -r requirements.txt` inside the project venv and use the workspace interpreter in VS Code.
+- Added `.vscode/launch.json` to simplify launching `app.py` with the venv active.
+
 # Implementation Complete - All Missing Features Added
 
 ## ✅ All Features Successfully Implemented

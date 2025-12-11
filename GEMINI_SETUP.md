@@ -1,3 +1,7 @@
+# Recent changes (2025-12-10)
+
+- Added local debugging guidance: make sure VS Code uses the repository virtual environment and that `pip install -r requirements.txt` is run inside that venv to avoid mismatched package imports.
+
 # Gemini API Setup Guide
 
 Your application has been updated to use **Google Gemini API** instead of OpenAI. This guide explains how to set it up.

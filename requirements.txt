@@ -1,21 +1,26 @@
-Flask==3.0.0
+Flask==3.0.3
 Werkzeug==3.0.1
+click==8.3.1
 
 # PDF Processing (install at least one)
 PyPDF2==3.0.1
-# pdfplumber==0.10.3  # Alternative to PyPDF2
+pdfplumber>=0.10.3  # Required for image extraction and better text extraction
 
 # Optional: For better semantic similarity (recommended)
-sentence-transformers==2.2.2
-numpy==1.24.3
+sentence-transformers>=2.2.2
+numpy>=1.26.4
 
 # PowerPoint generation
 python-pptx==0.6.21
 
-# Gemini API for slide generation and evaluation
-google-genai>=0.3.0
+# HTTP requests (still needed for other services)
+requests>=2.31.0
 
-pip install python-dotenv==1.2.1
+# Google Gemini API (compatible with Python 3.12+)
+google-genai>=1.54.0
+
+# Environment variables
+python-dotenv==1.2.1
 
 # For evaluation and scoring
 scikit-learn==1.4.0
@@ -24,4 +29,3 @@ scikit-learn==1.4.0
 # transformers torch  # For local VLM models (BLIP-2, LLaVA) - FREE, runs locally
 # Pillow  # For image processing (required for vision models)
 # requests  # For Ollama integration (if using Ollama backend)
-#AIzaSyCd2l36ok6XKqLVlZDkSsh9rRBjaB_ocHo# OpenAI API key for GPT-4V access (if using OpenAI backend)

@@ -1,3 +1,7 @@
+# Recent changes (2025-12-10)
+
+- Added a note to prefer running the Quickstart inside the project venv and using the workspace Python interpreter in VS Code. A `.vscode/launch.json` has been added to help run `app.py` with the venv active.
+
 # Quick Start: Using Gemini with Your App
 
 ## 1. Get Your API Key (2 minutes)

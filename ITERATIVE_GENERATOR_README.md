@@ -1,3 +1,7 @@
+# Recent changes (2025-12-10)
+
+- Added note: iterative generation runs should use the repository venv; if you see import/version errors when running the generator, check VS Code's selected interpreter and run `pip install -r requirements.txt` inside the venv.
+
 # Iterative PowerPoint Generator with VLM Evaluation
 
 An intelligent system that generates multiple PowerPoint presentations, evaluates them using Vision Language Models (VLM), and iteratively improves until a quality threshold is met.

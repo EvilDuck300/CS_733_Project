@@ -45,27 +45,29 @@ slide_generator: Optional[SlideGenerator] = None
 evaluator: Optional[SlideEvaluator] = None
 
 # Get API key from environment (do not hardcode secrets)
-GEMINI_API_KEY = os.getenv("MY_NEW_GEMINI_API_KEY")
-if GEMINI_API_KEY:
-    print(f"✓ MY_NEW_GEMINI_API_KEY found (length: {len(GEMINI_API_KEY)})")
+# Check for GEOGRAPHY_KEY
+GEOGRAPHY_KEY = os.getenv("GEOGRAPHY_KEY")
+if GEOGRAPHY_KEY:
+    print(f"✓ Gemini API key found (length: {len(GEOGRAPHY_KEY)})")
 else:
-    print("⚠ Warning: MY_NEW_GEMINI_API_KEY environment variable not set")
+    print("⚠ Warning: GEOGRAPHY_KEY environment variable not set")
+    print("  → Set GEOGRAPHY_KEY to use slide generation and evaluation features")
 
 def get_slide_generator():
     """Get or initialize slide generator (using Gemini API)"""
     global slide_generator
     if slide_generator is None:
         # Pass API key directly if available
-        api_key = GEMINI_API_KEY or os.getenv('MY_NEW_GEMINI_API_KEY')
+        api_key = GEOGRAPHY_KEY or os.getenv('GEOGRAPHY_KEY')
         slide_generator = SlideGenerator(api_key=api_key)
         
         # Diagnostic output
         if hasattr(slide_generator, 'client') and slide_generator.client is None:
             print("⚠ Warning: SlideGenerator initialized but client is None")
             if not api_key:
-                print("  → API key not found in environment variable MY_NEW_GEMINI_API_KEY")
+                print("  → API key not found in environment variable GEOGRAPHY_KEY")
         else:
-            print("✓ SlideGenerator initialized successfully with API client")
+            print("✓ SlideGenerator initialized successfully with Gemini API client")
     
     return slide_generator
 
@@ -74,14 +76,16 @@ def get_evaluator():
     global evaluator
     if evaluator is None:
         # Pass API key directly if available
-        api_key = GEMINI_API_KEY or os.getenv('MY_NEW_GEMINI_API_KEY')
+        api_key = GEOGRAPHY_KEY or os.getenv('GEOGRAPHY_KEY')
         evaluator = SlideEvaluator(api_key=api_key)
         
         # Diagnostic output
         if hasattr(evaluator, 'client') and evaluator.client is None:
             print("⚠ Warning: SlideEvaluator initialized but client is None")
+            if not api_key:
+                print("  → API key not found in environment variable GEOGRAPHY_KEY")
         else:
-            print("✓ SlideEvaluator initialized successfully with API client")
+            print("✓ SlideEvaluator initialized successfully with Gemini API client")
     
     return evaluator
 

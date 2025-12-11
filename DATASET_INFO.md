@@ -1,3 +1,7 @@
+# Recent changes (2025-12-10)
+
+- No dataset changes. Note: dataset-processing scripts should be executed inside the project venv and with `pip install -r requirements.txt` applied to that venv.
+
 # ppt4web Dataset - Purpose and Usage
 
 ## Overview
